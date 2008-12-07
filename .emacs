@@ -4,7 +4,9 @@
 (setq moving-mail nil)
 
 ; Options set manually in .emacs.local
-(setq dionysus-flag nil
+(setq clio-flag nil
+      thalia-flag nil
+      dionysus-flag nil
       demeter-flag nil
       euterpe-flag nil
       jen-flag nil
@@ -445,18 +447,18 @@
       tramp-debug-buffer t
       tramp-verbose 10)
 
-(defadvice tramp-wait-for-output (after gsn/tramp-unecho activate)
-   "Westhost doesn't have stty installed, so Tramp can't turn off
-    echoing, so Tramp gets confused when it finds the commands it
-    sent rather than their output.  This is a hack to kill the
-    first line of the output buffer for hosts that look like
-    they're my westhost account."
-   (if (any 
-        (mapcar (lambda (hostname)
-                  (string-match (concat "^\\*tramp/[A-z]* " hostname "\\*$")
-                                (buffer-name)))   
-                '("web" "jenandgreg@jenandgreg.org")))
-       (delete-region (line-beginning-position) (+ 1 (line-end-position)))))
+;; (defadvice tramp-wait-for-output (after gsn/tramp-unecho activate)
+;;    "Westhost doesn't have stty installed, so Tramp can't turn off
+;;     echoing, so Tramp gets confused when it finds the commands it
+;;     sent rather than their output.  This is a hack to kill the
+;;     first line of the output buffer for hosts that look like
+;;     they're my westhost account."
+;;    (if (any 
+;;         (mapcar (lambda (hostname)
+;;                   (string-match (concat "^\\*tramp/[A-z]* " hostname "\\*$")
+;;                                 (buffer-name)))   
+;;                 '("web" "jenandgreg@jenandgreg.org")))
+;;        (delete-region (line-beginning-position) (+ 1 (line-end-position)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; URL Browsing
@@ -497,10 +499,9 @@
   (other-window 1))
 
 ;; Python
-(setq ipython-command (cond (jen-flag "/usr/local/bin/ipython")
-                            (euterpe-flag "/sw/bin/ipython2.5")
-                            (dionysus-flag "/usr/bin/ipython"))
-                            (pleiades-flag "/home/novak/bin/local/bin/ipython")))
+(setq ipython-command (cond (clio-flag "/opt/local/bin/ipython2.5")
+                            (thalia-flag "/opt/local/bin/ipython2.5")
+                            (pleiades-flag "/home/novak/bin/local/bin/ipython"))
       py-python-command-args '("-pylab" "-colors" "LightBG"))
 
 (request 'python-mode)
