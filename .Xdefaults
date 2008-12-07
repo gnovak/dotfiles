@@ -1,0 +1,5 @@
+xload*background: white
+xload*foreground: red
+xload*highlight: black
+xload*update:5
+xload.geometry: 70x80
