@@ -16,6 +16,7 @@ export CVSROOT=novak@ssh.ucolick.org:/home/public/novak/bin/cvs
 export CVS_RSH=ssh
 export CVSEDITOR=pico
 export TEXINPUTS=$HOME/bin/tex//:
+export BSTINPUTS=$HOME/bin/tex//:
 # For pyfits
 export NUMERIX=numpy  
 # clozure CL
@@ -27,6 +28,11 @@ export CCL_DEFAULT_DIRECTORY=/usr/local/ccl
 #export BSTINPUTS=$HOME/bin/tex//:
 #export PERL5LIB=~/Pictures/Web/perl:~/bin/perl/lib/perl5/site_perl/:$PERL5LIB
 #export SBCL_HOME=~/bin/root/lib/sbcl
+
+# Enable bash completion
+if [ -f /opt/local/etc/bash_completion ]; then
+    . /opt/local/etc/bash_completion
+fi
 
 ##############################
 # IDL Stuff
