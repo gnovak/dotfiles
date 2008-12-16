@@ -7,10 +7,7 @@
 (setq clio-flag nil
       thalia-flag nil
       dionysus-flag nil
-      demeter-flag nil
       euterpe-flag nil
-      jen-flag nil
-      columbia-flag nil
       pleiades-flag nil)
 
 ;; I use the same .emacs file on many machines.  Occasionally I want
@@ -26,14 +23,8 @@
 ; Try to detect when ssh has set DISPLAY to something funny
 ; indicating that it's forwarding the X11 connection over the 
 ; ssh link.
-(when (not (string-match ":0." (or (getenv "DISPLAY") "")))
+(unless (string-match ":0." (or (getenv "DISPLAY") ""))
   (setq remote-flag t))
-
-;; major hack to keep fink packages happy w/ cvs/carbon emacs
-(if (not (boundp 'fink-emacs-flavor))
-    (setq fink-emacs-flavor 
-	  (cond ((= emacs-major-version 21) 'emacs21)
-		((= emacs-major-version 22) 'emacs22))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Fonts
@@ -72,75 +63,20 @@
 
 (defun mono-font ()
   (interactive)
-  (set-face-attribute 'default nil :font "-apple-lucida grande ce-medium-r-normal--0-0-0-0-m-0-mac-centraleurroman"))
+  (set-face-attribute 'default nil :font 
+   "-apple-lucida grande ce-medium-r-normal--0-0-0-0-m-0-mac-centraleurroman"))
 
-(when (and (not jen-flag) (featurep 'mac-carbon))
-  (mono-font))
+; Force mono font
+;(when (featurep 'mac-carbon)
+;  (mono-font))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Paths
-(setq load-path-everywhere '("~/bin/elisp"
-                             "~/bin/elisp/ee"
-                             "~/bin/elisp/emacs-jabber"
-                             "~/bin/elisp/slime")
-      load-path-fink '("/sw/share/maxima/5.9.0/emacs"
-                       "/sw/share/doc/ipython-py25"
-                       "/sw/share/emacs/site-lisp/apel"
-                       "/sw/share/emacs/site-lisp/auctex/preview"
-                       "/sw/share/emacs/site-lisp/auctex"
-                       "/sw/share/emacs/site-lisp/bbdb"
-                       "/sw/share/emacs/site-lisp/flim"
-                       "/sw/share/emacs/site-lisp/muse"
-                       "/sw/share/emacs/site-lisp/planner"
-                       "/sw/share/emacs/site-lisp/remember"
-                       "/sw/share/emacs/site-lisp/semi"
-                       "/sw/share/emacs/site-lisp/wl"
-                       "/sw/share/emacs/site-lisp")
-      load-path-fink-21 '("/sw/share/emacs21/site-lisp/apel"
-                          "/sw/share/emacs21/site-lisp/auctex"
-                          "/sw/share/emacs21/site-lisp/bbdb"
-                          "/sw/share/emacs21/site-lisp/flim"
-                          "/sw/share/emacs21/site-lisp/muse"
-                          "/sw/share/emacs21/site-lisp/planner"
-                          "/sw/share/emacs21/site-lisp/remember"
-                          "/sw/share/emacs21/site-lisp/semi"
-                          "/sw/share/emacs21/site-lisp/wl"
-                          "/sw/share/emacs21/site-lisp")
-      load-path-fink-22 '("/sw/share/emacs22/site-lisp/apel"
-                          "/sw/share/emacs22/site-lisp/auctex"
-                          "/sw/share/emacs22/site-lisp/bbdb"
-                          "/sw/share/emacs22/site-lisp/flim"
-                          "/sw/share/emacs22/site-lisp/muse"
-                          "/sw/share/emacs22/site-lisp/planner"
-                          "/sw/share/emacs22/site-lisp/remember"
-                          "/sw/share/emacs22/site-lisp/semi"
-                          "/sw/share/emacs22/site-lisp/wl"
-                          "/sw/share/emacs22/site-lisp"))
+(add-to-list 'load-path "~/bin/elisp")
 
-(cond ((and euterpe-flag (featurep 'mac-carbon))
-       (setq load-path (append load-path-everywhere 
-                               ;; Use own versions instead of fink versions
-                               load-path
-                               (when (= emacs-major-version 21) load-path-fink-21)
-                               (when (= emacs-major-version 22) load-path-fink-22)
-                               load-path-fink)))
-      (t 
-       (setq load-path (append load-path-everywhere
-                               load-path))))
+;; (add-to-list 'Info-directory-list "/usr/share/info")
 
-(setq Info-directory-list 
-      '("/usr/share/info"
-        "/usr/local/share/info"
-        "/usr/local/info"
-        "~/bin/elisp/info"))
-
-(when euterpe-flag
-  (setq Info-directory-list 
-        (append Info-directory-list 
-                '("/sw/share/info"
-                  "/Applications/Emacs.app/Contents/Resources/info/dir"))))
-
-(add-to-list 'exec-path "/sw/bin")
+(add-to-list 'exec-path "/opt/local/bin")
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Starting loading packages, etc
@@ -162,7 +98,7 @@
       woman-cache-filename "~/.woman-cache.el"
       ;; When running ispell, consider all 1-3 character words as correct.
       ;; ispell-extra-args '("-W" "3")
-      color-printer-name "floor1color")
+      color-printer-name "hp")
 
 ;; Put all backup files into one directory.
 (setq make-backup-files t      
@@ -207,17 +143,17 @@
 (request-and-init miniedit
   (miniedit-install))
 
-(defadvice TeX-command-master
-  (around gsn/switch-to-thesis activate)
-  "If thesis.tex is loaded, switch to it before running tex commands"
-  (save-excursion
-    (when (or (string-match "chapter-" (buffer-name))
-              (string-match "appendix-" (buffer-name))
-              (string-match "abstract.tex" (buffer-name)))
-      (unless (member "thesis.tex" (mapcar 'buffer-name (buffer-list)))
-        (find-file "~/Papers/2008/thesis/thesis.tex"))
-      (set-buffer "thesis.tex"))
-    ad-do-it))
+;; (defadvice TeX-command-master
+;;   (around gsn/switch-to-thesis activate)
+;;   "If thesis.tex is loaded, switch to it before running tex commands"
+;;   (save-excursion
+;;     (when (or (string-match "chapter-" (buffer-name))
+;;               (string-match "appendix-" (buffer-name))
+;;               (string-match "abstract.tex" (buffer-name)))
+;;       (unless (member "thesis.tex" (mapcar 'buffer-name (buffer-list)))
+;;         (find-file "~/Papers/2008/thesis/thesis.tex"))
+;;       (set-buffer "thesis.tex"))
+;;     ad-do-it))
 
 (defadvice switch-to-buffer (before gsn/existing-buffer activate compile)
   "When interactive, switch to existing buffers only, unless giving a
@@ -269,7 +205,8 @@
       org-log-done t
       org-table-auto-blank-field nil
       org-todo-keywords '((sequence "TODO" "DONE")
-                          (sequence "PENDING" "DELEGATED" "SOMEDAY" "CANCELLED" "NEXT" "DONE")))
+                          (sequence "PENDING" "DELEGATED" "SOMEDAY" 
+                           "CANCELLED" "NEXT" "DONE")))
       ;; org-highest-priority "A"
       ;; org-default-priority "C"
       ;; org-lowest-priority "E"      
@@ -295,6 +232,8 @@
         ("xxx" . "http://arxiv.org/abs/")
         ("google"   . "http://www.google.com/search?q=")
         ("ads" . "http://adsabs.harvard.edu/cgi-bin/nph-abs_connect?author=%s&db_key=AST")))
+
+;; (request 'org-toc)
 
 ;; (add-hook org-mode-hook           
 ;;           (lambda () 
@@ -330,35 +269,30 @@
 ;;       ;; Give a list of specific filenames
 ;;       (("fn1" "fn2") :keyword . arg))
 
+(defadvice org-schedule 
+  (around gsn/org-prevent-rescheduling-repeated-tasks activate)
+  "If the current task has a repeater, prevent rescheduling it to avoid obliterating the repeater."
+  (if (org-get-repeat) 
+      (message "*** Can't reschedule this task without obliterating repeater ***")
+      ad-do-it))
+
+(defadvice org-deadline 
+  (around gsn/org-prevent-rescheduling-repeated-deadlines activate)
+  "If the current task has a repeater, prevent rescheduling it to avoid obliterating the repeater."
+  (if (org-get-repeat) 
+      (message "*** Can't reschedule this deadline without obliterating repeater ***")
+      ad-do-it))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Life -- mail, bbdb, and planner
-
-(request 'org-toc)
-
-;;; Mail
-(if (fboundp 'define-mail-user-agent)
-    (define-mail-user-agent 'mew-user-agent 'mew-user-agent-compose
-      'mew-draft-send-letter 'mew-draft-kill 'mew-send-hook))
-
-(setq mail-host-address "ucolick.org"
-      mail-user-agent 'mew-user-agent
-      read-mail-command 'mew)
       
 ;; BBDB
-(autoload 'bbdb-insinuate-mew      "bbdb-mew"   "Hook BBDB into Mew")
-(add-hook 'mew-init-hook 'bbdb-insinuate-mew)
+;; (autoload 'bbdb-insinuate-mew      "bbdb-mew"   "Hook BBDB into Mew")
+;; (add-hook 'mew-init-hook 'bbdb-insinuate-mew)
 (setq bbdb-default-country nil
       bbdb/mail-auto-create-p nil
-      bbdb-use-pop-up nil
-      bbdb-send-mail-style 'mew)
-
-(unless moving-mail 
-  (request-and-init bbdb
-     (bbdb-initialize)))
-
-(defun gsn/bbdb-search-mail-alias (alias)
-  (interactive "sMail Alias: ")
-  (bbdb-display-some (bbdb-compare-records alias 'mail-alias search)))
+;;       bbdb-send-mail-style 'mew
+      bbdb-use-pop-up nil)
 
 ;; Address book
 (defun gsn/address-book ()
@@ -389,8 +323,8 @@
     (bbdb-print nil "~/Documents/bbdb-phone.tex" t)))
 
 ;; Planner/Muse
-(when (locate-library "planner")
-  (load "~/.planner"))
+;; (when (locate-library "planner")
+;;   (load "~/.planner"))
 
 ;; Document Processing
 (request 'tex-site)
@@ -405,7 +339,7 @@
 ;;; HTML stuff
 ;; Don't use this for editing... just steal the timestamp functions
 ;; (request 'html-helper-mode)
-(setq gsn/html-timestamps nil)
+;; (setq gsn/html-timestamps nil)
     
 ;; (add-hook 'html-mode-hook   
 ;;           (lambda ()
@@ -437,10 +371,9 @@
           (t (switch-to-buffer (completing-read 
                                 "Chat: " buffers
                                 nil t "*-jabber-chat-"))))))
-  
-(when nil 
-  (request-and-init jabber
-    (gsn/jabber-settings "google")))
+
+(request-and-init jabber
+   (gsn/jabber-settings "google"))
 
 ;; Tramp
 (setq tramp-default-method "scp"
@@ -486,7 +419,8 @@
          (apply 'gsn/browse-url-safari-on-osx args))
         (t (error "Don't know what to do!"))))
 
-(setq browse-url-browser-function 'gsn/browse-url)
+;; Disable this for tnow to see if default URL browsing has evolved.
+;; (setq browse-url-browser-function 'gsn/browse-url)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Programming
@@ -499,9 +433,10 @@
   (other-window 1))
 
 ;; Python
-(setq ipython-command (cond (clio-flag "/opt/local/bin/ipython2.5")
-                            (thalia-flag "/opt/local/bin/ipython2.5")
-                            (pleiades-flag "/home/novak/bin/local/bin/ipython"))
+(setq ipython-command (cond ((or clio-flag thalia-flag)
+                             "/opt/local/bin/ipython2.5")
+                            (pleiades-flag 
+                             "/home/novak/bin/local/bin/ipython"))
       py-python-command-args '("-pylab" "-colors" "LightBG"))
 
 (request 'python-mode)
@@ -509,22 +444,8 @@
 
 ; this is a hack to fix the fact that the space went away from the
 ; ipython debugger prompt in version 0.7.3 of ipython.  Sheesh.
-(when (or (and euterpe-flag (string= ipython-command "/sw/bin/ipython2.5")))
-  (setq py-pdbtrack-input-prompt "\n[(<]*[Ii]?[Pp]db[>)]+ ?"))
-
-(defadvice org-schedule 
-  (around gsn/org-prevent-rescheduling-repeated-tasks activate)
-  "If the current task has a repeater, prevent rescheduling it to avoid obliterating the repeater."
-  (if (org-get-repeat) 
-      (message "*** Can't reschedule this task without obliterating repeater ***")
-      ad-do-it))
-
-(defadvice org-deadline 
-  (around gsn/org-prevent-rescheduling-repeated-deadlines activate)
-  "If the current task has a repeater, prevent rescheduling it to avoid obliterating the repeater."
-  (if (org-get-repeat) 
-      (message "*** Can't reschedule this deadline without obliterating repeater ***")
-      ad-do-it))
+;; (when (or (and euterpe-flag (string= ipython-command "/sw/bin/ipython2.5")))
+;;   (setq py-pdbtrack-input-prompt "\n[(<]*[Ii]?[Pp]db[>)]+ ?"))
 
 (defadvice py-fill-paragraph 
   (around gsn/backup-at-end-of-string activate)
@@ -538,13 +459,13 @@
         ad-do-it)
     ad-do-it))
 
-(when euterpe-flag
-  (add-hook 'py-shell-hook 
-            '(lambda () 
-              (setenv "DYLD_LIBRARY_PATH" 
-               "/Applications/rsi/idl_6.1/bin/bin.darwin.ppc")
-              (setenv "XPPATH" "/Applications/rsi/idl_6.1/resource/xprinter"))
-            t))
+;; (when euterpe-flag
+;;   (add-hook 'py-shell-hook 
+;;             '(lambda () 
+;;               (setenv "DYLD_LIBRARY_PATH" 
+;;                "/Applications/rsi/idl_6.1/bin/bin.darwin.ppc")
+;;               (setenv "XPPATH" "/Applications/rsi/idl_6.1/resource/xprinter"))
+;;             t))
  
 (when (locate-library "lush")
   (load "lush"))
@@ -563,9 +484,8 @@
       common-lisp-hyperspec-root "file:////Users/novak/Sites/HyperSpec/"
       slime-startup-animation nil
       ; slime-net-coding-system 'utf-8-unix ;; TEMP
-      lisp-indent-function 'common-lisp-indent-function
       ; slime-complete-symbol-function 'slime-fuzzy-complete-symbol)
-      )
+      lisp-indent-function 'common-lisp-indent-function)
 
 (request-and-init slime
   (slime-setup))
@@ -685,6 +605,7 @@ function doens't have to be duplicated for -next- and -previous-"
 
 ;; Maxima
 (request 'maxima)
+
 ;; Random stuff
 (defun gsn/maxima-untabify-output (s)
   (with-temp-buffer
@@ -716,61 +637,18 @@ function doens't have to be duplicated for -next- and -previous-"
         (set-buffer (sldb-get-default-buffer))
         (sldb-eval-in-frame sexp))))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Fonts
-;; 
-;; Definitions:
-;; Faces: logically distinct text (one for each text style of each mode)
-;; Fonts: physically distinct rendering (one for each way to render text)
-;; Fontset: ???
-;; Many faces may use same font.
-;; 
-;; Useful functions: 
-;; x-font-list, x-list-fonts, set-default-font
-;; list-fontsets, describe-fontset
-;; 
-;; Useful programs: 
-;; xfontsel
-;;
-;; Useful tidbits:
-;; Shift-click brings up font menu
-;; (frame-parameter nil 'font)
-;; (setq default-frame-alist '((width  . 82)
-;;                            (height . 48)
-;;                            (font . "fontset-mac")))
+;; (defun gsn/pgg-decrypt ()
+;;   (interactive)
+;;   (save-excursion
+;;     (goto-char (point-min))
+;;     (set-mark-command nil)
+;;     (goto-char (point-max))
+;;     (call-interactively 'pgg-decrypt-region)))
 
-(defun make-font-sample-buffer (font-list) 
-  (with-current-buffer (generate-new-buffer "*font-samples*")
-    (dolist (font font-list)
-      (let ((face-name (intern (concat "font-test-" font))))
-        (custom-declare-face face-name `((t (:font ,font))) "Docstring")
-        (insert font)
-        (insert (propertize test-text 'face face-name))))))
-
-(defun prop-font ()
-  (interactive)
-  (set-face-attribute 'default nil :family "apple-verdana"))
-
-(defun mono-font ()
-  (interactive)
-  (set-face-attribute 'default nil :font 
-   "-apple-lucida grande ce-medium-r-normal--0-0-0-0-m-0-mac-centraleurroman"))
-
-(when (featurep 'mac-carbon)
-  (mono-font))
-
-(defun gsn/pgg-decrypt ()
-  (interactive)
-  (save-excursion
-    (goto-char (point-min))
-    (set-mark-command nil)
-    (goto-char (point-max))
-    (call-interactively 'pgg-decrypt-region)))
-
-(defun gsn/pgg-encrypt ()
-  (interactive
-   (list (split-string (read-string "Recipients: ") "[ \t,]+")))
-  (pgg-encrypt-region (point-min) (point-max)))
+;; (defun gsn/pgg-encrypt ()
+;;   (interactive
+;;    (list (split-string (read-string "Recipients: ") "[ \t,]+")))
+;;   (pgg-encrypt-region (point-min) (point-max)))
 
 ;; (fset pgg-decrypt gsn/pgg-decrypt)
 ;; (fset pgg-encrypt gsn/pgg-encrypt)
@@ -1131,27 +1009,28 @@ function doens't have to be duplicated for -next- and -previous-"
           (lambda () 
             (fset 'org-align-tags-here 'gsn/org-align-tags-here)))
 
-(defun gsn/org-align-tags-here (to-col)
-  ;; Assumes that this is a headline
-  (let ((pos (point)) (col (current-column)) ncol tags-l p)
-    (beginning-of-line 1)
-    (if (and (looking-at (org-re ".*?\\([ \t]+\\)\\(:[[:alnum:]_@:]+:\\)[ \t]*$"))
-             (< pos (match-beginning 2)))
-        (progn
-          (setq tags-l (- (match-end 2) (match-beginning 2)))
-          (goto-char (match-beginning 1))
-          (insert " ")
-          (delete-region (point) (1+ (match-beginning 2)))
-          (setq ncol (max (1+ (current-column))
-                          (1+ col)
-                          (if (> to-col 0)
-                              to-col
-                            (- (abs to-col) tags-l))))
-          (setq p (point))
-          (insert (make-string (- ncol (current-column)) ?\ ))
-          (setq ncol (current-column))
-          (when indent-tabs-mode
-            (tabify p (point-at-eol)))
-          (org-move-to-column (min ncol col) t))
-        (goto-char pos))))
+;; Think this is fixed in most recent org-mode
+;; (defun gsn/org-align-tags-here (to-col)
+;;   ;; Assumes that this is a headline
+;;   (let ((pos (point)) (col (current-column)) ncol tags-l p)
+;;     (beginning-of-line 1)
+;;     (if (and (looking-at (org-re ".*?\\([ \t]+\\)\\(:[[:alnum:]_@:]+:\\)[ \t]*$"))
+;;              (< pos (match-beginning 2)))
+;;         (progn
+;;           (setq tags-l (- (match-end 2) (match-beginning 2)))
+;;           (goto-char (match-beginning 1))
+;;           (insert " ")
+;;           (delete-region (point) (1+ (match-beginning 2)))
+;;           (setq ncol (max (1+ (current-column))
+;;                           (1+ col)
+;;                           (if (> to-col 0)
+;;                               to-col
+;;                             (- (abs to-col) tags-l))))
+;;           (setq p (point))
+;;           (insert (make-string (- ncol (current-column)) ?\ ))
+;;           (setq ncol (current-column))
+;;           (when indent-tabs-mode
+;;             (tabify p (point-at-eol)))
+;;           (org-move-to-column (min ncol col) t))
+;;         (goto-char pos))))
  
