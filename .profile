@@ -1,6 +1,6 @@
 
 PS1='[\u@\h \w]$ '
-PATH=~/bin:~/bin/local/bin:/opt/local/bin:/opt/local/sbin:$PATH
+PATH=~/bin:~/bin/local/bin:/opt/local/bin:/opt/local/sbin:/usr/local/cuda/bin:$PATH
 MANPATH=/opt/local/man:~/bin/man:$MANPATH
 
 alias cp='cp -i'	
@@ -22,8 +22,11 @@ export BIBINPUTS=$HOME/Papers/bib:
 export NUMERIX=numpy  
 # clozure CL
 export CCL_DEFAULT_DIRECTORY=/usr/local/ccl
+export PYTHONPATH=./gsnpy
 
-#export PYTHONPATH=~/bin/python:~/bin/local/lib/python2.4/site-packages
+# Search path for info files.  If INFOPATH ends with a colon, then
+# Emacs searches both INFOPATH and Info-default-directory-list
+#export INFOPATH=
 #export PYTHONDOCS=/sw/share/doc/python23/html/
 #export GS_LIB=~/bin/gs/fonts
 #export BSTINPUTS=$HOME/bin/tex//:
