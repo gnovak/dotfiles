@@ -3,6 +3,9 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (setq moving-mail nil)
 
+(require 'bbdb)                                                       *
+(bbdb-initialize)                                                     *
+
 ; Options set manually in .emacs.local
 (setq clio-flag nil
       thalia-flag nil
@@ -479,6 +482,22 @@
 ;; (font-lock-add-keywords
 ;;  'slime-mode
 ;;  '("mvb"))
+
+
+;; Slime init code recommended by macports
+;; 
+;; (setq load-path (cons "/opt/local/share/emacs/site-lisp/slime" load-path))
+;; (require 'slime-autoloads)
+;; (setq slime-lisp-implementations
+;;      `((sbcl ("/opt/local/bin/sbcl"))
+;;        (clisp ("/opt/local/bin/clisp"))))
+;; (add-hook 'lisp-mode-hook
+;;            (lambda ()
+;;              (cond ((not (featurep 'slime))
+;;                     (require 'slime) 
+;;                     (normal-mode)))))
+;; (eval-after-load "slime"
+;;    '(slime-setup '(slime-fancy slime-banner)))
 
 (setq inferior-lisp-program "openmcl" ; sbcl, openmcl, clisp, 
       common-lisp-hyperspec-root "file:////Users/novak/Sites/HyperSpec/"
@@ -1005,9 +1024,9 @@ function doens't have to be duplicated for -next- and -previous-"
  '(jabber-chat-prompt-foreign ((t nil)))
  '(jabber-chat-prompt-local ((t nil))))
 
-(add-hook 'org-mode-hook 
-          (lambda () 
-            (fset 'org-align-tags-here 'gsn/org-align-tags-here)))
+;; (add-hook 'org-mode-hook 
+;;           (lambda () 
+;;             (fset 'org-align-tags-here 'gsn/org-align-tags-here)))
 
 ;; Think this is fixed in most recent org-mode
 ;; (defun gsn/org-align-tags-here (to-col)
