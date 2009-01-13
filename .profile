@@ -1,6 +1,6 @@
 
 PS1='[\u@\h \w]$ '
-PATH=~/bin:~/bin/local/bin:/opt/local/bin:/opt/local/sbin:$PATH
+PATH=~/bin:~/bin/local/bin:/opt/local/bin:/opt/local/sbin:/usr/local/cuda/bin:$PATH
 MANPATH=/opt/local/man:~/bin/man:$MANPATH
 
 alias cp='cp -i'	
@@ -15,18 +15,28 @@ export RSYNC_RSH=ssh
 export CVSROOT=novak@ssh.ucolick.org:/home/public/novak/bin/cvs
 export CVS_RSH=ssh
 export CVSEDITOR=pico
+export TEXINPUTS=$HOME/bin/tex//:
+export BSTINPUTS=$HOME/bin/tex//:
+export BIBINPUTS=$HOME/Papers/bib:
 # For pyfits
 export NUMERIX=numpy  
 # clozure CL
 export CCL_DEFAULT_DIRECTORY=/usr/local/ccl
+export PYTHONPATH=./gsnpy
 
-#export PYTHONPATH=~/bin/python:~/bin/local/lib/python2.4/site-packages
+# Search path for info files.  If INFOPATH ends with a colon, then
+# Emacs searches both INFOPATH and Info-default-directory-list
+#export INFOPATH=
 #export PYTHONDOCS=/sw/share/doc/python23/html/
 #export GS_LIB=~/bin/gs/fonts
-#export TEXINPUTS=$HOME/bin/tex//:
 #export BSTINPUTS=$HOME/bin/tex//:
 #export PERL5LIB=~/Pictures/Web/perl:~/bin/perl/lib/perl5/site_perl/:$PERL5LIB
 #export SBCL_HOME=~/bin/root/lib/sbcl
+
+# Enable bash completion
+if [ -f /opt/local/etc/bash_completion ]; then
+    . /opt/local/etc/bash_completion
+fi
 
 ##############################
 # IDL Stuff
