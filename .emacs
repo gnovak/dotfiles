@@ -3,8 +3,8 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (setq moving-mail nil)
 
-(require 'bbdb)                                                       *
-(bbdb-initialize)                                                     *
+(require 'bbdb)                                                       
+(bbdb-initialize)                                                     
 
 ; Options set manually in .emacs.local
 (setq clio-flag nil
@@ -77,9 +77,13 @@
 ;; Paths
 (add-to-list 'load-path "~/bin/elisp")
 
+(when thalia-flag
+  (add-to-list 'load-path "/opt/local/share/emacs/site-lisp/slime"))
+
 ;; (add-to-list 'Info-directory-list "/usr/share/info")
 
-(add-to-list 'exec-path "/opt/local/bin")
+(when (or thalia-flag clio-flag)
+  (add-to-list 'exec-path "/opt/local/bin"))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Starting loading packages, etc
@@ -483,31 +487,25 @@
 ;;  'slime-mode
 ;;  '("mvb"))
 
-
 ;; Slime init code recommended by macports
 ;; 
-;; (setq load-path (cons "/opt/local/share/emacs/site-lisp/slime" load-path))
-;; (require 'slime-autoloads)
-;; (setq slime-lisp-implementations
-;;      `((sbcl ("/opt/local/bin/sbcl"))
-;;        (clisp ("/opt/local/bin/clisp"))))
 ;; (add-hook 'lisp-mode-hook
 ;;            (lambda ()
 ;;              (cond ((not (featurep 'slime))
 ;;                     (require 'slime) 
 ;;                     (normal-mode)))))
-;; (eval-after-load "slime"
-;;    '(slime-setup '(slime-fancy slime-banner)))
 
-(setq inferior-lisp-program "openmcl" ; sbcl, openmcl, clisp, 
-      common-lisp-hyperspec-root "file:////Users/novak/Sites/HyperSpec/"
-      slime-startup-animation nil
+(setq slime-lisp-implementations `((sbcl ("/opt/local/bin/sbcl"))
+                                   (clisp ("/opt/local/bin/clisp")))
+      common-lisp-hyperspec-root "file:///opt/local/share/doc/lisp/HyperSpec-7-0/HyperSpec/")
+      ; lisp-indent-function 'common-lisp-indent-function)
+      ; slime-startup-animation nil
+      ; inferior-lisp-program "openmcl" ; sbcl, openmcl, clisp, 
       ; slime-net-coding-system 'utf-8-unix ;; TEMP
       ; slime-complete-symbol-function 'slime-fuzzy-complete-symbol)
-      lisp-indent-function 'common-lisp-indent-function)
 
 (request-and-init slime
-  (slime-setup))
+  (slime-setup '(slime-fancy slime-banner)))
 
 (when (and (= emacs-major-version 22) 
 	   (fboundp 'slime-create-filename-translator))
