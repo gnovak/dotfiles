@@ -1,5 +1,5 @@
 (require :asdf-install)
-
+;; (defparameter ASDF-INSTALL-CUSTOMIZE::*VERIFY-GPG-SIGNATURES* nil)
 ;;; 
 ;;(defun slime (&rest args)
 ;;       (load "/Users/novak/bin/elisp/slime/swank-loader.lisp")
