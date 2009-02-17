@@ -3,9 +3,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (setq moving-mail nil)
 
-(require 'bbdb)                                                       
-(bbdb-initialize)                                                     
-
 ; Options set manually in .emacs.local
 (setq clio-flag nil
       thalia-flag nil
@@ -432,7 +429,8 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Programming
 ;; for compilation, put the cursor at the end of the buffer
-(setq compilation-scroll-output t)
+(setq compilation-scroll-output t
+      compile-command "make -k -j 2 ")
 
 (defadvice find-tag-other-window 
   (after gsn/find-tag-other-window-stay-this-window activate compile)
@@ -935,6 +933,17 @@ function doens't have to be duplicated for -next- and -previous-"
           (lambda () 
             (local-set-key "\C-c\C-r" 'planner-replan-task)))
 
+(add-hook 'org-agenda-mode-hook
+          (lambda () 
+            (org-defkey org-agenda-mode-map (kbd "<right>") 'forward-char)
+            (org-defkey org-agenda-mode-map (kbd "<left>") 'backward-char)
+            (org-defkey org-agenda-mode-map (kbd "<C-S-right>") 'org-agenda-earlier)
+            (org-defkey org-agenda-mode-map (kbd "<C-S-left>") 'org-agenda-earlier)
+            (org-defkey org-agenda-keymap (kbd "<right>") 'forward-char)
+            (org-defkey org-agenda-keymap (kbd "<left>") 'backward-char)
+            (org-defkey org-agenda-keymap (kbd "<C-S-right>") 'org-agenda-earlier)
+            (org-defkey org-agenda-keymap (kbd "<C-S-left>") 'org-agenda-earlier)))
+
 (add-hook 'comint-mode-hook 'gsn/comint-history-keymaps t)
 
 (add-hook 'py-shell-hook 'gsn/comint-history-keymaps)
@@ -1051,3 +1060,4 @@ function doens't have to be duplicated for -next- and -previous-"
 ;;           (org-move-to-column (min ncol col) t))
 ;;         (goto-char pos))))
  
+(put 'downcase-region 'disabled nil)
