@@ -942,11 +942,11 @@ function doens't have to be duplicated for -next- and -previous-"
           (lambda () 
             (org-defkey org-agenda-mode-map (kbd "<right>") 'forward-char)
             (org-defkey org-agenda-mode-map (kbd "<left>") 'backward-char)
-            (org-defkey org-agenda-mode-map (kbd "<C-S-right>") 'org-agenda-earlier)
+            (org-defkey org-agenda-mode-map (kbd "<C-S-right>") 'org-agenda-later)
             (org-defkey org-agenda-mode-map (kbd "<C-S-left>") 'org-agenda-earlier)
             (org-defkey org-agenda-keymap (kbd "<right>") 'forward-char)
             (org-defkey org-agenda-keymap (kbd "<left>") 'backward-char)
-            (org-defkey org-agenda-keymap (kbd "<C-S-right>") 'org-agenda-earlier)
+            (org-defkey org-agenda-keymap (kbd "<C-S-right>") 'org-agenda-later)
             (org-defkey org-agenda-keymap (kbd "<C-S-left>") 'org-agenda-earlier)))
 
 (add-hook 'comint-mode-hook 'gsn/comint-history-keymaps t)
