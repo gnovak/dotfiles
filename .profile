@@ -57,3 +57,4 @@ export IDL_PATH="+${HOME}/bin/idl-pros:+${HOME}/Projects/Thesis/idl:<IDL_DEFAULT
 export IDL_DIR=/Applications/rsi/idl_$IDL_VERSION
 ##############################
 
+module load openmpi/intel-11.0/1.2.8/64
