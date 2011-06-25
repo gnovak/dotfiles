@@ -78,7 +78,7 @@
   (add-to-list 'load-path "/opt/local/share/emacs/site-lisp/slime"))
 
 (when clio-flag
-  (add-to-list 'load-path "/opt/local/share/maxima/5.17.1/emacs/"))
+  (add-to-list 'load-path "/opt/local/share/maxima/5.24.0/emacs/"))
 
 ;; (add-to-list 'Info-directory-list "/usr/share/info")
 
@@ -90,7 +90,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;; Yikes... take away the disgusting new parts of emacs
-(when (>= emacs-major-version 22)
+(when (= emacs-major-version 22)
   (tool-bar-mode -1)
   (tooltip-mode -1))
 
@@ -188,8 +188,9 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Life -- org mode
-(request-and-init (org remember)
-  (org-remember-insinuate))
+;; org-remember deprecated.
+;;(request-and-init (org remember)
+;;  (org-remember-insinuate))
 
 (defvar gsn/org-current-task)
 
@@ -211,10 +212,17 @@
       org-odd-levels-only t
       org-log-done t
       org-table-auto-blank-field nil
+      org-enforce-todo-dependencies t
+      org-list-demote-modify-bullet '(("-" . "+") ("+" . "-"))
       ;; STARTED NEXT
       org-todo-keywords '((sequence "TODO" "DONE")
                           (sequence "PENDING" "DELEGATED" "SOMEDAY" 
-                           "CANCELLED" "NEXT" "DONE")))
+                           "NEXT" "|" "DONE" "CANCELLED"))
+      org-todo-keyword-faces '(("PENDING" . "orange")
+                               ("DELEGATED" . "orange")
+                               ("SOMEDAY" . "orange")))
+
+
 ;; (setq org-use-fast-todo-selection t)
       ;; org-highest-priority "A"
       ;; org-default-priority "C"
@@ -337,7 +345,8 @@
 
 ;; Document Processing
 (request 'tex-site)
-(setq LaTeX-table-label "tab-"
+(setq TeX-PDF-mode t
+      LaTeX-table-label "tab-"
       LaTeX-equation-label "eq-"
       LaTeX-eqnarray-label "eq-"
       LaTeX-figure-label "fig-"
@@ -444,7 +453,7 @@
 
 ;; Python
 (setq ipython-command (cond ((or clio-flag thalia-flag)
-                             "/opt/local/bin/ipython2.5")
+                             "/opt/local/bin/ipython-2.7")
                             (pleiades-flag 
                              "/home/novak/bin/local/bin/ipython"))
       py-python-command-args '("-pylab" "-colors" "LightBG"))
@@ -903,8 +912,10 @@ function doens't have to be duplicated for -next- and -previous-"
 (global-set-key "\C-ct" 'gsn/planner-create-task)
 (global-set-key "\C-cu" 'gsn/planner-create-undated-task)
 ; (global-set-key "\C-cl" 'gsn/planner-annotation)
-(global-set-key "\C-cr" 'org-remember)
+; (global-set-key "\C-cr" 'org-remember)
+(global-set-key "\C-cr" 'org-capture)
 (global-set-key "\C-cz" 'gsn/py-windows)
+(global-set-key "\C-cr" 'org-remember)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Local Maps
