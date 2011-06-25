@@ -277,12 +277,13 @@
 ;;       ;; Give a list of specific filenames
 ;;       (("fn1" "fn2") :keyword . arg))
 
-(defadvice org-schedule 
-  (around gsn/org-prevent-rescheduling-repeated-tasks activate)
-  "If the current task has a repeater, prevent rescheduling it to avoid obliterating the repeater."
-  (if (org-get-repeat) 
-      (message "*** Can't reschedule this task without obliterating repeater ***")
-      ad-do-it))
+;; This bug seems to be fixed
+;; (defadvice org-schedule 
+;;   (around gsn/org-prevent-rescheduling-repeated-tasks activate)
+;;   "If the current task has a repeater, prevent rescheduling it to avoid obliterating the repeater."
+;;   (if (org-get-repeat) 
+;;       (message "*** Can't reschedule this task without obliterating repeater ***")
+;;       ad-do-it))
 
 (defadvice org-deadline 
   (around gsn/org-prevent-rescheduling-repeated-deadlines activate)
@@ -447,7 +448,7 @@
 
 ;; Python
 (setq ipython-command (cond ((or clio-flag thalia-flag)
-                             "/opt/local/bin/ipython2.5")
+                             "/opt/local/bin/ipython-2.6")
                             (pleiades-flag 
                              "/home/novak/bin/local/bin/ipython"))
       py-python-command-args '("-pylab" "-colors" "LightBG"))
