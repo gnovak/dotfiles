@@ -81,6 +81,9 @@
   (add-to-list 'load-path "/opt/local/share/emacs/site-lisp/slime")
   (add-to-list 'load-path "/opt/local/share/maxima/5.17.1/emacs/"))
 
+(when clio-flag
+  (add-to-list 'load-path "/opt/local/share/maxima/5.24.0/emacs/"))
+
 ;; (add-to-list 'Info-directory-list "/usr/share/info")
 
 (when (or thalia-flag clio-flag)
@@ -91,7 +94,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;; Yikes... take away the disgusting new parts of emacs
-(when (>= emacs-major-version 22)
+(when (= emacs-major-version 22)
   (tool-bar-mode -1)
   (tooltip-mode -1))
 
@@ -189,8 +192,9 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Life -- org mode
-;(request-and-init (org remember)
-;  (org-remember-insinuate))
+;; org-remember deprecated.
+;;(request-and-init (org remember)
+;;  (org-remember-insinuate))
 
 (defvar gsn/org-current-task)
 
@@ -213,9 +217,12 @@
       org-odd-levels-only t
       org-log-done t
       org-table-auto-blank-field nil
+      org-enforce-todo-dependencies t
+      org-list-demote-modify-bullet '(("-" . "+") ("+" . "-"))
+      ;; STARTED NEXT
       org-todo-keywords '((sequence "TODO" "DONE")
                           (sequence "PENDING" "DELEGATED" "SOMEDAY" 
-                           "CANCELLED" "NEXT" "DONE"))
+                           "NEXT" "|" "DONE" "CANCELLED"))
       org-capture-templates '(("t" "Task" entry (file+headline "" "Tasks")
                                "* TODO %?\n  %u\n  %a")
                               ("p" "Paper" entry 
@@ -226,7 +233,12 @@
                               ("p" "Paper" entry 
                                (file+datetree (concat org-directory "/astroph.org"))
                                "* %?\n%c\n\nEntered on %U\n  %i\n")))
-                              
+      org-todo-keyword-faces '(("PENDING" . "orange")
+                               ("DELEGATED" . "orange")
+                               ("SOMEDAY" . "orange")))
+
+
+;; (setq org-use-fast-todo-selection t)
       ;; org-highest-priority "A"
       ;; org-default-priority "C"
       ;; org-lowest-priority "E"      
@@ -350,7 +362,8 @@
 
 ;; Document Processing
 (request 'tex-site)
-(setq LaTeX-table-label "tab-"
+(setq TeX-PDF-mode t
+      LaTeX-table-label "tab-"
       LaTeX-equation-label "eq-"
       LaTeX-eqnarray-label "eq-"
       LaTeX-figure-label "fig-"
@@ -452,7 +465,8 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Programming
 ;; for compilation, put the cursor at the end of the buffer
-(setq compilation-scroll-output t)
+(setq compilation-scroll-output t
+      compile-command "make -k -j 2 ")
 
 (defadvice find-tag-other-window 
   (after gsn/find-tag-other-window-stay-this-window activate compile)
@@ -461,7 +475,7 @@
 
 ;; Python
 (setq ipython-command (cond ((or clio-flag thalia-flag)
-                             "/opt/local/bin/ipython-2.6")
+                             "/opt/local/bin/ipython-2.7")
                             (pleiades-flag 
                              "/home/novak/bin/local/bin/ipython"))
       py-python-command-args '("-pylab" "-colors" "LightBG"))
@@ -926,6 +940,7 @@ function doens't have to be duplicated for -next- and -previous-"
 (global-set-key "\C-ct" 'gsn/planner-create-task)
 (global-set-key "\C-cu" 'gsn/planner-create-undated-task)
 ; (global-set-key "\C-cl" 'gsn/planner-annotation)
+; (global-set-key "\C-cr" 'org-remember)
 (global-set-key "\C-cr" 'org-capture)
 ; May want this eventually for most commonly used capture:
 ;(define-key global-map "\C-cr"
@@ -963,6 +978,17 @@ function doens't have to be duplicated for -next- and -previous-"
 (add-hook 'planner-mode-hook
           (lambda () 
             (local-set-key "\C-c\C-r" 'planner-replan-task)))
+
+(add-hook 'org-agenda-mode-hook
+          (lambda () 
+            (org-defkey org-agenda-mode-map (kbd "<right>") 'forward-char)
+            (org-defkey org-agenda-mode-map (kbd "<left>") 'backward-char)
+            (org-defkey org-agenda-mode-map (kbd "<C-S-right>") 'org-agenda-later)
+            (org-defkey org-agenda-mode-map (kbd "<C-S-left>") 'org-agenda-earlier)
+            (org-defkey org-agenda-keymap (kbd "<right>") 'forward-char)
+            (org-defkey org-agenda-keymap (kbd "<left>") 'backward-char)
+            (org-defkey org-agenda-keymap (kbd "<C-S-right>") 'org-agenda-later)
+            (org-defkey org-agenda-keymap (kbd "<C-S-left>") 'org-agenda-earlier)))
 
 (add-hook 'comint-mode-hook 'gsn/comint-history-keymaps t)
 
@@ -1023,7 +1049,7 @@ function doens't have to be duplicated for -next- and -previous-"
   ;; If you edit it by hand, you could mess it up, so be careful.
   ;; Your init file should contain only one such instance.
   ;; If there is more than one, they won't work right.
- '(TeX-output-view-style (quote (("^dvi$" ("^landscape$" "^pstricks$\\|^pst-\\|^psfrag$") "%(o?)dvips -t landscape %d -o && gv %f") ("^dvi$" "^pstricks$\\|^pst-\\|^psfrag$" "%(o?)dvips %d -o && gv %f") ("^dvi$" ("^a4\\(?:dutch\\|paper\\|wide\\)\\|sem-a4$" "^landscape$") "%(o?)xdvi %dS -paper a4r -s 0 %d") ("^dvi$" "^a4\\(?:dutch\\|paper\\|wide\\)\\|sem-a4$" "%(o?)xdvi %dS -paper a4 %d") ("^dvi$" ("^a5\\(?:comb\\|paper\\)$" "^landscape$") "%(o?)xdvi %dS -paper a5r -s 0 %d") ("^dvi$" "^a5\\(?:comb\\|paper\\)$" "%(o?)xdvi %dS -paper a5 %d") ("^dvi$" "^b5paper$" "%(o?)xdvi %dS -paper b5 %d") ("^dvi$" "^letterpaper$" "%(o?)xdvi %dS -paper us %d") ("^dvi$" "^legalpaper$" "%(o?)xdvi %dS -paper legal %d") ("^dvi$" "^executivepaper$" "%(o?)xdvi %dS -paper 7.25x10.5in %d") ("^dvi$" "." "%(o?)xdvi %dS %d") ("^pdf$" "." "open %o") ("^html?$" "." "netscape %o"))))
+ '(TeX-output-view-style (quote (("^dvi$" ("^landscape$" "^pstricks$\\|^pst-\\|^psfrag$") "%(o?)dvips -t landscape %d -o && gv %f") ("^dvi$" "^pstricks$\\|^pst-\\|^psfrag$" "%(o?)dvips %d -o && gv %f") ("^dvi$" ("^a4\\(?:dutch\\|paper\\|wide\\)\\|sem-a4$" "^landscape$") "%(o?)xdvi %dS -paper a4r -s 0 %d") ("^dvi$" "^a4\\(?:dutch\\|paper\\|wide\\)\\|sem-a4$" "%(o?)xdvi %dS -paper a4 %d") ("^dvi$" ("^a5\\(?:comb\\|paper\\)$" "^landscape$") "%(o?)xdvi %dS -paper a5r -s 0 %d") ("^dvi$" "^a5\\(?:comb\\|paper\\)$" "%(o?)xdvi %dS -paper a5 %d") ("^dvi$" "^b5paper$" "%(o?)xdvi %dS -paper b5 %d") ("^dvi$" "^letterpaper$" "%(o?)xdvi %dS -paper us %d") ("^dvi$" "^legalpaper$" "%(o?)xdvi %dS -paper legal %d") ("^dvi$" "^executivepaper$" "%(o?)xdvi %dS -paper 7.25x10.5in %d") ("^dvi$" "." "%(o?)xdvi %dS %d") ("^pdf$" "." "open %o ") ("^html?$" "." "netscape %o"))))
  '(auto-compression-mode t nil (jka-compr))
  '(auto-image-file-mode t)
  '(browse-url-netscape-program "mozilla")
@@ -1081,3 +1107,4 @@ function doens't have to be duplicated for -next- and -previous-"
 ;;           (org-move-to-column (min ncol col) t))
 ;;         (goto-char pos))))
  
+(put 'downcase-region 'disabled nil)
