@@ -196,6 +196,7 @@
 ;;(request-and-init (org remember)
 ;;  (org-remember-insinuate))
 
+(require 'org)
 (defvar gsn/org-current-task)
 
 (defun gsn/org-work-on-this ()
@@ -232,7 +233,7 @@
                                "* %c\n%?\n")
                               ("p" "Paper" entry 
                                (file+datetree (concat org-directory "/astroph.org"))
-                               "* %?\n%c\n\nEntered on %U\n  %i\n")))
+                               "* %?\n%c\n\nEntered on %U\n  %i\n"))
       org-todo-keyword-faces '(("PENDING" . "orange")
                                ("DELEGATED" . "orange")
                                ("SOMEDAY" . "orange")))
