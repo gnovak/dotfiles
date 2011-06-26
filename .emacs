@@ -189,8 +189,8 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Life -- org mode
-(request-and-init (org remember)
-  (org-remember-insinuate))
+;(request-and-init (org remember)
+;  (org-remember-insinuate))
 
 (defvar gsn/org-current-task)
 
@@ -208,13 +208,25 @@
 
 (setq org-directory "~/Projects/Brain"
       org-default-notes-file "~/Projects/Brain/in.org"      
+      org-agenda-files '("~/Projects/Brain")
       org-hide-leading-stars t
       org-odd-levels-only t
       org-log-done t
       org-table-auto-blank-field nil
       org-todo-keywords '((sequence "TODO" "DONE")
                           (sequence "PENDING" "DELEGATED" "SOMEDAY" 
-                           "CANCELLED" "NEXT" "DONE")))
+                           "CANCELLED" "NEXT" "DONE"))
+      org-capture-templates '(("t" "Task" entry (file+headline "" "Tasks")
+                               "* TODO %?\n  %u\n  %a")
+                              ("p" "Paper" entry 
+                               (file+datetree (concat org-directory "/astroph.org"))
+                               "* %?\n%c\n\nEntered on %U\n  %i\n")
+                              ("b" "Bookmark" entry (file+headline "" "New Bookmarks")
+                               "* %c\n%?\n")
+                              ("p" "Paper" entry 
+                               (file+datetree (concat org-directory "/astroph.org"))
+                               "* %?\n%c\n\nEntered on %U\n  %i\n")))
+                              
       ;; org-highest-priority "A"
       ;; org-default-priority "C"
       ;; org-lowest-priority "E"      
@@ -285,12 +297,13 @@
 ;;       (message "*** Can't reschedule this task without obliterating repeater ***")
 ;;       ad-do-it))
 
-(defadvice org-deadline 
-  (around gsn/org-prevent-rescheduling-repeated-deadlines activate)
-  "If the current task has a repeater, prevent rescheduling it to avoid obliterating the repeater."
-  (if (org-get-repeat) 
-      (message "*** Can't reschedule this deadline without obliterating repeater ***")
-      ad-do-it))
+;; This bug seems to be fixed
+;; (defadvice org-deadline 
+;;   (around gsn/org-prevent-rescheduling-repeated-deadlines activate)
+;;   "If the current task has a repeater, prevent rescheduling it to avoid obliterating the repeater."
+;;   (if (org-get-repeat) 
+;;       (message "*** Can't reschedule this deadline without obliterating repeater ***")
+;;       ad-do-it))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Life -- mail, bbdb, and planner
@@ -913,7 +926,10 @@ function doens't have to be duplicated for -next- and -previous-"
 (global-set-key "\C-ct" 'gsn/planner-create-task)
 (global-set-key "\C-cu" 'gsn/planner-create-undated-task)
 ; (global-set-key "\C-cl" 'gsn/planner-annotation)
-(global-set-key "\C-cr" 'org-remember)
+(global-set-key "\C-cr" 'org-capture)
+; May want this eventually for most commonly used capture:
+;(define-key global-map "\C-cr"
+;  (lambda () (interactive) (org-capture nil "t")))
 (global-set-key "\C-cz" 'gsn/py-windows)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1020,7 +1036,7 @@ function doens't have to be duplicated for -next- and -previous-"
  '(imenu-sort-function (quote imenu--sort-by-name))
  '(ispell-dictionary-alist (quote ((nil "[A-Za-z]" "[^A-Za-z]" "[']" nil ("-B") nil iso-8859-1) ("american" "[A-Za-z]" "[^A-Za-z]" "[']" nil ("-B") nil iso-8859-1) ("english" "[A-Za-z]" "[^A-Za-z]" "[']" nil ("-B") nil iso-8859-1))) t)
  '(jabber-connection-ssl-program nil)
- '(org-agenda-files (quote ("~/Projects/Brain")))
+ '(org-modules (quote (org-bbdb org-bibtex org-docview org-gnus org-info org-jsinfo org-habit org-irc org-mew org-mhe org-protocol org-rmail org-vm org-wl org-w3m org-mac-link-grabber)))
  '(require-final-newline nil)
  '(safe-local-variable-values (quote ((package . net\.aserve))))
  '(text-mode-hook (quote (turn-on-auto-fill text-mode-hook-identify)))
