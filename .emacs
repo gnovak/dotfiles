@@ -211,15 +211,16 @@
 
 (add-to-list 'auto-mode-alist '("\\.org\\'" . org-mode))
 
-(setq org-directory "~/Projects/Brain"
-      org-default-notes-file "~/Projects/Brain/in.org"      
-      org-agenda-files '("~/Projects/Brain")
+(setq org-directory "~/Dropbox/Brain"
+      org-default-notes-file (concat org-directory "/in.org")
+      org-agenda-files (list org-directory)
       org-hide-leading-stars t
       org-odd-levels-only t
       org-log-done t
       org-table-auto-blank-field nil
       org-enforce-todo-dependencies t
       org-list-demote-modify-bullet '(("-" . "+") ("+" . "-"))
+      org-tags-exclude-from-inheritance '("project")
       ;; STARTED NEXT
       org-todo-keywords '((sequence "TODO" "DONE")
                           (sequence "PENDING" "DELEGATED" "SOMEDAY" 
@@ -236,7 +237,17 @@
                                "* %?\n%c\n\nEntered on %U\n  %i\n"))
       org-todo-keyword-faces '(("PENDING" . "orange")
                                ("DELEGATED" . "orange")
-                               ("SOMEDAY" . "orange")))
+                               ("SOMEDAY" . "orange"))
+
+      ;; org-mobile-index-file "index.org"
+      org-mobile-force-id-on-agenda-items nil
+      org-mobile-inbox-for-pull (concat org-directory "/from-mobile.org")
+      org-mobile-use-encryption nil
+      org-mobile-files (list (concat org-directory "/test-mobile.org")
+                             ;(concat org-directory "/home.org")
+                             ;(concat org-directory "/work.org")
+                             )
+      org-mobile-directory "~/Dropbox/MobileOrg")
 
 
 ;; (setq org-use-fast-todo-selection t)
@@ -911,8 +922,8 @@ function doens't have to be duplicated for -next- and -previous-"
 (defun gsn/org-plan (arg) 
   (interactive "P") 
   (if arg
-      (find-file-other-window "~/Projects/Brain/work.org")
-      (find-file "~/Projects/Brain/work.org")))
+      (find-file-other-window "~/Dropbox/Brain/Desk.org")
+      (find-file "~/Dropbox/Brain/Desk.org")))
 
 (defun gsn/org-agenda ()
   (interactive)  
