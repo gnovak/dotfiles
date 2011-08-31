@@ -186,6 +186,17 @@
       (insert "grestore\n")
       (ps-despool))))
 
+;; Display ISO week numbers in calendar
+(setq calendar-week-start-day 1
+      calendar-intermonth-text
+      '(propertize
+        (format "%2d"
+                (car
+                 (calendar-iso-from-absolute
+                  (calendar-absolute-from-gregorian (list month day year)))))
+        'font-lock-face 'font-lock-function-name-face))
+
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Life -- org mode
 ;; org-remember deprecated.
@@ -206,21 +217,30 @@
 
 (add-to-list 'auto-mode-alist '("\\.org\\'" . org-mode))
 
-(setq org-directory "~/Projects/Brain"
-      org-default-notes-file "~/Projects/Brain/in.org"      
+(setq org-directory "~/Dropbox/Brain"
+      org-default-notes-file "~/Dropbox/Brain/in.org"      
       org-hide-leading-stars t
       org-odd-levels-only t
       org-log-done t
       org-table-auto-blank-field nil
       org-enforce-todo-dependencies t
       org-list-demote-modify-bullet '(("-" . "+") ("+" . "-"))
+      org-tags-exclude-from-inheritance '("project")
       ;; STARTED NEXT
       org-todo-keywords '((sequence "TODO" "DONE")
                           (sequence "PENDING" "DELEGATED" "SOMEDAY" 
                            "NEXT" "|" "DONE" "CANCELLED"))
       org-todo-keyword-faces '(("PENDING" . "orange")
                                ("DELEGATED" . "orange")
-                               ("SOMEDAY" . "orange")))
+                               ("SOMEDAY" . "orange"))
+      ;; org-mobile-index-file "index.org"
+      org-mobile-force-id-on-agenda-items t
+      org-mobile-inbox-for-pull (concat org-directory "/from-mobile.org")
+      org-mobile-use-encryption nil
+      org-mobile-files (list (concat org-directory "/home.org")
+                             (concat org-directory "/work.org")
+                             )
+      org-mobile-directory "~/Dropbox/MobileOrg")
 
 
 ;; (setq org-use-fast-todo-selection t)
@@ -286,19 +306,29 @@
 ;;       ;; Give a list of specific filenames
 ;;       (("fn1" "fn2") :keyword . arg))
 
+;; (defadvice org-schedule 
+;;   (around gsn/org-prevent-rescheduling-repeated-tasks activate)
+;;   "If the current task has a repeater, prevent rescheduling it to avoid obliterating the repeater."
+;;   (if (org-get-repeat) 
+;;       (message "*** Can't reschedule this task without obliterating repeater ***")
+;;       ad-do-it))
+
+;; (defadvice org-deadline 
+;;   (around gsn/org-prevent-rescheduling-repeated-deadlines activate)
+;;   "If the current task has a repeater, prevent rescheduling it to avoid obliterating the repeater."
+;;   (if (org-get-repeat) 
+;;       (message "*** Can't reschedule this deadline without obliterating repeater ***")
+;;       ad-do-it))
+
 (defadvice org-schedule 
   (around gsn/org-prevent-rescheduling-repeated-tasks activate)
   "If the current task has a repeater, prevent rescheduling it to avoid obliterating the repeater."
-  (if (org-get-repeat) 
-      (message "*** Can't reschedule this task without obliterating repeater ***")
-      ad-do-it))
+  ad-do-it)
 
 (defadvice org-deadline 
   (around gsn/org-prevent-rescheduling-repeated-deadlines activate)
   "If the current task has a repeater, prevent rescheduling it to avoid obliterating the repeater."
-  (if (org-get-repeat) 
-      (message "*** Can't reschedule this deadline without obliterating repeater ***")
-      ad-do-it))
+  ad-do-it)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Life -- mail, bbdb, and planner
@@ -882,8 +912,8 @@ function doens't have to be duplicated for -next- and -previous-"
 (defun gsn/org-plan (arg) 
   (interactive "P") 
   (if arg
-      (find-file-other-window "~/Projects/Brain/work.org")
-      (find-file "~/Projects/Brain/work.org")))
+      (find-file-other-window "~/Dropbox/Brain/Desk.org")
+      (find-file "~/Dropbox/Brain/Desk.org")))
 
 (defun gsn/org-agenda ()
   (interactive)  
@@ -1032,7 +1062,8 @@ function doens't have to be duplicated for -next- and -previous-"
  '(imenu-sort-function (quote imenu--sort-by-name))
  '(ispell-dictionary-alist (quote ((nil "[A-Za-z]" "[^A-Za-z]" "[']" nil ("-B") nil iso-8859-1) ("american" "[A-Za-z]" "[^A-Za-z]" "[']" nil ("-B") nil iso-8859-1) ("english" "[A-Za-z]" "[^A-Za-z]" "[']" nil ("-B") nil iso-8859-1))) t)
  '(jabber-connection-ssl-program nil)
- '(org-agenda-files (quote ("~/Projects/Brain")))
+ '(org-agenda-files (quote ("~/Dropbox/Brain")))
+ '(org-modules (quote (org-bbdb org-bibtex org-docview org-gnus org-info org-jsinfo org-habit org-irc org-mew org-mhe org-protocol org-rmail org-vm org-wl org-w3m org-eshell org-mac-link-grabber org-screen)))
  '(require-final-newline nil)
  '(safe-local-variable-values (quote ((package . net\.aserve))))
  '(text-mode-hook (quote (turn-on-auto-fill text-mode-hook-identify)))
@@ -1078,3 +1109,4 @@ function doens't have to be duplicated for -next- and -previous-"
 ;;         (goto-char pos))))
  
 (put 'downcase-region 'disabled nil)
+
