@@ -240,12 +240,11 @@
                                ("SOMEDAY" . "orange"))
 
       ;; org-mobile-index-file "index.org"
-      org-mobile-force-id-on-agenda-items nil
+      org-mobile-force-id-on-agenda-items t
       org-mobile-inbox-for-pull (concat org-directory "/from-mobile.org")
       org-mobile-use-encryption nil
-      org-mobile-files (list (concat org-directory "/test-mobile.org")
-                             ;(concat org-directory "/home.org")
-                             ;(concat org-directory "/work.org")
+      org-mobile-files (list (concat org-directory "/home.org")
+                             (concat org-directory "/work.org")
                              )
       org-mobile-directory "~/Dropbox/MobileOrg")
 
