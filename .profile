@@ -1,3 +1,7 @@
+# Get the aliases and functions
+if [ -f ~/.bashrc ]; then
+	. ~/.bashrc
+fi
 
 PS1='[\u@\h \w]$ '
 PATH=~/bin:~/bin/local/bin:/opt/local/bin:/opt/local/sbin:/usr/local/bin:/usr/local/cuda/bin:$PATH
