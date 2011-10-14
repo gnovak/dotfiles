@@ -205,6 +205,9 @@
 ;;(request-and-init (org remember)
 ;;  (org-remember-insinuate))
 
+;; Org install instructions say that this helps with autoloads.
+(require 'org-install)
+
 (defvar gsn/org-current-task)
 
 (defun gsn/org-work-on-this ()
