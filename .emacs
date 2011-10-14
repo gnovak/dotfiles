@@ -90,7 +90,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;; Yikes... take away the disgusting new parts of emacs
-(when (= emacs-major-version 22)
+(when (>= emacs-major-version 22)
   (tool-bar-mode -1)
   (tooltip-mode -1))
 
