@@ -59,5 +59,9 @@ export XPPATH="/Applications/rsi/idl_$IDL_VERSION/resource/xprinter"
 export IDL_STARTUP=/Users/novak/bin/idl-pros/startup.pro
 export IDL_PATH="+${HOME}/bin/idl-pros:+${HOME}/Projects/Thesis/idl:<IDL_DEFAULT>"
 export IDL_DIR=/Applications/rsi/idl_$IDL_VERSION
+
+# Start Dropbox
+~/.dropbox-dist/dropbox &
+
 ##############################
 
