@@ -107,7 +107,8 @@
       ;; ispell-extra-args '("-W" "3")
       color-printer-name "hp"
       ;; default to better frame titles
-      frame-title-format (concat  "%b - emacs@" (system-name)))      
+      frame-title-format (concat  "%b - emacs@" (system-name))
+      grep-command "grep -nHi -e ")
 
 ;; Put all backup files into one directory.
 (setq make-backup-files t      
