@@ -218,6 +218,7 @@
 (add-to-list 'auto-mode-alist '("\\.org\\'" . org-mode))
 
 (setq org-directory "~/Dropbox/Brain"
+      org-agenda-files '("~/Dropbox/Brain")
       org-default-notes-file "~/Dropbox/Brain/in.org"      
       org-hide-leading-stars t
       org-odd-levels-only t
@@ -227,12 +228,38 @@
       org-list-demote-modify-bullet '(("-" . "+") ("+" . "-"))
       org-tags-exclude-from-inheritance '("project")
       ;; STARTED NEXT
-      org-todo-keywords '((sequence "TODO" "DONE")
-                          (sequence "PENDING" "DELEGATED" "SOMEDAY" 
-                           "NEXT" "|" "DONE" "CANCELLED"))
-      org-todo-keyword-faces '(("PENDING" . "orange")
-                               ("DELEGATED" . "orange")
-                               ("SOMEDAY" . "orange"))
+
+  org-todo-keywords
+     '((sequence "TODO" "DONE")
+       (sequence "READ"
+                 ;;
+                 "TICKLE" ;; Take David Allen approach and just mark
+                          ;; events that are not do-able now, but I
+                          ;; want to keep track of, without worrying
+                          ;; too much about the ontology.
+                 ;;
+                 "EVENT"  ;; slight misnomer for todo item that I
+                          ;; want to do on a spcific day (but can do
+                          ;; on the next day if necessary)
+                 "CHECK"  ;; active waiting
+                 "REQUIRES" ;; Requires me to do something else first
+                 "WAITING" ;; Requires someone else do do something
+                           ;; or something else to happen before I
+                           ;; can do something.
+                 "DEFERRED" ;; don't want to do it right now for
+                            ;; whatever reason.
+                 "SOMEDAY" ;; Might want to do someday.
+                 "NEXT" ;; Next task for this project
+                 "|" "DONE" "CANCELLED"))
+     org-todo-keyword-faces '(("READ" . "cyan")
+                              ("TICKLE" . "orange")
+                              ("EVENT" . "orange")
+                              ("CHECK" . "orange")
+                              ("REQUIRES" . "orange")
+                              ("WAITING" . "orange")
+                              ("DEFERRED" . "orange")
+                              ("SOMEDAY" . "orange"))
+
       ;; org-mobile-index-file "index.org"
       org-mobile-force-id-on-agenda-items t
       org-mobile-inbox-for-pull (concat org-directory "/from-mobile.org")
@@ -486,10 +513,14 @@
                              "/opt/local/bin/ipython-2.7")
                             (pleiades-flag 
                              "/home/novak/bin/local/bin/ipython"))
-      py-python-command-args '("-pylab" "-colors" "LightBG"))
+      py-python-command-args '("--pylab=tk" "--colors=LightBG"))
 
 (request 'python-mode)
 (request 'ipython)
+
+; ipython calling convention changed, should probably update
+; ipython.el, but for now just reset the command line args.
+(setq py-python-command-args '("--pylab=tk" "--colors=LightBG"))
 
 ; this is a hack to fix the fact that the space went away from the
 ; ipython debugger prompt in version 0.7.3 of ipython.  Sheesh.
@@ -945,7 +976,7 @@ function doens't have to be duplicated for -next- and -previous-"
 ; (global-set-key "\C-cr" 'org-remember)
 (global-set-key "\C-cr" 'org-capture)
 (global-set-key "\C-cz" 'gsn/py-windows)
-(global-set-key "\C-cr" 'org-remember)
+; (global-set-key "\C-cr" 'org-remember)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Local Maps
@@ -1062,7 +1093,6 @@ function doens't have to be duplicated for -next- and -previous-"
  '(imenu-sort-function (quote imenu--sort-by-name))
  '(ispell-dictionary-alist (quote ((nil "[A-Za-z]" "[^A-Za-z]" "[']" nil ("-B") nil iso-8859-1) ("american" "[A-Za-z]" "[^A-Za-z]" "[']" nil ("-B") nil iso-8859-1) ("english" "[A-Za-z]" "[^A-Za-z]" "[']" nil ("-B") nil iso-8859-1))) t)
  '(jabber-connection-ssl-program nil)
- '(org-agenda-files (quote ("~/Dropbox/Brain")))
  '(org-modules (quote (org-bbdb org-bibtex org-docview org-gnus org-info org-jsinfo org-habit org-irc org-mew org-mhe org-protocol org-rmail org-vm org-wl org-w3m org-eshell org-mac-link-grabber org-screen)))
  '(require-final-newline nil)
  '(safe-local-variable-values (quote ((package . net\.aserve))))
