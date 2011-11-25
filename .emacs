@@ -499,10 +499,12 @@
                              "/opt/local/bin/ipython-2.7")
                             (pleiades-flag 
                              "/home/novak/bin/local/bin/ipython"))
-      py-python-command-args '("-pylab" "-colors" "LightBG"))
+      py-python-command-args '("--pylab=tk" "--colors=LightBG"))
 
 (request 'python-mode)
 (request 'ipython)
+
+(setq py-python-command-args '("--pylab=tk" "--colors=LightBG"))
 
 ; this is a hack to fix the fact that the space went away from the
 ; ipython debugger prompt in version 0.7.3 of ipython.  Sheesh.
