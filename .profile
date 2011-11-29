@@ -25,7 +25,9 @@ export BIBINPUTS=$HOME/Papers/bib:
 export NUMERIX=numpy  
 # clozure CL
 export CCL_DEFAULT_DIRECTORY=/usr/local/ccl
-export PYTHONPATH=./gsnpy:/Users/novak/bin/local/lib/python2.5/site-packages/
+# Advice from Macports for building qt3 software
+export QTDIR=/opt/local/lib/qt3
+# export PYTHONPATH=./gsnpy:/Users/novak/bin/local/lib/python2.5/site-packages/
 
 # Search path for info files.  If INFOPATH ends with a colon, then
 # Emacs searches both INFOPATH and Info-default-directory-list
