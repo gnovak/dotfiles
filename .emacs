@@ -3,6 +3,9 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (setq moving-mail nil)
 
+;(require 'bbdb)                                                       
+;(bbdb-initialize)                                                     
+
 ; Options set manually in .emacs.local
 (setq clio-flag nil
       thalia-flag nil
@@ -75,7 +78,8 @@
 (add-to-list 'load-path "~/bin/elisp")
 
 (when thalia-flag
-  (add-to-list 'load-path "/opt/local/share/emacs/site-lisp/slime"))
+  (add-to-list 'load-path "/opt/local/share/emacs/site-lisp/slime")
+  (add-to-list 'load-path "/opt/local/share/maxima/5.17.1/emacs/"))
 
 (when clio-flag
   (add-to-list 'load-path "/opt/local/share/maxima/5.24.0/emacs/"))
@@ -98,6 +102,8 @@
 (fset 'yes-or-no-p 'y-or-n-p)
 
 (setq-default indent-tabs-mode nil)
+
+(setq frame-title-format (concat  "%b - emacs@" (system-name)))
 
 (setq comint-input-ring-size 500
       message-log-max 500
@@ -199,7 +205,6 @@
                   (calendar-absolute-from-gregorian (list month day year)))))
         'font-lock-face 'font-lock-function-name-face))
 
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Life -- org mode
 ;; org-remember deprecated.
@@ -207,6 +212,7 @@
 ;;  (org-remember-insinuate))
 
 ;; Org install instructions say that this helps with autoloads.
+; (require 'org)
 (require 'org-install)
 
 (defvar gsn/org-current-task)
@@ -224,7 +230,9 @@
 (add-to-list 'auto-mode-alist '("\\.org\\'" . org-mode))
 
 (setq org-directory "~/Dropbox/Brain"
-      org-default-notes-file "~/Dropbox/Brain/in.org"      
+      org-agenda-files '("~/Dropbox/Brain")
+      org-default-notes-file (concat org-directory "/in.org")
+      org-agenda-files (list org-directory)
       org-hide-leading-stars t
       org-odd-levels-only t
       org-log-done t
@@ -233,12 +241,48 @@
       org-list-demote-modify-bullet '(("-" . "+") ("+" . "-"))
       org-tags-exclude-from-inheritance '("project")
       ;; STARTED NEXT
-      org-todo-keywords '((sequence "TODO" "DONE")
-                          (sequence "PENDING" "DELEGATED" "SOMEDAY" 
-                           "NEXT" "|" "DONE" "CANCELLED"))
-      org-todo-keyword-faces '(("PENDING" . "orange")
-                               ("DELEGATED" . "orange")
-                               ("SOMEDAY" . "orange"))
+  org-todo-keywords
+     '((sequence "TODO" "DONE")
+       (sequence "READ"
+                 ;;
+                 "TICKLE" ;; Take David Allen approach and just mark
+                          ;; events that are not do-able now, but I
+                          ;; want to keep track of, without worrying
+                          ;; too much about the ontology.
+                 ;;
+                 "EVENT"  ;; slight misnomer for todo item that I
+                          ;; want to do on a spcific day (but can do
+                          ;; on the next day if necessary)
+                 "CHECK"  ;; active waiting
+                 "REQUIRES" ;; Requires me to do something else first
+                 "WAITING" ;; Requires someone else do do something
+                           ;; or something else to happen before I
+                           ;; can do something.
+                 "DEFERRED" ;; don't want to do it right now for
+                            ;; whatever reason.
+                 "SOMEDAY" ;; Might want to do someday.
+                 "NEXT" ;; Next task for this project
+                 "|" "DONE" "CANCELLED"))
+     org-todo-keyword-faces '(("READ" . "cyan")
+                              ("TICKLE" . "orange")
+                              ("EVENT" . "orange")
+                              ("CHECK" . "orange")
+                              ("REQUIRES" . "orange")
+                              ("WAITING" . "orange")
+                              ("DEFERRED" . "orange")
+                              ("SOMEDAY" . "orange"))
+
+      org-capture-templates '(("t" "Task" entry (file+headline "" "Tasks")
+                               "* TODO %?\n  %u\n  %a")
+                              ("p" "Paper" entry 
+                               (file+datetree (concat org-directory "/astroph.org"))
+                               "* %?\n%c\n\nEntered on %U\n  %i\n")
+                              ("b" "Bookmark" entry (file+headline "" "New Bookmarks")
+                               "* %c\n%?\n")
+                              ("p" "Paper" entry 
+                               (file+datetree (concat org-directory "/astroph.org"))
+                               "* %?\n%c\n\nEntered on %U\n  %i\n"))
+
       ;; org-mobile-index-file "index.org"
       org-mobile-force-id-on-agenda-items t
       org-mobile-inbox-for-pull (concat org-directory "/from-mobile.org")
@@ -312,6 +356,7 @@
 ;;       ;; Give a list of specific filenames
 ;;       (("fn1" "fn2") :keyword . arg))
 
+;; This bug seems to be fixed
 ;; (defadvice org-schedule 
 ;;   (around gsn/org-prevent-rescheduling-repeated-tasks activate)
 ;;   "If the current task has a repeater, prevent rescheduling it to avoid obliterating the repeater."
@@ -326,15 +371,14 @@
 ;;       (message "*** Can't reschedule this deadline without obliterating repeater ***")
 ;;       ad-do-it))
 
-(defadvice org-schedule 
-  (around gsn/org-prevent-rescheduling-repeated-tasks activate)
-  "If the current task has a repeater, prevent rescheduling it to avoid obliterating the repeater."
-  ad-do-it)
 
-(defadvice org-deadline 
-  (around gsn/org-prevent-rescheduling-repeated-deadlines activate)
-  "If the current task has a repeater, prevent rescheduling it to avoid obliterating the repeater."
-  ad-do-it)
+;; This bug seems to be fixed
+;; (defadvice org-deadline 
+;;   (around gsn/org-prevent-rescheduling-repeated-deadlines activate)
+;;   "If the current task has a repeater, prevent rescheduling it to avoid obliterating the repeater."
+;;   (if (org-get-repeat) 
+;;       (message "*** Can't reschedule this deadline without obliterating repeater ***")
+;;       ad-do-it))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Life -- mail, bbdb, and planner
@@ -400,6 +444,11 @@
 ;;             (when gsn/html-timestamps
 ;;               (add-hook 'local-write-file-hooks 
 ;;                         'html-helper-update-timestamp))))
+
+(autoload 'LilyPond-mode "lilypond-mode" "LilyPond Editing Mode" t)
+(add-to-list 'auto-mode-alist '("\\.ly$" . LilyPond-mode))
+(add-to-list 'auto-mode-alist '("\\.ily$" . LilyPond-mode))
+(add-hook 'LilyPond-mode-hook (lambda () (turn-on-font-lock)))
 
 ;; Jabber
 (defun gsn/jabber-settings (server)
@@ -492,10 +541,14 @@
                              "/opt/local/bin/ipython-2.7")
                             (pleiades-flag 
                              "/home/novak/bin/local/bin/ipython"))
-      py-python-command-args '("-pylab" "-colors" "LightBG"))
+      py-python-command-args '("--pylab=tk" "--colors=LightBG"))
 
 (request 'python-mode)
 (request 'ipython)
+
+; ipython calling convention changed, should probably update
+; ipython.el, but for now just reset the command line args.
+(setq py-python-command-args '("--pylab=tk" "--colors=LightBG"))
 
 ; this is a hack to fix the fact that the space went away from the
 ; ipython debugger prompt in version 0.7.3 of ipython.  Sheesh.
@@ -536,12 +589,18 @@
 ;;  '("mvb"))
 
 ;; Slime init code recommended by macports
-;; 
+;; (setq load-path (cons "/opt/local/share/emacs/site-lisp/slime" load-path))
+;; (require 'slime-autoloads)
+;; (setq slime-lisp-implementations
+;;      `((sbcl ("/opt/local/bin/sbcl"))
+;;        (clisp ("/opt/local/bin/clisp"))))
 ;; (add-hook 'lisp-mode-hook
 ;;            (lambda ()
 ;;              (cond ((not (featurep 'slime))
 ;;                     (require 'slime) 
 ;;                     (normal-mode)))))
+;; (eval-after-load "slime"
+;;    '(slime-setup '(slime-fancy slime-banner)))
 
 (setq slime-lisp-implementations `((sbcl ("/opt/local/bin/sbcl"))
                                    (clisp ("/opt/local/bin/clisp")))
@@ -950,8 +1009,11 @@ function doens't have to be duplicated for -next- and -previous-"
 ; (global-set-key "\C-cl" 'gsn/planner-annotation)
 ; (global-set-key "\C-cr" 'org-remember)
 (global-set-key "\C-cr" 'org-capture)
+; May want this eventually for most commonly used capture:
+;(define-key global-map "\C-cr"
+;  (lambda () (interactive) (org-capture nil "t")))
 (global-set-key "\C-cz" 'gsn/py-windows)
-(global-set-key "\C-cr" 'org-remember)
+; (global-set-key "\C-cr" 'org-remember)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Local Maps
@@ -1068,8 +1130,7 @@ function doens't have to be duplicated for -next- and -previous-"
  '(imenu-sort-function (quote imenu--sort-by-name))
  '(ispell-dictionary-alist (quote ((nil "[A-Za-z]" "[^A-Za-z]" "[']" nil ("-B") nil iso-8859-1) ("american" "[A-Za-z]" "[^A-Za-z]" "[']" nil ("-B") nil iso-8859-1) ("english" "[A-Za-z]" "[^A-Za-z]" "[']" nil ("-B") nil iso-8859-1))) t)
  '(jabber-connection-ssl-program nil)
- '(org-agenda-files (quote ("~/Dropbox/Brain")))
- '(org-modules (quote (org-bbdb org-bibtex org-docview org-gnus org-info org-jsinfo org-habit org-irc org-mew org-mhe org-protocol org-rmail org-vm org-wl org-w3m org-eshell org-mac-link-grabber org-screen)))
+ '(org-modules (quote (org-bbdb org-bibtex org-docview org-gnus org-info org-jsinfo org-habit org-irc org-mew org-mhe org-protocol org-rmail org-vm org-wl org-w3m org-eshell org-screen org-mac-link-grabber ))) ; 
  '(require-final-newline nil)
  '(safe-local-variable-values (quote ((package . net\.aserve))))
  '(text-mode-hook (quote (turn-on-auto-fill text-mode-hook-identify)))
