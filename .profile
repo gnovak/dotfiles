@@ -68,7 +68,7 @@ fi
 
 # Start Dropbox if it isn't already running.
 # Dropbox itself checks for this, so this test just avoids an error message.
-if [ -x ~/.dropbox-dist/dropbox ]; 
+if [ -x ~/.dropbox-dist/dropbox ]; then 
     if [ -z "`ps aux | grep -f ~/.dbox-name`" ]; then 
         ~/.dropbox-dist/dropbox &
     fi
