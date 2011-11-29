@@ -106,6 +106,7 @@
 (setq comint-input-ring-size 500
       message-log-max 500
       font-lock-maximum-size 1024000
+      woman-fill-column 72
       woman-cache-filename "~/.woman-cache.el"
       ;; When running ispell, consider all 1-3 character words as correct.
       ;; ispell-extra-args '("-W" "3")
