@@ -94,7 +94,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;; Yikes... take away the disgusting new parts of emacs
-(when (= emacs-major-version 22)
+(when (>= emacs-major-version 22)
   (tool-bar-mode -1)
   (tooltip-mode -1))
 
@@ -111,7 +111,10 @@
       woman-cache-filename "~/.woman-cache.el"
       ;; When running ispell, consider all 1-3 character words as correct.
       ;; ispell-extra-args '("-W" "3")
-      color-printer-name "hp")
+      color-printer-name "hp"
+      ;; default to better frame titles
+      frame-title-format (concat  "%b - emacs@" (system-name))
+      grep-command "grep -nHi -e ")
 
 ;; Put all backup files into one directory.
 (setq make-backup-files t      
@@ -208,7 +211,10 @@
 ;;(request-and-init (org remember)
 ;;  (org-remember-insinuate))
 
-(require 'org)
+;; Org install instructions say that this helps with autoloads.
+; (require 'org)
+(require 'org-install)
+
 (defvar gsn/org-current-task)
 
 (defun gsn/org-work-on-this ()
