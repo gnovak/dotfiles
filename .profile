@@ -58,12 +58,6 @@ export IDL_STARTUP=/Users/novak/bin/idl-pros/startup.pro
 export IDL_PATH="+${HOME}/bin/idl-pros:+${HOME}/Projects/Thesis/idl:<IDL_DEFAULT>"
 export IDL_DIR=/Applications/rsi/idl_$IDL_VERSION
 
-# Start Dropbox if it isn't already running.
-# Dropbox itself checks for this, so this test just avoids an error message.
-if [ -z "`ps aux | grep -f ~/.dbox-name`" ]; then 
-    ~/.dropbox-dist/dropbox &
-fi
-
 ##############################
 
 # Start Dropbox if it isn't already running.
