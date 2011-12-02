@@ -22,7 +22,9 @@ export BIBINPUTS=$HOME/Papers/bib:
 export NUMERIX=numpy  
 # clozure CL
 export CCL_DEFAULT_DIRECTORY=/usr/local/ccl
-export PYTHONPATH=./gsnpy:/Users/novak/bin/local/lib/python2.5/site-packages/
+# Advice from Macports for building qt3 software
+export QTDIR=/opt/local/lib/qt3
+# export PYTHONPATH=./gsnpy:/Users/novak/bin/local/lib/python2.5/site-packages/
 
 # Search path for info files.  If INFOPATH ends with a colon, then
 # Emacs searches both INFOPATH and Info-default-directory-list
@@ -55,5 +57,14 @@ export XPPATH="/Applications/rsi/idl_$IDL_VERSION/resource/xprinter"
 export IDL_STARTUP=/Users/novak/bin/idl-pros/startup.pro
 export IDL_PATH="+${HOME}/bin/idl-pros:+${HOME}/Projects/Thesis/idl:<IDL_DEFAULT>"
 export IDL_DIR=/Applications/rsi/idl_$IDL_VERSION
+
 ##############################
+
+# Start Dropbox if it isn't already running.
+# Dropbox itself checks for this, so this test just avoids an error message.
+if [ -x ~/.dropbox-dist/dropbox ]; then 
+    if [ -z "`ps aux | grep -f ~/.dbox-name`" ]; then 
+        ~/.dropbox-dist/dropbox &
+    fi
+fi
 
