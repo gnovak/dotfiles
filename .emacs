@@ -20,6 +20,8 @@
 ; Options which should be set automatically below
 (setq remote-flag nil)
 
+(defun cadar (ll) (car (cdr (car ll))))
+
 ; Try to detect when ssh has set DISPLAY to something funny
 ; indicating that it's forwarding the X11 connection over the 
 ; ssh link.
