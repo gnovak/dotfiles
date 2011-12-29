@@ -251,21 +251,23 @@
                           ;; want to keep track of, without worrying
                           ;; too much about the ontology.
                  ;;
-                 "EVENT"  ;; slight misnomer for todo item that I
-                          ;; want to do on a spcific day (but can do
-                          ;; on the next day if necessary)
-                 "CHECK"  ;; active waiting
+                 "PERIODIC" ;; Periodic task
+                 "EVENT"    ;; slight misnomer for todo item that I
+                            ;; want to do on a spcific day (but can do
+                            ;; on the next day if necessary)
+                 "CHECK"    ;; active waiting
                  "REQUIRES" ;; Requires me to do something else first
-                 "WAITING" ;; Requires someone else do do something
-                           ;; or something else to happen before I
-                           ;; can do something.
+                 "WAITING"  ;; Requires someone else do do something
+                            ;; or something else to happen before I
+                            ;; can do something.
                  "DEFERRED" ;; don't want to do it right now for
                             ;; whatever reason.
-                 "SOMEDAY" ;; Might want to do someday.
-                 "NEXT" ;; Next task for this project
+                 "SOMEDAY"  ;; Might want to do someday.
+                 "NEXT"     ;; Next task for this project
                  "|" "DONE" "CANCELLED"))
      org-todo-keyword-faces '(("READ" . "cyan")
                               ("TICKLE" . "orange")
+                              ("PERIODIC" . "orange")
                               ("EVENT" . "orange")
                               ("CHECK" . "orange")
                               ("REQUIRES" . "orange")
