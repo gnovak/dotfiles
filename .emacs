@@ -1078,16 +1078,16 @@ function doens't have to be duplicated for -next- and -previous-"
 
 (add-hook 'slime-mode-hook   
           (lambda ()
-         (slime-define-key "\C-cs" 'slime-selector)
-            (slime-define-key "\M-n" 'gsn/slime-next-note)
-            (slime-define-key "\M-p" 'gsn/slime-previous-note)
-            (slime-define-key (kbd "<C-tab>") 'slime-complete-symbol)))
+            (slime-define-keys slime-mode-map ("\C-cs" 'slime-selector))
+            (slime-define-keys slime-mode-map ("\M-n" 'gsn/slime-next-note))
+            (slime-define-keys slime-mode-map ("\M-p" 'gsn/slime-previous-note))
+            (slime-define-keys slime-mode-map ((kbd "<C-tab>") 'slime-complete-symbol))))
 
 (add-hook 'slime-repl-mode-hook   
           (lambda () 
-         (slime-define-key "\C-cs" 'slime-selector)
-            (local-set-key "\C-p" 'slime-repl-previous-input)
-            (local-set-key "\C-n" 'slime-repl-next-input)))
+            (slime-define-keys slime-repl-mode-map ("\C-cs" 'slime-selector))
+            (slime-define-keys slime-repl-mode-map ("\C-p" 'slime-repl-previous-input))
+            (slime-define-keys slime-repl-mode-map ("\C-n" 'slime-repl-next-input))))
 
 ;(add-hook 'bbdb-mode-hook (lambda () 
 ;                           (local-set-key "I" 'bbdb-add-interaction)
