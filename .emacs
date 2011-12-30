@@ -606,7 +606,10 @@
 ;;    '(slime-setup '(slime-fancy slime-banner)))
 
 (setq slime-lisp-implementations `((sbcl ("/opt/local/bin/sbcl"))
-                                   (clisp ("/opt/local/bin/clisp")))
+                                   (clisp ("/opt/local/bin/clisp"))
+                                   (ecl ("/opt/local/bin/ecl"))
+                                   (ccl ("/opt/local/bin/ccl"))
+                                   (abcl ("/opt/local/bin/abcl")))
       common-lisp-hyperspec-root "file:///opt/local/share/doc/lisp/HyperSpec-7-0/HyperSpec/")
       ; lisp-indent-function 'common-lisp-indent-function)
       ; slime-startup-animation nil
