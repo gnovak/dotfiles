@@ -78,7 +78,6 @@
 (add-to-list 'load-path "~/bin/elisp")
 
 (when thalia-flag
-  (add-to-list 'load-path "/opt/local/share/emacs/site-lisp/slime")
   (add-to-list 'load-path "/opt/local/share/maxima/5.17.1/emacs/"))
 
 (when clio-flag
@@ -87,6 +86,7 @@
 ;; (add-to-list 'Info-directory-list "/usr/share/info")
 
 (when (or thalia-flag clio-flag)
+  (add-to-list 'load-path "/opt/local/share/emacs/site-lisp/slime")
   (add-to-list 'exec-path "/opt/local/bin"))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -620,7 +620,7 @@
       ; slime-complete-symbol-function 'slime-fuzzy-complete-symbol)
 
 (request-and-init slime
-  (slime-setup '(slime-fancy slime-banner)))
+  (slime-setup '(slime-repl slime-asdf slime-fancy slime-banner)))
 
 (when (and (= emacs-major-version 22) 
 	   (fboundp 'slime-create-filename-translator))
