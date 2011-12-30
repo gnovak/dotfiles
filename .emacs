@@ -482,7 +482,9 @@
    (gsn/jabber-settings "google"))
 
 ;; Tramp
-(setq tramp-default-method "scp"
+(setq ;; It's been a long time since that tramp bug... try 
+      ;; inline methods for a while again
+      ;; tramp-default-method "scp"        
       tramp-debug-buffer t
       tramp-verbose 10)
 
