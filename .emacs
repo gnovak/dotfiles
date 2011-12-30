@@ -108,6 +108,7 @@
 (setq comint-input-ring-size 500
       message-log-max 500
       font-lock-maximum-size 1024000
+      woman-fill-column 72
       woman-cache-filename "~/.woman-cache.el"
       ;; When running ispell, consider all 1-3 character words as correct.
       ;; ispell-extra-args '("-W" "3")
@@ -250,21 +251,23 @@
                           ;; want to keep track of, without worrying
                           ;; too much about the ontology.
                  ;;
-                 "EVENT"  ;; slight misnomer for todo item that I
-                          ;; want to do on a spcific day (but can do
-                          ;; on the next day if necessary)
-                 "CHECK"  ;; active waiting
+                 "PERIODIC" ;; Periodic task
+                 "EVENT"    ;; slight misnomer for todo item that I
+                            ;; want to do on a spcific day (but can do
+                            ;; on the next day if necessary)
+                 "CHECK"    ;; active waiting
                  "REQUIRES" ;; Requires me to do something else first
-                 "WAITING" ;; Requires someone else do do something
-                           ;; or something else to happen before I
-                           ;; can do something.
+                 "WAITING"  ;; Requires someone else do do something
+                            ;; or something else to happen before I
+                            ;; can do something.
                  "DEFERRED" ;; don't want to do it right now for
                             ;; whatever reason.
-                 "SOMEDAY" ;; Might want to do someday.
-                 "NEXT" ;; Next task for this project
+                 "SOMEDAY"  ;; Might want to do someday.
+                 "NEXT"     ;; Next task for this project
                  "|" "DONE" "CANCELLED"))
      org-todo-keyword-faces '(("READ" . "cyan")
                               ("TICKLE" . "orange")
+                              ("PERIODIC" . "orange")
                               ("EVENT" . "orange")
                               ("CHECK" . "orange")
                               ("REQUIRES" . "orange")
@@ -603,7 +606,10 @@
 ;;    '(slime-setup '(slime-fancy slime-banner)))
 
 (setq slime-lisp-implementations `((sbcl ("/opt/local/bin/sbcl"))
-                                   (clisp ("/opt/local/bin/clisp")))
+                                   (clisp ("/opt/local/bin/clisp"))
+                                   (ecl ("/opt/local/bin/ecl"))
+                                   (ccl ("/opt/local/bin/ccl"))
+                                   (abcl ("/opt/local/bin/abcl")))
       common-lisp-hyperspec-root "file:///opt/local/share/doc/lisp/HyperSpec-7-0/HyperSpec/")
       ; lisp-indent-function 'common-lisp-indent-function)
       ; slime-startup-animation nil
@@ -1075,16 +1081,16 @@ function doens't have to be duplicated for -next- and -previous-"
 
 (add-hook 'slime-mode-hook   
           (lambda ()
-         (slime-define-key "\C-cs" 'slime-selector)
-            (slime-define-key "\M-n" 'gsn/slime-next-note)
-            (slime-define-key "\M-p" 'gsn/slime-previous-note)
-            (slime-define-key (kbd "<C-tab>") 'slime-complete-symbol)))
+            (slime-define-keys slime-mode-map ("\C-cs" 'slime-selector))
+            (slime-define-keys slime-mode-map ("\M-n" 'gsn/slime-next-note))
+            (slime-define-keys slime-mode-map ("\M-p" 'gsn/slime-previous-note))
+            (slime-define-keys slime-mode-map ((kbd "<C-tab>") 'slime-complete-symbol))))
 
 (add-hook 'slime-repl-mode-hook   
           (lambda () 
-         (slime-define-key "\C-cs" 'slime-selector)
-            (local-set-key "\C-p" 'slime-repl-previous-input)
-            (local-set-key "\C-n" 'slime-repl-next-input)))
+            (slime-define-keys slime-repl-mode-map ("\C-cs" 'slime-selector))
+            (slime-define-keys slime-repl-mode-map ("\C-p" 'slime-repl-previous-input))
+            (slime-define-keys slime-repl-mode-map ("\C-n" 'slime-repl-next-input))))
 
 ;(add-hook 'bbdb-mode-hook (lambda () 
 ;                           (local-set-key "I" 'bbdb-add-interaction)
