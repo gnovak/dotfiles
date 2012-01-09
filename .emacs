@@ -249,6 +249,8 @@
                           ;; events that are not do-able now, but I
                           ;; want to keep track of, without worrying
                           ;; too much about the ontology.
+                 ;; 
+                 "PERIODIC" 
                  ;;
                  "EVENT"  ;; slight misnomer for todo item that I
                           ;; want to do on a spcific day (but can do
