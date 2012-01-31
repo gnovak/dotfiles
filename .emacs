@@ -105,7 +105,8 @@
 
 (setq frame-title-format (concat  "%b - emacs@" (system-name)))
 
-(setq comint-input-ring-size 500
+(setq line-move-visual nil
+      comint-input-ring-size 500
       message-log-max 500
       font-lock-maximum-size 1024000
       woman-fill-column 72
