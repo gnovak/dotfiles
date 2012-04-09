@@ -113,6 +113,7 @@
       woman-cache-filename "~/.woman-cache.el"
       ;; When running ispell, consider all 1-3 character words as correct.
       ispell-extra-args '("-W" "2")
+      ispell-dictionary "english"
       color-printer-name "hp"
       ;; default to better frame titles
       frame-title-format (concat  "%b - emacs@" (system-name))
