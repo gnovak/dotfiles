@@ -384,6 +384,13 @@
 ;;       (message "*** Can't reschedule this deadline without obliterating repeater ***")
 ;;       ad-do-it))
 
+(defadvice format-time-string  
+  (around gsn/remove-dot-from-day-of-week activate)
+  "Abbreviating days of week as Sun. or Dim. instead of Sun and Dim wreaks havoc with org-mode.  Kill the dot when present"
+  ad-do-it
+  (setq ad-return-value (replace-regexp-in-string "\\(lun\\|mar\\|mer\\|jeu\\|ven\\|sam\\|dim\\|sun\\|mon\\|tue\\|wed\\|thu\\|fri\\|sat\\|sun\\)\\." 
+                                                  "\\1" ad-return-value)))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Life -- mail, bbdb, and planner
       
