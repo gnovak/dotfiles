@@ -1152,9 +1152,9 @@ function doens't have to be duplicated for -next- and -previous-"
  '(imenu-sort-function (quote imenu--sort-by-name))
  '(ispell-dictionary-alist (quote ((nil "[A-Za-z]" "[^A-Za-z]" "[']" nil ("-B") nil iso-8859-1) ("american" "[A-Za-z]" "[^A-Za-z]" "[']" nil ("-B") nil iso-8859-1) ("english" "[A-Za-z]" "[^A-Za-z]" "[']" nil ("-B") nil iso-8859-1))) t)
  '(jabber-connection-ssl-program nil)
- '(org-modules (quote (org-bbdb org-bibtex org-docview org-gnus org-info org-jsinfo org-habit org-irc org-mew org-mhe org-protocol org-rmail org-vm org-wl org-w3m org-eshell org-screen org-mac-link-grabber ))) ; 
+ '(org-modules (quote (org-bbdb org-bibtex org-docview org-gnus org-info org-jsinfo org-habit org-irc org-mew org-mhe org-protocol org-rmail org-vm org-wl org-w3m org-eshell org-screen org-mac-link-grabber)))
  '(require-final-newline nil)
- '(safe-local-variable-values (quote ((package . net\.aserve))))
+ '(safe-local-variable-values (quote ((eval auto-fill-mode -1) (auto-fill-mode) (package . net\.aserve))))
  '(text-mode-hook (quote (turn-on-auto-fill text-mode-hook-identify)))
  '(transient-mark-mode t)
  '(uniquify-buffer-name-style nil nil (uniquify))
