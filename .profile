@@ -15,6 +15,8 @@ alias ls='/bin/ls -hFG'
 # Via patrik
 bind '"\e[A": history-search-backward'
 bind '"\e[B": history-search-forward'
+bind 'Control-p: history-search-backward'
+bind 'Control-v: history-search-forward'
 
 export EDITOR='emacs -nw --no-init'
 export IP=`~/bin/ip-address`
