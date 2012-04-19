@@ -514,6 +514,11 @@
 ;;        (delete-region (line-beginning-position) (+ 1 (line-end-position)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Turn on auto-revert for doc view
+(add-hook 'doc-view-mode-hook 'auto-revert-mode)
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; URL Browsing
 (defun gsn/browse-url-firefox-on-linux (url &optional new-window)
   (shell-command 
