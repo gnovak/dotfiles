@@ -298,6 +298,11 @@
       org-mobile-directory "~/Dropbox/MobileOrg")
 
 
+(defun gsn/org-kill-all-buffers ()
+  (interactive)
+  (org-save-all-org-buffers)  
+  (mapcar 'kill-buffer (org-buffer-list)))
+
 ;; (setq org-use-fast-todo-selection t)
       ;; org-highest-priority "A"
       ;; org-default-priority "C"
