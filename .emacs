@@ -23,6 +23,8 @@
 ; Options which should be set automatically below
 (setq remote-flag nil)
 
+(defun cadar (ll) (car (cdr (car ll))))
+
 ; Try to detect when ssh has set DISPLAY to something funny
 ; indicating that it's forwarding the X11 connection over the 
 ; ssh link.
@@ -112,7 +114,8 @@
       woman-fill-column 72
       woman-cache-filename "~/.woman-cache.el"
       ;; When running ispell, consider all 1-3 character words as correct.
-      ispell-extra-args '("-W" "3")
+      ispell-extra-args '("-W" "2")
+      ispell-dictionary "english"
       color-printer-name "hp"
       ;; default to better frame titles
       frame-title-format (concat  "%b - emacs@" (system-name))
@@ -251,6 +254,8 @@
                           ;; events that are not do-able now, but I
                           ;; want to keep track of, without worrying
                           ;; too much about the ontology.
+                 ;; 
+                 "PERIODIC" 
                  ;;
                  "PERIODIC" ;; Periodic task
                  "EVENT"    ;; slight misnomer for todo item that I
@@ -296,6 +301,11 @@
                              )
       org-mobile-directory "~/Dropbox/MobileOrg")
 
+
+(defun gsn/org-kill-all-buffers ()
+  (interactive)
+  (org-save-all-org-buffers)  
+  (mapcar 'kill-buffer (org-buffer-list)))
 
 ;; (setq org-use-fast-todo-selection t)
       ;; org-highest-priority "A"
@@ -383,6 +393,13 @@
 ;;   (if (org-get-repeat) 
 ;;       (message "*** Can't reschedule this deadline without obliterating repeater ***")
 ;;       ad-do-it))
+
+(defadvice format-time-string  
+  (around gsn/remove-dot-from-day-of-week activate)
+  "Abbreviating days of week as Sun. or Dim. instead of Sun and Dim wreaks havoc with org-mode.  Kill the dot when present"
+  ad-do-it
+  (setq ad-return-value (replace-regexp-in-string "\\(lun\\|mar\\|mer\\|jeu\\|ven\\|sam\\|dim\\|sun\\|mon\\|tue\\|wed\\|thu\\|fri\\|sat\\|sun\\)\\." 
+                                                  "\\1" ad-return-value)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Life -- mail, bbdb, and planner
@@ -501,6 +518,11 @@
 ;;                                 (buffer-name)))   
 ;;                 '("web" "jenandgreg@jenandgreg.org")))
 ;;        (delete-region (line-beginning-position) (+ 1 (line-end-position)))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Turn on auto-revert for doc view
+(add-hook 'doc-view-mode-hook 'auto-revert-mode)
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; URL Browsing
@@ -1139,9 +1161,9 @@ function doens't have to be duplicated for -next- and -previous-"
  '(imenu-sort-function (quote imenu--sort-by-name))
  '(ispell-dictionary-alist (quote ((nil "[A-Za-z]" "[^A-Za-z]" "[']" nil ("-B") nil iso-8859-1) ("american" "[A-Za-z]" "[^A-Za-z]" "[']" nil ("-B") nil iso-8859-1) ("english" "[A-Za-z]" "[^A-Za-z]" "[']" nil ("-B") nil iso-8859-1))) t)
  '(jabber-connection-ssl-program nil)
- '(org-modules (quote (org-bbdb org-bibtex org-docview org-gnus org-info org-jsinfo org-habit org-irc org-mew org-mhe org-protocol org-rmail org-vm org-wl org-w3m org-eshell org-screen org-mac-link-grabber ))) ; 
+ '(org-modules (quote (org-bbdb org-bibtex org-docview org-gnus org-info org-jsinfo org-habit org-irc org-mew org-mhe org-protocol org-rmail org-vm org-wl org-w3m org-eshell org-screen org-mac-link-grabber)))
  '(require-final-newline nil)
- '(safe-local-variable-values (quote ((package . net\.aserve))))
+ '(safe-local-variable-values (quote ((eval auto-fill-mode -1) (auto-fill-mode) (package . net\.aserve))))
  '(text-mode-hook (quote (turn-on-auto-fill text-mode-hook-identify)))
  '(transient-mark-mode t)
  '(uniquify-buffer-name-style nil nil (uniquify))

@@ -9,6 +9,12 @@ alias rm='rm -i'
 alias du='du -k'				
 alias ls='/bin/ls -hFG'
 
+# Via patrik
+bind '"\e[A": history-search-backward'
+bind '"\e[B": history-search-forward'
+bind 'Control-p: history-search-backward'
+bind 'Control-v: history-search-forward'
+
 export EDITOR='emacs -nw --no-init'
 export IP=`~/bin/ip-address`
 export RSYNC_RSH=ssh
@@ -25,6 +31,7 @@ export CCL_DEFAULT_DIRECTORY=/usr/local/ccl
 # Advice from Macports for building qt3 software
 export QTDIR=/opt/local/lib/qt3
 # export PYTHONPATH=./gsnpy:/Users/novak/bin/local/lib/python2.5/site-packages/
+export CCL_DEFAULT_DIRECTORY=/usr/local/ccl
 
 # Search path for info files.  If INFOPATH ends with a colon, then
 # Emacs searches both INFOPATH and Info-default-directory-list
@@ -59,7 +66,6 @@ export IDL_PATH="+${HOME}/bin/idl-pros:+${HOME}/Projects/Thesis/idl:<IDL_DEFAULT
 export IDL_DIR=/Applications/rsi/idl_$IDL_VERSION
 
 ##############################
-
 # Start Dropbox if it isn't already running.
 # Dropbox itself checks for this, so this test just avoids an error message.
 if [ -x ~/.dropbox-dist/dropbox ]; then 
