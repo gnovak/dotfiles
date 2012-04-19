@@ -12,6 +12,10 @@ alias rm='rm -i'
 alias du='du -k'				
 alias ls='/bin/ls -hFG'
 
+# Via patrik
+bind '"\e[A": history-search-backward'
+bind '"\e[B": history-search-forward'
+
 export EDITOR='emacs -nw --no-init'
 export IP=`~/bin/ip-address`
 export RSYNC_RSH=ssh
