@@ -232,6 +232,14 @@
 
 (add-to-list 'auto-mode-alist '("\\.org\\'" . org-mode))
 
+
+(unless (equal org-agenda-sorting-strategy 
+               '((agenda habit-down time-up priority-down category-keep)
+                 (todo priority-down category-keep)
+                 (tags priority-down category-keep)
+                 (search category-keep)))
+  (message "org-agenda-sorting-strategy default changed!  Revisit setting!"))
+
 (setq org-directory "~/Dropbox/Brain"
       org-agenda-files '("~/Dropbox/Brain")
       org-default-notes-file (concat org-directory "/in.org")
@@ -244,7 +252,12 @@
       org-list-demote-modify-bullet '(("-" . "+") ("+" . "-"))
       org-tags-exclude-from-inheritance '("project")
       ;; STARTED NEXT
-  org-todo-keywords
+      org-agenda-sorting-strategy  '((agenda todo-state-down habit-down time-up  
+                                             priority-down category-keep)
+                                     (todo priority-down category-keep)
+                                     (tags priority-down category-keep)
+                                     (search category-keep))
+      org-todo-keywords
      '((sequence "TODO" "DONE")
        (sequence "READ"
                  ;;
