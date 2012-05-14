@@ -234,6 +234,14 @@
 
 (add-to-list 'auto-mode-alist '("\\.org\\'" . org-mode))
 
+
+(unless (equal org-agenda-sorting-strategy 
+               '((agenda habit-down time-up priority-down category-keep)
+                 (todo priority-down category-keep)
+                 (tags priority-down category-keep)
+                 (search category-keep)))
+  (message "org-agenda-sorting-strategy default changed!  Revisit setting!"))
+
 (setq org-directory "~/Dropbox/Brain"
       org-agenda-files '("~/Dropbox/Brain")
       org-default-notes-file (concat org-directory "/in.org")
@@ -246,7 +254,12 @@
       org-list-demote-modify-bullet '(("-" . "+") ("+" . "-"))
       org-tags-exclude-from-inheritance '("project")
       ;; STARTED NEXT
-  org-todo-keywords
+      org-agenda-sorting-strategy  '((agenda todo-state-down habit-down time-up  
+                                             priority-down category-keep)
+                                     (todo priority-down category-keep)
+                                     (tags priority-down category-keep)
+                                     (search category-keep))
+      org-todo-keywords
      '((sequence "TODO" "DONE")
        (sequence "READ"
                  ;;
@@ -1154,11 +1167,13 @@ function doens't have to be duplicated for -next- and -previous-"
  '(browse-url-netscape-program "mozilla")
  '(canlock-password "76c482cedbccca505ba78b5407836db33e0dc7d0")
  '(current-language-environment "Latin-1")
- '(default-input-method "latin-1-prefix")
+ '(default-input-method "french-postfix")
  '(fast-lock-cache-directories (quote ("~/.font-lock" "~/.emacs-flc")))
  '(font-lock-support-mode nil)
  '(global-font-lock-mode t nil (font-lock))
  '(imenu-sort-function (quote imenu--sort-by-name))
+ '(input-method-highlight-flag nil)
+ '(input-method-verbose-flag (quote complex-only))
  '(ispell-dictionary-alist (quote ((nil "[A-Za-z]" "[^A-Za-z]" "[']" nil ("-B") nil iso-8859-1) ("american" "[A-Za-z]" "[^A-Za-z]" "[']" nil ("-B") nil iso-8859-1) ("english" "[A-Za-z]" "[^A-Za-z]" "[']" nil ("-B") nil iso-8859-1))) t)
  '(jabber-connection-ssl-program nil)
  '(org-modules (quote (org-bbdb org-bibtex org-docview org-gnus org-info org-jsinfo org-habit org-irc org-mew org-mhe org-protocol org-rmail org-vm org-wl org-w3m org-eshell org-screen org-mac-link-grabber)))

@@ -22,6 +22,7 @@ export CVSROOT=novak@ssh.ucolick.org:/home/public/novak/bin/cvs
 export CVS_RSH=ssh
 export CVSEDITOR=pico
 export TEXINPUTS=$HOME/bin/tex//:
+export MFINPUTS=$HOME/bin/tex//:
 export BSTINPUTS=$HOME/bin/tex//:
 export BIBINPUTS=$HOME/Papers/bib:
 # For pyfits
