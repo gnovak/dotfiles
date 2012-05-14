@@ -217,7 +217,7 @@
 ;;  (org-remember-insinuate))
 
 ;; Org install instructions say that this helps with autoloads.
-; (require 'org)
+;(require 'org)
 (require 'org-install)
 
 (defvar gsn/org-current-task)
@@ -234,13 +234,17 @@
 
 (add-to-list 'auto-mode-alist '("\\.org\\'" . org-mode))
 
-
-(unless (equal org-agenda-sorting-strategy 
-               '((agenda habit-down time-up priority-down category-keep)
-                 (todo priority-down category-keep)
-                 (tags priority-down category-keep)
-                 (search category-keep)))
-  (message "org-agenda-sorting-strategy default changed!  Revisit setting!"))
+;; Would like to check that org-agenda-sorting-strategy default value
+;; hasn't changed with a bump in org-version, but the vars aren't
+;; defined, and org-mode-hook isn't defined either.  So I don't now
+;; how to actually do this at the moment.
+;; 
+;; (unless (equal org-agenda-sorting-strategy 
+;;                '((agenda habit-down time-up priority-down category-keep)
+;;                  (todo priority-down category-keep)
+;;                  (tags priority-down category-keep)
+;;                  (search category-keep)))
+;;   (message "org-agenda-sorting-strategy default changed!  Revisit setting!"))
 
 (setq org-directory "~/Dropbox/Brain"
       org-agenda-files '("~/Dropbox/Brain")
@@ -253,12 +257,12 @@
       org-enforce-todo-dependencies t
       org-list-demote-modify-bullet '(("-" . "+") ("+" . "-"))
       org-tags-exclude-from-inheritance '("project")
-      ;; STARTED NEXT
       org-agenda-sorting-strategy  '((agenda todo-state-down habit-down time-up  
                                              priority-down category-keep)
                                      (todo priority-down category-keep)
                                      (tags priority-down category-keep)
                                      (search category-keep))
+      ;; STARTED NEXT
       org-todo-keywords
      '((sequence "TODO" "DONE")
        (sequence "READ"
@@ -349,13 +353,13 @@
 
 ;; (request 'org-toc)
 
-;; (add-hook org-mode-hook           
-;;           (lambda () 
-;;             ;; org-mode itself seems to reset this, so set it when
-;;             ;; entering the buffer
-;;             (setq org-todo-keywords '((sequence "TODO" "NEXT" "DONE")
-;;                                       (sequence "PENDING" "SOMEDAY" "CANCELLED")))))
-
+;; (unless (equal org-agenda-sorting-strategy 
+;;                '((agenda habit-down time-up priority-down category-keep)
+;;                  (todo priority-down category-keep)
+;;                  (tags priority-down category-keep)
+;;                  (search category-keep)))
+;;   (message "org-agenda-sorting-strategy default changed!  Revisit setting!"))
+                          
 ;; org-refile-targets is a bit of a bear, documentation is a little
 ;; murky and google doens't find any examples.  Don't forget to
 ;; refresh the list of targets with
