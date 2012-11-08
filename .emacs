@@ -233,12 +233,12 @@
 (add-to-list 'auto-mode-alist '("\\.org\\'" . org-mode))
 
 
-(unless (equal org-agenda-sorting-strategy 
-               '((agenda habit-down time-up priority-down category-keep)
-                 (todo priority-down category-keep)
-                 (tags priority-down category-keep)
-                 (search category-keep)))
-  (message "org-agenda-sorting-strategy default changed!  Revisit setting!"))
+;; (unless (equal org-agenda-sorting-strategy 
+;;                '((agenda habit-down time-up priority-down category-keep)
+;;                  (todo priority-down category-keep)
+;;                  (tags priority-down category-keep)
+;;                  (search category-keep)))
+;;   (message "org-agenda-sorting-strategy default changed!  Revisit setting!"))
 
 (setq org-directory "~/Dropbox/Brain"
       org-agenda-files '("~/Dropbox/Brain")
