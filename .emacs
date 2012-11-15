@@ -247,8 +247,12 @@
 ;;                  (search category-keep)))
 ;;   (message "org-agenda-sorting-strategy default changed!  Revisit setting!"))
 
+
+;; normally don't want this, but sometimes do.
+;; (setq org-habit-show-habits-only-for-today nil)
+;; (setq org-habit-show-habits-only-for-today t)
+
 (setq org-directory "~/Dropbox/Brain"
-      org-agenda-files '("~/Dropbox/Brain")
       org-default-notes-file (concat org-directory "/in.org")
       org-agenda-files (list org-directory)
       org-hide-leading-stars t
