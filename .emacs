@@ -590,8 +590,8 @@
                              "/home/novak/bin/local/bin/ipython"))
       py-python-command-args '("--pylab=tk" "--colors=LightBG"))
 
-(request 'python-mode)
-(request 'ipython)
+;; (request 'python-mode)
+;; (request 'ipython)
 
 ; ipython calling convention changed, should probably update
 ; ipython.el, but for now just reset the command line args.
