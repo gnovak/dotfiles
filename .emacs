@@ -259,8 +259,8 @@
       org-enforce-todo-dependencies t
       org-list-demote-modify-bullet '(("-" . "+") ("+" . "-"))
       org-tags-exclude-from-inheritance '("project")
-      org-agenda-sorting-strategy  '((agenda todo-state-down habit-down time-up  
-                                             priority-down category-keep)
+      org-agenda-sorting-strategy  '((agenda time-up category-down habit-up
+                                             todo-state-down priority-down)
                                      (todo priority-down category-keep)
                                      (tags priority-down category-keep)
                                      (search category-keep))
