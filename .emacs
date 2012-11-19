@@ -590,7 +590,8 @@
       py-python-command-args '("--pylab=tk" "--colors=LightBG"))
 
 (request 'python-mode)
-(request 'ipython)
+;; GSN -- disable ipython-mode until dust settles with Lion 
+;; (request 'ipython)
 
 ; ipython calling convention changed, should probably update
 ; ipython.el, but for now just reset the command line args.
