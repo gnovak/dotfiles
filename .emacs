@@ -79,11 +79,12 @@
 ;; Paths
 (add-to-list 'load-path "~/bin/elisp")
 
-(when thalia-flag
-  (add-to-list 'load-path "/opt/local/share/maxima/5.17.1/emacs/"))
-
-(when clio-flag
-  (add-to-list 'load-path "/opt/local/share/maxima/5.24.0/emacs/"))
+;; The Macports maxima installs the maxima elisp files under the
+;; maxima tree, where you have to use a line like the following for
+;; emacs to find them.  Macports also has an imaxima package that
+;; installs them into the normal site-lisp directory so emacs finds
+;; them automatically.
+(add-to-list 'load-path "/opt/local/share/maxima/5.28.0/emacs/")
 
 ;; (add-to-list 'Info-directory-list "/usr/share/info")
 
@@ -781,8 +782,9 @@ function doens't have to be duplicated for -next- and -previous-"
   "Move point to the next/previous compiler note of type TYPE."
   (gsn/slime-scan-note-by-type type 'slime-find-previous-note))
 
-;; Maxima
-(request 'maxima)
+;; for Maxima
+(request 'maxima) ;; for writing maxima code
+(autoload 'imaxima "imaxima" "Image support for Maxima." t)
 
 ;; Random stuff
 (defun gsn/maxima-untabify-output (s)
@@ -938,9 +940,11 @@ function doens't have to be duplicated for -next- and -previous-"
   (local-set-key "\C-n" 'gsn/comint-history-down))
 
 ;;; Maxima keymaps 
-;; In Maxima mode, put the fricking semicolon on the line automatically
 (defun gsn/inferior-maxima-check-and-send-line ()
   "Stick a semicolon on the end of the line if there isn't one there"
+  ;; improvements: 
+  ;; check for blank lines, don't append semicolon
+  ;; check for semicolon followed by whitespace, don't append another
   (interactive)
   (end-of-line)
   ;; check to see if last character is not a semicolon
