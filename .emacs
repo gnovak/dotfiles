@@ -937,6 +937,44 @@ function doens't have to be duplicated for -next- and -previous-"
   (dired-find-file-other-window)
   (other-window 1))
   
+;;;;;
+;; Persistent history in emacs comint-derived buffers, snarfed from: 
+;; http://oleksandrmanzyuk.wordpress.com/2011/10/23/a-persistent-command-history-in-emacs/
+
+(defun comint-write-history-on-exit (process event)
+  (comint-write-input-ring)
+  (let ((buf (process-buffer process)))
+    (when (buffer-live-p buf)
+      (with-current-buffer buf
+        (insert (format "\nProcess %s %s" process event))))))
+
+(defun turn-on-comint-history ()
+  (let ((process (get-buffer-process (current-buffer))))
+    (when process
+      (setq comint-input-ring-file-name
+            (format "~/.emacs.d/inferior-%s-history"
+                    (process-name process)))
+      (comint-read-input-ring)
+      (set-process-sentinel process
+                            #'comint-write-history-on-exit))))
+
+(add-hook 'inferior-python-mode-hook 'turn-on-comint-history)
+
+(add-hook 'kill-buffer-hook 'comint-write-input-ring)
+
+(defun mapc-buffers (fn)
+  (mapc (lambda (buffer)
+          (with-current-buffer buffer
+            (funcall fn)))
+        (buffer-list)))
+
+(defun comint-write-input-ring-all-buffers ()
+  (mapc-buffers 'comint-write-input-ring))
+
+(add-hook 'kill-emacs-hook 'comint-write-input-ring-all-buffers)
+
+;;;;;
+
 ;;; Comint key maps
 ;;; If the cursor is after the command prompt, make <up> and <down> do
 ;;; command history matching rather than just sequentially pulling
