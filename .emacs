@@ -1117,7 +1117,6 @@ function doens't have to be duplicated for -next- and -previous-"
 ;;; USER MAPS
 ;; compile macros
 (global-set-key "\C-cc" 'compile)
-(global-set-key "\C-cC" 'tramp-compile)
 
 ;; Point stack key bindings
 (global-set-key "\C-cm" 'point-stack-push)
