@@ -79,6 +79,8 @@
 ;; Paths
 (add-to-list 'load-path "~/bin/elisp")
 
+; (add-to-list 'load-path "~/bin/elisp/python-mode")
+
 ;; The Macports maxima installs the maxima elisp files under the
 ;; maxima tree, where you have to use a line like the following for
 ;; emacs to find them.  Macports also has an imaxima package that
@@ -588,19 +590,47 @@
   "Leave point in the current window when you call find-tag-other-window"
   (other-window 1))
 
-;; Python
-(setq ipython-command (cond ((or clio-flag thalia-flag)
-                             "/opt/local/bin/ipython-2.7")
-                            (pleiades-flag 
-                             "/home/novak/bin/local/bin/ipython"))
-      py-python-command-args '("--pylab=tk" "--colors=LightBG"))
+;; Gallina python.el
+;; Recommended settings for Gallina python.el for use with ipython 0.11.  
+(setq python-shell-interpreter "ipython"
+      python-shell-interpreter-args "--pylab"
+      python-shell-prompt-regexp "In \\[[0-9]+\\]: "
+      python-shell-prompt-output-regexp "Out\\[[0-9]+\\]: "
+      python-shell-completion-setup-code
+      "from IPython.core.completerlib import module_completion"
+      python-shell-completion-module-string-code
+      "';'.join(module_completion('''%s'''))\n"
+      python-shell-completion-string-code
+      "';'.join(get_ipython().Completer.all_completions('''%s'''))\n")
+
+;; python-mode.el
+;; Ordering of py-shell-name, py-python-command-args and require
+;; 'python-mode are important here, who knows why.
+;; (add-to-list 'load-path "~/bin/elisp/python-mode/") 
+;; (setq py-install-directory "~/bin/elisp/python-mode/")
+;; (setq py-shell-name "ipython")
+;; (request 'python-mode)
+;; (setq-default py-python-command-args '("--pylab" "--colors=LightBG"))
+
+;; Commands to start remote python shell
+;; (setq py-shell-name "/usr/bin/ssh")
+;; (request 'python-mode)
+;; (setq-default py-python-command-args 
+;;               '("-t" "sesame1" "/home/gnovak/bin/local/bin/ipython"
+;;                 "--pylab" "--colors=LightBG"))
+
+;; (setq ipython-command (cond ((or clio-flag thalia-flag)
+;;                              "/opt/local/bin/ipython-2.7")
+;;                             (pleiades-flag 
+;;                              "/home/novak/bin/local/bin/ipython"))
+;;       py-python-command-args '("--pylab=tk" "--colors=LightBG"))
 
 ;; (request 'python-mode)
 ;; (request 'ipython)
 
 ; ipython calling convention changed, should probably update
 ; ipython.el, but for now just reset the command line args.
-(setq py-python-command-args '("--pylab=tk" "--colors=LightBG"))
+;; (setq py-python-command-args '("--pylab=tk" "--colors=LightBG"))
 
 ; this is a hack to fix the fact that the space went away from the
 ; ipython debugger prompt in version 0.7.3 of ipython.  Sheesh.
@@ -836,22 +866,22 @@ function doens't have to be duplicated for -next- and -previous-"
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Code for keymaps
 
-(defun gsn/py-windows ()
-  (interactive)
-  (delete-other-windows)
-  (split-window-vertically)
-  ;; switch to the most recently visited python buffer
-  (let ((buffers (buffer-list))
-        done)
-    (while (not done)
-      (with-current-buffer (car buffers)
-        (setq buffers (cdr buffers))
-        (when (eql major-mode 'python-mode)
-          (switch-to-buffer (current-buffer))
-          (setq done t)))))      
-  (other-window 1)
-  (switch-to-buffer "*Python*")
-  (end-of-buffer))
+;; (defun gsn/py-windows ()
+;;   (interactive)
+;;   (delete-other-windows)
+;;   (split-window-vertically)
+;;   ;; switch to the most recently visited python buffer
+;;   (let ((buffers (buffer-list))
+;;         done)
+;;     (while (not done)
+;;       (with-current-buffer (car buffers)
+;;         (setq buffers (cdr buffers))
+;;         (when (eql major-mode 'python-mode)
+;;           (switch-to-buffer (current-buffer))
+;;           (setq done t)))))      
+;;   (other-window 1)
+;;   (switch-to-buffer "*Python*")
+;;   (end-of-buffer))
 
 ;;; Eshell keymaps 
 (defun gsn/eshell-after-prompt-p ()
@@ -958,10 +988,10 @@ function doens't have to be duplicated for -next- and -previous-"
   (gsn/comint-history-keymaps)
   (local-set-key "\C-m"  'gsn/inferior-maxima-check-and-send-line))
 
-(defun gsn/python-mode-repl ()
-  (interactive) 
-  (py-shell) 
-  (end-of-buffer))
+;; (defun gsn/python-mode-repl ()
+;;   (interactive) 
+;;   (py-shell) 
+;;   (end-of-buffer))
 
 ; Lifted from
 ; http://www.emacswiki.org/emacs/DuplicateLines
@@ -1143,9 +1173,9 @@ function doens't have to be duplicated for -next- and -previous-"
 (add-hook 'comint-mode-hook 'gsn/comint-history-keymaps t)
 
 (add-hook 'py-shell-hook 'gsn/comint-history-keymaps)
-(add-hook 'python-mode-hook 
-          (lambda () 
-            (local-set-key "\C-c\C-z" 'gsn/python-mode-repl)))
+;; (add-hook 'python-mode-hook 
+;;           (lambda () 
+;;             (local-set-key "\C-c\C-z" 'gsn/python-mode-repl)))
 
 (add-hook 'idlwave-shell-mode-hook 'gsn/comint-history-keymaps t)
 
