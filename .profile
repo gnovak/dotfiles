@@ -1,6 +1,6 @@
 
 PS1='[\u@\h \w]$ '
-PATH=~/bin:~/bin/local/bin:/opt/local/bin:/opt/local/sbin:/usr/local/bin:/usr/local/cuda/bin:$PATH
+PATH=~/bin:~/bin/local/bin:/opt/local/bin:/opt/local/sbin:/usr/local/bin:/usr/local/cuda/bin:~/bin/c13.00_rc1/source:$PATH
 MANPATH=/opt/local/man:~/bin/man:$MANPATH
 
 alias cp='cp -i'	
@@ -33,6 +33,8 @@ export CCL_DEFAULT_DIRECTORY=/usr/local/ccl
 export QTDIR=/opt/local/lib/qt3
 # export PYTHONPATH=./gsnpy:/Users/novak/bin/local/lib/python2.5/site-packages/
 export CCL_DEFAULT_DIRECTORY=/usr/local/ccl
+# Cloudy needs the full absolute path.
+export CLOUDY_DATA_PATH="/Users/novak/bin/c13.00_rc1/data"
 
 # Search path for info files.  If INFOPATH ends with a colon, then
 # Emacs searches both INFOPATH and Info-default-directory-list
