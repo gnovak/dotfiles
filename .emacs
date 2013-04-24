@@ -1114,6 +1114,9 @@ function doens't have to be duplicated for -next- and -previous-"
 ;;(global-set-key (kbd "<M-left>") 'gsn/scroll-window-backward-paragraph)
 ;;(global-set-key (kbd "<M-right>") 'gsn/scroll-window-forward-paragraph)
 
+;; Much prefer ediff to diff.  This is apparently a global binding...?
+(global-set-key (kbd "C-x v =") 'vc-ediff)
+
 ;;; USER MAPS
 ;; compile macros
 (global-set-key "\C-cc" 'compile)
