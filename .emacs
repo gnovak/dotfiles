@@ -214,6 +214,8 @@
                   (calendar-absolute-from-gregorian (list month day year)))))
         'font-lock-face 'font-lock-function-name-face))
 
+(setq ediff-split-window-function 'split-window-horizontally)
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Life -- org mode
 ;; org-remember deprecated.
