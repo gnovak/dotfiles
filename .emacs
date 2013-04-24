@@ -266,11 +266,13 @@
       org-enforce-todo-dependencies t
       org-list-demote-modify-bullet '(("-" . "+") ("+" . "-"))
       org-tags-exclude-from-inheritance '("project")
+      org-global-properties '(("Effort_ALL" . "1 2 3"))
+      org-columns-default-format "%120ITEM %TODO %1PRIORITY %1Effort %TAGS"
       org-agenda-sorting-strategy  '((agenda time-up category-down habit-up
                                              todo-state-down priority-down)
                                      (todo priority-down category-keep)
                                      (tags priority-down category-keep)
-                                     (search category-keep))
+                                     (search category-keep))      
       ;; STARTED NEXT
       org-todo-keywords
      '((sequence "TODO" "DONE")
