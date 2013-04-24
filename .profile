@@ -24,7 +24,7 @@ export CVSEDITOR=pico
 export TEXINPUTS=$HOME/bin/tex//:
 export MFINPUTS=$HOME/bin/tex//:
 export BSTINPUTS=$HOME/bin/tex//:
-export BIBINPUTS=$HOME/Papers/bib:
+export BIBINPUTS=$HOME/Papers/bib:$HOME/Dropbox/GregDave/structure/bib:
 # For pyfits
 export NUMERIX=numpy  
 # clozure CL
