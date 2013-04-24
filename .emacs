@@ -1112,8 +1112,12 @@ function doens't have to be duplicated for -next- and -previous-"
 (global-set-key "\C-t" 'goto-line)
 
 ;;; For my money, \C-f and \C-b are better mapped as forward/back word
-(global-set-key "\C-f" 'forward-word)
-(global-set-key "\C-b" 'backward-word)
+;(global-set-key "\C-f" 'forward-char)
+;(global-set-key"\C-b" 'backward-char)
+;;; Try to make it possible to not move my hands to the arrow keys
+(global-set-key "\M-p" 'backward-paragraph)
+(global-set-key "\M-n" 'forward-paragraph)
+
 
 ;;; When I look up tags, I do it for documentation.  I like the info
 ;;; to appear in the other window and have the point stay in this
