@@ -78,8 +78,10 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Paths
 (add-to-list 'load-path "~/bin/elisp")
-
 ; (add-to-list 'load-path "~/bin/elisp/python-mode")
+(when thalia-flag
+  (add-to-list 'load-path "/opt/local/share/emacs/site-lisp/slime")
+  (add-to-list 'load-path "/opt/local/share/maxima/5.17.1/emacs/"))
 
 ;; The Macports maxima installs the maxima elisp files under the
 ;; maxima tree, where you have to use a line like the following for
@@ -87,6 +89,8 @@
 ;; installs them into the normal site-lisp directory so emacs finds
 ;; them automatically.
 (add-to-list 'load-path "/opt/local/share/maxima/5.28.0/emacs/")
+(when clio-flag
+  (add-to-list 'load-path "/opt/local/share/maxima/5.24.0/emacs/"))
 
 ;; (add-to-list 'Info-directory-list "/usr/share/info")
 
@@ -110,8 +114,9 @@
 
 (setq frame-title-format (concat  "%b - emacs@" (system-name)))
 
-(setq line-move-visual nil
-      comint-input-ring-size 500
+; I'm not sure what this line does.
+; (setq line-move-visual nil)
+(setq comint-input-ring-size 500
       message-log-max 500
       font-lock-maximum-size 1024000
       woman-fill-column 72
@@ -258,6 +263,8 @@
 ;; (setq org-habit-show-habits-only-for-today t)
 
 (setq org-directory "~/Dropbox/Brain"
+      ; Think following line isn't needed anymore?
+      ; org-agenda-files '("~/Dropbox/Brain")
       org-default-notes-file (concat org-directory "/in.org")
       org-agenda-files (list org-directory)
       org-hide-leading-stars t
@@ -274,7 +281,7 @@
                                              todo-state-down priority-down)
                                      (todo priority-down category-keep)
                                      (tags priority-down category-keep)
-                                     (search category-keep))      
+                                     (search category-keep))
       ;; STARTED NEXT
       org-todo-keywords
      '((sequence "TODO" "DONE")
@@ -285,13 +292,14 @@
                           ;; want to keep track of, without worrying
                           ;; too much about the ontology.
                  ;; 
-                 "PERIODIC" 
-                 ;;
                  "PERIODIC" ;; Periodic task
                  "EVENT"    ;; slight misnomer for todo item that I
                             ;; want to do on a spcific day (but can do
                             ;; on the next day if necessary)
                  "CHECK"    ;; active waiting
+                 "EVENT"  ;; slight misnomer for todo item that I
+                          ;; want to do on a spcific day (but can do
+                          ;; on the next day if necessary)
                  "REQUIRES" ;; Requires me to do something else first
                  "WAITING"  ;; Requires someone else do do something
                             ;; or something else to happen before I
@@ -336,6 +344,7 @@
   (interactive)
   (org-save-all-org-buffers)  
   (mapcar 'kill-buffer (org-buffer-list)))
+
 
 ;; (setq org-use-fast-todo-selection t)
       ;; org-highest-priority "A"
@@ -635,6 +644,10 @@
 ; ipython calling convention changed, should probably update
 ; ipython.el, but for now just reset the command line args.
 ;; (setq py-python-command-args '("--pylab=tk" "--colors=LightBG"))
+
+; ipython calling convention changed, should probably update
+; ipython.el, but for now just reset the command line args.
+(setq py-python-command-args '("--pylab=tk" "--colors=LightBG"))
 
 ; this is a hack to fix the fact that the space went away from the
 ; ipython debugger prompt in version 0.7.3 of ipython.  Sheesh.
