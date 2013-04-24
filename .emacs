@@ -128,7 +128,8 @@
       color-printer-name "hp"
       ;; default to better frame titles
       frame-title-format (concat  "%b - emacs@" (system-name))
-      grep-command "grep -nHi -e ")
+      grep-command "grep -nHi -e "
+      doc-view-resolution 126.5625)
 
 ;; Put all backup files into one directory.
 (setq make-backup-files t      
