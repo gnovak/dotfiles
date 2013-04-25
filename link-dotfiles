@@ -1,0 +1,43 @@
+#!/bin/bash
+
+dir=~/.dotfiles/
+files="bashrc profile emacs emacs.minimal Xdefaults sbclrc dbox-name"
+backup=orig
+
+# destdir destfile
+# destdir should include trailing slash
+move_maybe () {
+    # only back up regular files, not symlinks made previously
+    # Thought -f would work, but seem to need ! -h
+    #if [[ -f $1$2 ]]
+    if [[ (-e $1$2) && ! (-h $1$2) ]]
+    then
+        if [[ -e $1$2.$backup ]]
+        then
+            echo Warning, skipping $1$2, do that one manually.
+            false
+        else
+            mv $1$2 $1$2.$backup 
+        fi        
+    fi
+}
+
+# srcfile destdir destfile
+# destdir should include trailing slash
+link_maybe () {
+    move_maybe $2 $3    
+    if [[ ($? -eq 0) && ! (-h $2$3) ]]
+    then
+        # backup was not needed or successfully made, and symlink doensn't already exist
+        ln -s $dir$1 $2$3
+    fi
+}
+
+# files that just get linked into home dir
+for f in $files ; do 
+    link_maybe $f ~/ .$f
+done
+
+# special cases, sit inside directories
+link_maybe ssh.config ~/.ssh/ config
+
