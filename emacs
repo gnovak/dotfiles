@@ -271,6 +271,7 @@
       org-hide-leading-stars t
       org-odd-levels-only t
       org-log-done t
+      org-catch-invisible-edits 'smart
       org-log-into-drawer t
       org-table-auto-blank-field nil
       org-enforce-todo-dependencies t
