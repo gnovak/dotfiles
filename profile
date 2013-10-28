@@ -79,3 +79,9 @@ if [ -x ~/.dropbox-dist/dropbox ]; then
     fi
 fi
 
+# Start Crashplan engine if it exists and isn't already running
+if [ -x ~/bin/crashplan/bin/crashplan ]; then 
+   if ~/bin/crashplan/bin/crashplan status | grep stopped > /dev/null ; then    
+      ~/bin/crashplan/bin/crashplan start > /dev/null
+   fi
+fi
