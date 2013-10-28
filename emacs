@@ -1139,6 +1139,36 @@ function doens't have to be duplicated for -next- and -previous-"
 ;; Much prefer ediff to diff.  This is apparently a global binding...?
 (global-set-key (kbd "C-x v =") 'vc-ediff)
 
+(defun gsn/ediff-command (ediff-fn &rest args)
+  (let ((current-buf (current-buffer))
+        (ediff-bufs (filter (lambda (buf) 
+                              (with-current-buffer buf
+                                (equal major-mode 'ediff-mode)))
+                            (buffer-list))))
+    (if (null ediff-bufs)
+        (user-error "No ediff buffers found!"))
+    (let ((ediff-buf (filter (lambda (buf)
+                               (with-current-buffer buf
+                                 (or (equal current-buf ediff-buffer-A)
+                                     (equal current-buf ediff-buffer-B)
+                                     (equal current-buf ediff-buffer-C))))
+                             ediff-bufs)))
+      (if (null ediff-buf)
+          (user-error "No ediff buffer points to the current buffer!"))
+      (if (< 1 (length ediff-buf))
+          (user-error "Multiple ediff buffers point to the current buffer!"))
+      (save-excursion
+        (switch-to-buffer (car ediff-buf))
+        (apply ediff-fn args)))))
+
+(defun gsn/ediff-next-difference ()
+  (interactive)
+  (gsn/ediff-command #'ediff-next-difference))
+
+(defun gsn/ediff-previous-difference ()
+  (interactive)
+  (gsn/ediff-command #'ediff-previous-difference))
+
 ;;; USER MAPS
 ;; compile macros
 (global-set-key "\C-cc" 'compile)
@@ -1172,7 +1202,8 @@ function doens't have to be duplicated for -next- and -previous-"
 
 (global-set-key "\C-ca" 'gsn/org-agenda)
 (global-set-key "\C-cs" 'org-agenda)
-(global-set-key "\C-cn" 'gsn/org-what-am-i-working-on) ;; mneumonic is "now"
+;(global-set-key "\C-cn" 'gsn/org-what-am-i-working-on) ;; mneumonic is "now"
+(global-set-key "\C-cn" 'gsn/ediff-next-difference)
 (global-set-key "\C-cl" 'org-store-link)
 (global-set-key "\C-cp" 'gsn/org-plan)
 
