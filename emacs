@@ -2,7 +2,8 @@
 ;;; Set up flags for system specific stuff
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (setq moving-mail nil)
-
+; Load comint or else putting calls to it in close-buffer-hook wreaks havoc
+(require 'comint)
 ;(require 'bbdb)                                                       
 ;(bbdb-initialize)                                                     
 
