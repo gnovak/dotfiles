@@ -340,7 +340,13 @@
       org-mobile-files (list (concat org-directory "/home.org")
                              (concat org-directory "/work.org")
                              )
-      org-mobile-directory "~/Dropbox/Apps/MobileOrg")
+      org-mobile-directory "~/Dropbox/Apps/MobileOrg"
+      org-agenda-custom-commands 
+      ;; Included in default init for org
+      '(("n" "Agenda and all TODO's" ((agenda "") (alltodo "")))
+        ;; Add a custom agenda view showing errands so Mobile org generates it
+        ("E" tags-todo "errand")))
+      
       
 ;; Mobile org wants all files in UTF-8, but the Emacs writes the
 ;; agenda file in iso-latin-1.  Force it to utf-8 for that file.
