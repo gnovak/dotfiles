@@ -339,7 +339,8 @@
       org-mobile-use-encryption nil
       org-mobile-files (list (concat org-directory "/home.org")
                              (concat org-directory "/work.org")
-                             )
+                             (concat org-directory "/notes.org")
+                             (concat org-directory "/out.org"))
       org-mobile-directory "~/Dropbox/Apps/MobileOrg"
       org-agenda-custom-commands 
       ;; Included in default init for org
