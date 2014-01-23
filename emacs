@@ -287,7 +287,7 @@
                                      (search category-keep))
       ;; STARTED NEXT
       org-todo-keywords
-     '((sequence "TODO" "DONE")
+     '((sequence "TODO" "|" "DONE")
        (sequence "READ"
                  ;;
                  "TICKLE" ;; Take David Allen approach and just mark
