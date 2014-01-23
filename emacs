@@ -311,7 +311,7 @@
                             ;; whatever reason.
                  "SOMEDAY"  ;; Might want to do someday.
                  "NEXT"     ;; Next task for this project
-                 "|" "DONE" "CANCELLED"))
+                 "|" "FINI" "CANCELLED"))
      org-todo-keyword-faces '(("READ" . "cyan")
                               ("TICKLE" . "orange")
                               ("PERIODIC" . "orange")
