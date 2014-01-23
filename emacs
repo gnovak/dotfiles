@@ -175,6 +175,8 @@
 (request-and-init miniedit
   (miniedit-install))
 
+(request 'ess-site)
+
 ;; (defadvice TeX-command-master
 ;;   (around gsn/switch-to-thesis activate)
 ;;   "If thesis.tex is loaded, switch to it before running tex commands"
