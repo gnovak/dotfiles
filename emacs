@@ -300,9 +300,6 @@
                             ;; want to do on a spcific day (but can do
                             ;; on the next day if necessary)
                  "CHECK"    ;; active waiting
-                 "EVENT"  ;; slight misnomer for todo item that I
-                          ;; want to do on a spcific day (but can do
-                          ;; on the next day if necessary)
                  "REQUIRES" ;; Requires me to do something else first
                  "WAITING"  ;; Requires someone else do do something
                             ;; or something else to happen before I
