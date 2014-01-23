@@ -342,6 +342,11 @@
                              )
       org-mobile-directory "~/Dropbox/Apps/MobileOrg")
       
+;; Mobile org wants all files in UTF-8, but the Emacs writes the
+;; agenda file in iso-latin-1.  Force it to utf-8 for that file.
+;; Unfortunately this seems to require hard coding the home directory.
+;; :-(
+(add-to-list 'auto-coding-alist (cons "/Users/novak/Dropbox/Apps/MobileOrg/agendas.org" 'utf-8))
 
 (defun gsn/org-kill-all-buffers ()
   (interactive)
