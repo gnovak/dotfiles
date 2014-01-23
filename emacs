@@ -340,8 +340,8 @@
       org-mobile-files (list (concat org-directory "/home.org")
                              (concat org-directory "/work.org")
                              )
-      org-mobile-directory "~/Dropbox/MobileOrg")
-
+      org-mobile-directory "~/Dropbox/Apps/MobileOrg")
+      
 
 (defun gsn/org-kill-all-buffers ()
   (interactive)
