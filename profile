@@ -1,5 +1,14 @@
 
-PS1='[\u@\h \w]$ '
+# Make bash prompt put the host name in the tab title on OS X
+# Also modify long-standing bash prompt to remove username.  When do I ever need that?
+# \[ .. \] encloses non-printable chars so tools can calculate prompt width
+# \e = ascii/ansi escape character (27 decimal, 33 octal, 1b hex)
+# ]0; - set tab and window
+# ]1; - set tab title (icon name)
+# ]2; - set window title (window name)
+# \a = ascii/ansi bell, seems to terminate command
+PS1='\[\e]1;\h\a\][\h:\w]$ '
+
 PATH=~/bin:~/bin/local/bin:/opt/local/bin:/opt/local/sbin:/usr/local/bin:/usr/local/cuda/bin:~/bin/c13.00_rc1/source:$PATH
 MANPATH=/opt/local/man:~/bin/man:$MANPATH
 
@@ -85,3 +94,4 @@ if [ -x ~/bin/crashplan/bin/crashplan ]; then
       ~/bin/crashplan/bin/crashplan start > /dev/null
    fi
 fi
+
