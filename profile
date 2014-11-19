@@ -41,6 +41,8 @@ export CCL_DEFAULT_DIRECTORY=/usr/local/ccl
 # Advice from Macports for building qt3 software
 export QTDIR=/opt/local/lib/qt3
 # export PYTHONPATH=./gsnpy:/Users/novak/bin/local/lib/python2.5/site-packages/
+# Needed for up-to-date s3cmd module installed in home dir
+export PYTHONPATH=/Users/novak/bin/local/lib/python2.7/site-packages/
 export CCL_DEFAULT_DIRECTORY=/usr/local/ccl
 # Cloudy needs the full absolute path.
 export CLOUDY_DATA_PATH="/Users/novak/bin/c13.00_rc1/data"
