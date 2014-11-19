@@ -1,4 +1,4 @@
-(require :asdf-install)
+; (require :asdf-install)
 ;; (defparameter ASDF-INSTALL-CUSTOMIZE::*VERIFY-GPG-SIGNATURES* nil)
 ;;; 
 ;;(defun slime (&rest args)
