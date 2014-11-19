@@ -61,7 +61,14 @@ if [ -f /opt/local/etc/bash_completion ]; then
     . /opt/local/etc/bash_completion
 fi
 
-eval "`bzr bash-completion`"
+# source git completion rules.  Think this is done automatically,
+# though.
+#if [ -f /opt/local/share/git-core/contrib/completion/git-completion.bash ]; then
+#    . /opt/local/share/git-core/contrib/completion/git-completion.bash
+#fi
+
+# Souce bzr completion rules... think it's done automatically.
+# eval "`bzr bash-completion`"
 
 ##############################
 # IDL Stuff
