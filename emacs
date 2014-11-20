@@ -136,7 +136,8 @@
 (setq make-backup-files t      
       vc-make-backup-files t            
       backup-directory-alist '(("." . "~/.emacs.backup"))
-      tramp-backup-directory-alist '(("." . "~/.emacs.backup"))
+      ; tramp misbehaving, try commenting this
+      ; tramp-backup-directory-alist '(("." . "~/.emacs.backup"))
       kept-new-versions 5
       kept-old-versions 2
       delete-old-versions t ; Don't ask before deleting
@@ -555,7 +556,7 @@
 ;; Tramp
 (setq ;; It's been a long time since that tramp bug... try 
       ;; inline methods for a while again
-      ;; tramp-default-method "scp"        
+      tramp-default-method "ssh"        
       tramp-debug-buffer t
       tramp-verbose 10)
 
