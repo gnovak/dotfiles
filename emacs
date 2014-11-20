@@ -729,6 +729,19 @@
 (when (locate-library "lush")
   (load "lush"))
 
+;; Javascript recommended init code
+(require 'js-comint)
+;; (setq inferior-js-program-command "/usr/bin/java org.mozilla.javascript.tools.shell.Main")
+(setq inferior-js-program-command "rhino")
+; (setq inferior-js-program-command "js")
+(add-hook 'js2-mode-hook '(lambda () 
+			    (local-set-key "\C-x\C-e" 'js-send-last-sexp)
+			    (local-set-key "\C-\M-x" 'js-send-last-sexp-and-go)
+			    (local-set-key "\C-cb" 'js-send-buffer)
+			    (local-set-key "\C-c\C-b" 'js-send-buffer-and-go)
+			    (local-set-key "\C-cl" 'js-load-file-and-go)
+			    ))
+
 ;; Slime and remote servers: swank only listens on the loopback
 ;; interface, so writing stuff via 'socket 127.0.0.1 4005' works but
 ;; 'socket my-ip 4005' doesn't work.  For ssh forwarding, you have to
