@@ -368,6 +368,7 @@
       org-mobile-force-id-on-agenda-items t
       org-mobile-inbox-for-pull (concat org-directory "/from-mobile.org")
       org-mobile-use-encryption nil
+      ;; org-mobile-files '(org-agenda-files)
       org-mobile-files (list (concat org-directory "/home.org")
                              (concat org-directory "/work.org")
                              (concat org-directory "/notes.org")
