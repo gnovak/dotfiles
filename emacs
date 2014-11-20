@@ -1190,6 +1190,77 @@ function doens't have to be duplicated for -next- and -previous-"
 ;; Much prefer ediff to diff.  This is apparently a global binding...?
 (global-set-key (kbd "C-x v =") 'vc-ediff)
 
+;; Fix overly agressive buffer killing in python.el pdb tracking as of emacs v24.3.1
+
+(defun gsn/python-pdbtrack-comint-output-filter-function (output)
+  "Move overlay arrow to current pdb line in tracked buffer.
+Argument OUTPUT is a string with the output from the comint process."
+  (when (and python-pdbtrack-activate (not (string= output "")))
+    (let* ((full-output (ansi-color-filter-apply
+                         (buffer-substring comint-last-input-end (point-max))))
+           (line-number)
+           (file-name
+            (with-temp-buffer
+              (insert full-output)
+              ;; When the debugger encounters a pdb.set_trace()
+              ;; command, it prints a single stack frame.  Sometimes
+              ;; it prints a bit of extra information about the
+              ;; arguments of the present function.  When ipdb
+              ;; encounters an exception, it prints the _entire_ stack
+              ;; trace.  To handle all of these cases, we want to find
+              ;; the _last_ stack frame printed in the most recent
+              ;; batch of output, then jump to the corrsponding
+              ;; file/line number.
+              (goto-char (point-max))
+              (when (re-search-backward python-pdbtrack-stacktrace-info-regexp nil t)
+                (setq line-number (string-to-number
+                                   (match-string-no-properties 2)))
+                (match-string-no-properties 1))))
+           (pdb-session-ended
+            (with-temp-buffer
+              (insert full-output)
+              (goto-char (point-max))
+              (forward-line 0) 
+              (looking-at python-shell-prompt-regexp))))
+      (if (and file-name line-number)
+          (let* ((tracked-buffer
+                  (python-pdbtrack-set-tracked-buffer file-name))
+                 (shell-buffer (current-buffer))
+                 (tracked-buffer-window (get-buffer-window tracked-buffer))
+                 (tracked-buffer-line-pos))
+            (with-current-buffer tracked-buffer
+              (set (make-local-variable 'overlay-arrow-string) "=>")
+              (set (make-local-variable 'overlay-arrow-position) (make-marker))
+              (setq tracked-buffer-line-pos (progn
+                                              (goto-char (point-min))
+                                              (forward-line (1- line-number))
+                                              (point-marker)))
+              (when tracked-buffer-window
+                (set-window-point
+                 tracked-buffer-window tracked-buffer-line-pos))
+              (set-marker overlay-arrow-position tracked-buffer-line-pos))
+            (pop-to-buffer tracked-buffer)
+            (switch-to-buffer-other-window shell-buffer)))
+      (when (and pdb-session-ended python-pdbtrack-tracked-buffer)
+        (with-current-buffer python-pdbtrack-tracked-buffer
+          (set-marker overlay-arrow-position nil))
+        (mapc #'(lambda (buffer)
+                  (ignore-errors (kill-buffer buffer)))
+              python-pdbtrack-buffers-to-kill)
+        (setq python-pdbtrack-tracked-buffer nil
+              python-pdbtrack-buffers-to-kill nil))))
+  output)
+
+(add-hook 'inferior-python-mode-hook
+          (lambda ()
+            (remove-hook 'comint-output-filter-functions
+                         'python-pdbtrack-comint-output-filter-function)
+            (add-hook 'comint-output-filter-functions
+                      'gsn/python-pdbtrack-comint-output-filter-function)))
+            
+;; Must replace the provided function... 
+;; Don't know if I need to put this into a hook or what.
+
 (defun gsn/ediff-command (ediff-fn &rest args)
   (let ((current-buf (current-buffer))
         (ediff-bufs (filter (lambda (buf) 
