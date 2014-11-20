@@ -176,7 +176,38 @@
 (request-and-init miniedit
   (miniedit-install))
 
+;; Emacs Speaks Statistics, R mode
 (request 'ess-site)
+
+;;;;;;;;;
+;; Coding Systems
+;; 
+;; There are an enormous number of ways to specify coding systems:
+;; - via file cookies at the beginning of the file: -*- coding: utf-8 -*-
+;; - via file cookies at the end of the file:  Local Variables: eval: (eldoc-mode)
+;; - via filenames: auto-coding-alist
+;; - via regexp on first few bytes of file: auto-coding-regexp-alist
+;; - via arb function on buffer: auto-coding-functions
+;; - via lisp call: set-buffer-process-coding-system, set-buffer-file-coding-system
+;;
+;; Also useful to know about universal-coding-system-argument, which
+;; says "run the next command with given coding system"
+;;
+
+;;;;;;;;;
+;; I was having trouble with R help files being utf-8 but emacs
+;; thinking they're latin-1.
+;; 
+;; I would have thought that set-buffer-process-coding-system or
+;; set-buffer-file-coding-system would solve my problem with
+;; specifying the R help file coding system, but those didn't work.
+;; 
+;; Eventually settled on the following advice:
+
+(defadvice ess--flush-help-into-current-buffer (after gsn/recode-region activate)
+  "R Help files are utf-8, but emacs thinks they're latin-1.  Must be careful not to recode the region twice or you get BS.  This function seems to be the key pressure point."
+  (let ((inhibit-read-only t))
+    (recode-region (point-min) (point-max) 'utf-8 'latin-1)))
 
 ;; (defadvice TeX-command-master
 ;;   (around gsn/switch-to-thesis activate)
