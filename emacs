@@ -713,6 +713,11 @@
         ad-do-it)
     ad-do-it))
 
+;;;;;;;;;
+;; Git
+;; (request 'magit)
+(setq magit-omit-untracked-dir-contents t)
+
 ;; (when euterpe-flag
 ;;   (add-hook 'py-shell-hook 
 ;;             '(lambda () 
@@ -1223,6 +1228,9 @@ function doens't have to be duplicated for -next- and -previous-"
 (global-set-key "\C-cm" 'point-stack-push)
 (global-set-key "\C-cb" 'point-stack-pop)
 
+;; Git status
+(global-set-key "\C-cs" 'magit-status)
+
 ;; Org mode
 (defun gsn/org-plan (arg) 
   (interactive "P") 
@@ -1247,7 +1255,7 @@ function doens't have to be duplicated for -next- and -previous-"
 ;;     ad-do-it))
 
 (global-set-key "\C-ca" 'gsn/org-agenda)
-(global-set-key "\C-cs" 'org-agenda)
+;(global-set-key "\C-cs" 'org-agenda)
 ;(global-set-key "\C-cn" 'gsn/org-what-am-i-working-on) ;; mneumonic is "now"
 (global-set-key "\C-cn" 'gsn/ediff-next-difference)
 (global-set-key "\C-cl" 'org-store-link)
