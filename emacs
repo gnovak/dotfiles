@@ -229,7 +229,12 @@
   (miniedit-install))
 
 ;; Emacs Speaks Statistics, R mode
-(request 'ess-site)
+(request-and-init ess-site
+  ;; Sweet lord, you absolutely may not fuck with the underscore key because your
+  ;; language has an idiotic assignment operator that requires three key presses.
+  (setq ess-smart-S-assign-key "")
+  (ess-toggle-S-assign nil)
+  (ess-toggle-S-assign nil))
 
 ;;;;;;;;;
 ;; Coding Systems
