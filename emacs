@@ -1073,7 +1073,7 @@
 
 ;; Slime init code recommended by macports
 (setq load-path (cons "/opt/local/share/emacs/site-lisp/slime" load-path))
-(require 'slime-autoloads)
+(request 'slime-autoloads)
 (setq slime-lisp-implementations
      `((sbcl ("/opt/local/bin/sbcl"))
        (clisp ("/opt/local/bin/clisp"))))
