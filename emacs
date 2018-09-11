@@ -1810,6 +1810,8 @@ Argument OUTPUT is a string with the output from the comint process."
 ;;   '(("\C-c)" . pgg-encrypt)
 ;;     ("\C-c(" . pgg-decrypt)))
 
+(setq epg-gpg-program "gpg1")
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Emacs/automatic stuff
 (custom-set-variables
