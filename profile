@@ -112,3 +112,8 @@ if [ -x ~/bin/crashplan/bin/crashplan ]; then
       ~/bin/crashplan/bin/crashplan start > /dev/null
    fi
 fi
+
+# Source local file if it exists
+if [ -e ~/.bashrc_local ]; then
+   . ~/.bashrc_local
+fi
