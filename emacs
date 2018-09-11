@@ -1049,7 +1049,7 @@
   (load "lush"))
 
 ;; Javascript recommended init code
-(require 'js-comint)
+(request 'js-comint)
 ;; (setq inferior-js-program-command "/usr/bin/java org.mozilla.javascript.tools.shell.Main")
 (setq inferior-js-program-command "rhino")
 ; (setq inferior-js-program-command "js")
