@@ -339,6 +339,8 @@
 
 (add-to-list 'auto-mode-alist '("\\.org\\'" . org-mode))
 
+(add-hook 'doc-view-mode-hook 'auto-revert-mode)
+
 ;; Would like to check that org-agenda-sorting-strategy default value
 ;; hasn't changed with a bump in org-version, but the vars aren't
 ;; defined, and org-mode-hook isn't defined either.  So I don't now
