@@ -1033,7 +1033,7 @@
 ;;;;;;;;;
 ;; Git
 ;; (request 'magit)
-(setq magit-omit-untracked-dir-contents t)
+; (setq magit-omit-untracked-dir-contents t)
 
 ;; (when euterpe-flag
 ;;   (add-hook 'py-shell-hook 
@@ -1631,7 +1631,7 @@ Argument OUTPUT is a string with the output from the comint process."
 (global-set-key "\C-cb" 'point-stack-pop)
 
 ;; Git status
-(global-set-key "\C-cs" 'magit-status)
+(global-set-key "\C-cv" 'magit-status)
 
 ;; Org mode
 (defun gsn/org-plan (arg) 
