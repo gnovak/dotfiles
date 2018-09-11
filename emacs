@@ -1705,7 +1705,7 @@ Argument OUTPUT is a string with the output from the comint process."
 ;; Planner mode
 ;; (global-set-key "\C-cn" 'planner-goto-today)
 (global-set-key "\C-ct" 'gsn/planner-create-task)
-(global-set-key "\C-cu" 'gsn/planner-create-undated-task)
+; (global-set-key "\C-cu" 'gsn/planner-create-undated-task)
 ; (global-set-key "\C-cl" 'gsn/planner-annotation)
 ; (global-set-key "\C-cr" 'org-remember)
 (global-set-key "\C-cr" 'org-capture)
