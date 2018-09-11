@@ -61,22 +61,20 @@ export CLOUDY_DATA_PATH="/Users/novak/bin/c13.00_rc1/data"
 #export PERL5LIB=~/Pictures/Web/perl:~/bin/perl/lib/perl5/site_perl/:$PERL5LIB
 #export SBCL_HOME=~/bin/root/lib/sbcl
 
-# Enable bash completion
-if [ -f /opt/local/etc/bash_completion ]; then
 # Git prompt stuff
 export GIT_PS1_SHOWDIRTYSTATE="true"
 export GIT_PS1_SHOWSTASHSTATE="true"
 export GIT_PS1_SHOWUNTRACKEDFILES="true"
 export GIT_PS1_SHOWUPSTREAM="auto"
 
-    . /opt/local/etc/bash_completion
+# Enable bash completion
+if [ -f /usr/local/etc/bash_completion ]; then
+    . /usr/local/etc/bash_completion
 fi
 
-# source git completion rules.  Think this is done automatically,
-# though.
-#if [ -f /opt/local/share/git-core/contrib/completion/git-completion.bash ]; then
-#    . /opt/local/share/git-core/contrib/completion/git-completion.bash
-#fi
+if [ -f /usr/local/etc/bash_completion.d/git-prompt.sh ]; then
+    . /usr/local/etc/bash_completion.d/git-prompt.sh
+fi
 
 # Souce bzr completion rules... think it's done automatically.
 # eval "`bzr bash-completion`"
