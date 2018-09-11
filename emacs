@@ -648,6 +648,8 @@
    (gsn/jabber-settings "google"))
 
 ;; Tramp
+;; Prevent ssh from getting confused by long temp dir name
+(setenv "TMPDIR" "/tmp")
 (setq ;; It's been a long time since that tramp bug... try 
       ;; inline methods for a while again
       tramp-default-method "ssh"        
