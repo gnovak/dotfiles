@@ -355,6 +355,9 @@
 ;; (setq org-habit-show-habits-only-for-today nil)
 ;; (setq org-habit-show-habits-only-for-today t)
 
+;; (setq org-agenda-files (list (concat org-directory "/sf.org")))
+;; (setq org-agenda-files (list org-directory))
+
 (setq org-directory "~/Dropbox/Brain"
       ; Think following line isn't needed anymore?
       ; org-agenda-files '("~/Dropbox/Brain")
@@ -427,6 +430,7 @@
       org-mobile-use-encryption nil
       ;; org-mobile-files '(org-agenda-files)
       org-mobile-files (list (concat org-directory "/home.org")
+                             (concat org-directory "/sf.org")
                              (concat org-directory "/work.org")
                              (concat org-directory "/notes.org")
                              (concat org-directory "/out.org"))
