@@ -1,6 +1,53 @@
+;; (defun my-send-paragraph ()
+;;   "Send the current paragraph to the SQL process."
+;;   (interactive)
+;;   (let ((start (save-excursion
+;; 		 (backward-paragraph)
+;; 		 (point)))
+;; 	(end (save-excursion
+;; 	       (forward-paragraph)
+;; 	       (point))))
+;;     (sql-send-region start end)))
+
+
+;; (buffer-substring-no-properties start end)
+
+;; (defun sql-comint (product params)
+;;   "Set up a comint buffer to run the SQL processor.
+
+;; PRODUCT is the SQL product.  PARAMS is a list of strings which are
+;; passed as command line arguments."
+;;   (let ((program (sql-get-product-feature product :sqli-program))
+;;         (buf-name "SQL"))
+;;     ;; Make sure we can find the program.  `executable-find' does not
+;;     ;; work for remote hosts; we suppress the check there.
+;;     (unless (or (file-remote-p default-directory)
+;; 		(executable-find program))
+;;       (error "Unable to locate SQL program \'%s\'" program))
+;;     ;; Make sure buffer name is unique.
+;;     (when (sql-buffer-live-p (format "*%s*" buf-name))
+;;       (setq buf-name (format "SQL-%s" product))
+;;       (when (sql-buffer-live-p (format "*%s*" buf-name))
+;;         (let ((i 1))
+;;           (while (sql-buffer-live-p
+;;                   (format "*%s*"
+;;                           (setq buf-name (format "SQL-%s%d" product i))))
+;;             (setq i (1+ i))))))
+;;     (set-buffer
+;;      (apply #'make-comint buf-name "presto" nil
+;;             '("--catalog" "hive" "--server" "presto.vertigo.stitchfix.com:8889")))))
+
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Set up flags for system specific stuff
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; Added by Package.el.  This must come before configurations of
+;; installed packages.  Don't delete this line.  If you don't want it,
+;; just comment it out by adding a semicolon to the start of the line.
+;; You may delete these explanatory comments.
+(package-initialize)
+
 (setq moving-mail nil)
 ; Load comint or else putting calls to it in close-buffer-hook wreaks havoc
 (require 'comint)
@@ -650,6 +697,257 @@
   "Leave point in the current window when you call find-tag-other-window"
   (other-window 1))
 
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; SQL stuff from here:
+;; http://truongtx.me/2014/08/23/setup-emacs-as-an-sql-database-client/
+;; (setq sql-postgres-program "psql84"
+;;       sql-send-terminator t)
+;; (setq sql-postgres-program "my-psql"
+;;       sql-send-terminator t)
+
+;; Presto
+
+(require 'sql)
+
+(setq sql-presto-program "/Users/gnovak/bin/sane-presto"
+      ;; sql-presto-options nil
+      sql-presto-login-params '((user :default "novak")
+                                (database :default "novak")
+                                server)
+      ;; sql-presto-login-params `((user :default ,(user-login-name))
+      ;;                           (database :default ,(user-login-name))
+      ;;                           server)
+      ;; sql-presto-completion-object nil
+      )
+
+
+(defun sql-presto ()
+  (interactive)
+  ;; sql-connect seems to need sql-product defined to avoid a
+  ;; traceback.  Is this a bug?
+  (let ((sql-product 'presto))
+    (sql-connect 'presto)))
+
+(defun sql-presto2 ()
+  (interactive)
+  ;; sql-connect seems to need sql-product defined to avoid a
+  ;; traceback.  Is this a bug?
+  (let ((sql-product 'presto))
+    (sql-connect 'presto2)))
+
+(defun sql-comint-presto (product options)
+  ;; (setq sql-login-delay 0.9)
+  (let ((sql-login-delay 0.9))
+    (sql-comint product options)))
+
+;; Trying to give the password on the command line confuses mysql
+;; Give it as an env var inside my-sql-connect
+(setq sql-mysql-login-params '(user database server))
+
+(add-to-list 'sql-product-alist
+             '(presto
+		 :name "Presto"
+		 :free-software t
+		 :font-lock sql-mode-postgres-font-lock-keywords
+		 :sqli-program sql-presto-program
+		 ;; :sqli-options sql-presto-options
+		 :sqli-login sql-presto-login-params
+		 :sqli-comint-func sql-comint-presto
+		 ;; :list-all ()
+		 ;; :list-table ()
+		 ;; :completion-object sql-presto-completion-object
+		 ;; :completion-column ()
+		 :prompt-regexp "^\\w*[#>] "
+		 :prompt-length 8
+		 :prompt-cont-regexp "^\\w*[-(]*[#>] "
+		 :input-filter sql-remove-tabs-filter
+		 :terminator ("\\(^\\s-*\\\\g$\\|;\\)" . "\\g")
+		 ;; :statement
+		 ;; :syntax-alist
+                 ))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(setq sql-postgres-program "psql"
+      sql-send-terminator ";")
+
+(setq sql-connection-alist
+      '((redshift (sql-product 'postgres)
+                  ;; (sql-user "dw_user")
+                  (sql-user "gnovak")
+                  (sql-server "aa-dw.ceqzd6qj6kx3.us-east-1.redshift.amazonaws.com")
+                  (sql-port 5439)
+                  (sql-database "dw"))
+        (redshift2 (sql-product 'postgres)
+                  ;; (sql-user "dw_user")
+                  (sql-user "gnovak")
+                  (sql-server "aa-dw.ceqzd6qj6kx3.us-east-1.redshift.amazonaws.com")
+                  (sql-port 5439)
+                  (sql-database "dw"))
+        (redshift-admin (sql-product 'postgres)
+                  (sql-user "dw_admin")
+                  (sql-server "aa-dw.ceqzd6qj6kx3.us-east-1.redshift.amazonaws.com")
+                  (sql-port 5439)
+                  (sql-database "dw"))
+        ;; (production (sql-product 'postgres)
+        ;;             (sql-user "read_only")
+        ;;             (sql-server "transmetropolitan-follower-aa-replica-1.c97owav5rixa.us-east-1.rds.amazonaws.com")
+        ;;             (sql-port 5432)
+        ;;             (sql-database "transmetropolitan"))
+        (production (sql-product 'postgres)
+                    (sql-user "aaproxyuser")
+                    (sql-server "10.129.102.207")
+                    (sql-port 5432)
+                    (sql-database "db_42"))
+        (production2 (sql-product 'postgres)
+                    (sql-user "ufks4k92nq94gi")
+                    (sql-server "green.vertigo.stitchfix.com")
+                    (sql-port 5432)
+                    (sql-database "d732gk0udetdnm"))
+        (old-production (sql-product 'postgres)
+                    (sql-user "u5ddfv06s9iams")
+                    (sql-server "ec2-50-17-191-123.compute-1.amazonaws.com")
+                    (sql-port 5432)
+                    (sql-database "d732gk0udetdnm"))
+        (old-production2 (sql-product 'postgres)
+                    (sql-user "u5ddfv06s9iams")
+                    (sql-server "ec2-50-17-191-123.compute-1.amazonaws.com")
+                    (sql-port 5432)
+                    (sql-database "d732gk0udetdnm"))
+        (fashionthing (sql-product 'postgres)
+                      (sql-user "aaproxyuser")
+                      (sql-server "10.129.155.26")
+                      (sql-port 5432)
+                      (sql-database "db_39"))
+        (hms (sql-product 'mysql)
+                      (sql-user "hive")
+                      (sql-server "hive-vpc.c8hjvnh4cuqj.us-east-1.rds.amazonaws.com")
+                      (sql-port 3306)
+                      (sql-database "hive"))
+        (gsnhms (sql-product 'mysql)
+                      (sql-user "hive")
+                      (sql-server "gsn-hive.c8hjvnh4cuqj.us-east-1.rds.amazonaws.com")
+                      (sql-port 3306)
+                      (sql-database "hive"))
+        (presto (sql-product 'presto)
+                  (sql-user "gnovak")
+                  (sql-server "presto.vertigo.stitchfix.com")
+                  (sql-port 8889)
+                  (sql-database "dw"))
+        (presto2 (sql-product 'presto)
+                  (sql-user "gnovak")
+                  (sql-server "presto.vertigo.stitchfix.com")
+                  (sql-port 8889)
+                  (sql-database "dw"))
+                  ))
+
+;;        	heroku pg:psql --app transmetropolitan-production HEROKU_POSTGRESQL_GREEN
+;; turn on abbrev mode globally
+;; (setq-default abbrev-mode t)
+;; or just in sql mode
+(defun gsn/sql-mode-hook ()
+  (abbrev-mode 1)
+  ;; Make underscore a word character so that abbrev stops expanding send_count to send_COUNT
+  (modify-syntax-entry ?_ "w" sql-mode-syntax-table)
+  (when (file-exists-p "~/.sql-abbreviations")
+    (load "~/.sql-abbreviations")))
+
+(defun gsn/sql-interactive-mode-hook ()
+  (toggle-truncate-lines t))
+
+(defun sql-in-code-context-p ()
+  (if (fboundp 'buffer-syntactic-context) ; XEmacs function.
+       (null (buffer-syntactic-context))
+     ;; Attempt to simulate buffer-syntactic-context
+     ;; I don't know how reliable this is.
+     (let* ((beg (save-excursion
+ 		  (beginning-of-line)
+ 		  (point)))
+ 	   (list
+ 	    (parse-partial-sexp beg (point))))
+       (and (null (nth 3 list))		; inside string.
+ 	   (null (nth 4 list))))))	; inside cocmment
+
+(defun sql-pre-abbrev-expand-hook ()
+  ;; Allow our abbrevs only in a code context.
+  (setq local-abbrev-table
+        (if (sql-in-code-context-p)
+            sql-mode-abbrev-table)))
+
+(defun sql-redshift ()
+  (interactive)
+  (my-sql-connect 'postgres 'redshift))
+
+(defun sql-hms ()
+  (interactive)
+  (my-sql-connect 'mysql 'hms))
+
+(defun sql-gsnhms ()
+  (interactive)
+  (my-sql-connect 'mysql 'gsnhms))
+
+(defun sql-redshift2 ()
+  (interactive)
+  (my-sql-connect 'postgres 'redshift2))
+
+(defun sql-redshift-admin ()
+  (interactive)
+  (my-sql-connect 'postgres 'redshift-admin))
+
+(defun sql-fashionthing ()
+  (interactive)
+  (my-sql-connect 'postgres 'fashionthing))
+
+(defun sql-production ()
+  (interactive)
+  (my-sql-connect 'postgres 'production))
+
+(defun sql-production2 ()
+  (interactive)
+  (my-sql-connect 'postgres 'production2))
+
+(defun my-sql-connect (product connection)
+  ;; load the password
+;;  (require 'sql-my-password "sql-my-password.el.gpg")
+;  (require 'sql-my-password)
+
+  (let* ((sql-product product)
+         (password (cadr (assoc connection sql-my-password)))
+         (sql-connection-alist (cons (list 'password password)
+                                     sql-connection-alist)))
+    ;; Postgres doesn't allow providing password on command line,
+    ;; handle that case.  This should go inside sql-postgres.
+    (when (and (eq sql-product 'postgres) password)
+      (setenv "PGPASSWORD" password))
+    (when (and (eq sql-product 'mysql) password)
+      (setenv "MYSQL_PWD" password))
+    (sql-connect connection)
+    (when (and (eq sql-product 'postgres) password)
+      (setenv "PGPASSWORD" nil))
+    (when (and (eq sql-product 'mysql) password)
+      (setenv "MYSQL_PWD" nil))))
+;;    (rename-buffer (concat "*SQL-" (symbol-name connection) "*"))))
+
+(add-hook 'sql-mode-hook 'gsn/sql-mode-hook)
+(add-hook 'sql-interactive-mode-hook 'gsn/sql-mode-hook)
+(add-hook 'sql-interactive-mode-hook 'gsn/sql-interactive-mode-hook)
+(add-hook 'pre-abbrev-expand-hook 'sql-pre-abbrev-expand-hook)
+
+(require 'sql-indent)
+
+;; stop asking whether to save newly added abbrev when quitting emacs
+(setq save-abbrevs nil)
+
+;; doesn't work...?
+(defadvice sql-send-string
+  (around gsn/ask-for-sqli-buffer disable)
+  ;(around gsn/ask-for-sqli-buffer activate)
+  "Don't just bail with an error, ask for a sql buffer"
+  (unless (sql-buffer-live-p sql-buffer)
+    (call-interactively 'sql-set-sqli-buffer))
+  ad-do-it)
+
 ;; Gallina python.el
 ;; Recommended settings for Gallina python.el for use with ipython 0.11.  
 (setq python-shell-interpreter "ipython"
@@ -1041,6 +1339,7 @@ function doens't have to be duplicated for -next- and -previous-"
                             #'comint-write-history-on-exit))))
 
 (add-hook 'inferior-python-mode-hook 'turn-on-comint-history)
+(add-hook 'sql-interactive-mode-hook 'turn-on-comint-history)
 
 (add-hook 'kill-buffer-hook 'comint-write-input-ring)
 
