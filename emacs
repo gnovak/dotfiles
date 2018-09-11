@@ -967,6 +967,8 @@
     (call-interactively 'sql-set-sqli-buffer))
   ad-do-it)
 
+(setq ansi-color-for-comint-mode t)
+
 ;; Gallina python.el
 ;; Recommended settings for Gallina python.el for use with ipython 0.11.  
 (setq python-shell-interpreter "ipython3"
