@@ -126,7 +126,10 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Paths
 (add-to-list 'load-path "~/bin/elisp")
-; (add-to-list 'load-path "~/bin/elisp/python-mode")
+(add-to-list 'load-path "~/bin/elisp/emacs-websocket")
+(add-to-list 'load-path "~/bin/elisp/emacs-request")
+(add-to-list 'load-path "~/bin/elisp/emacs-ipython-notebook/lisp")
+
 (when thalia-flag
   (add-to-list 'load-path "/opt/local/share/emacs/site-lisp/slime")
   (add-to-list 'load-path "/opt/local/share/maxima/5.17.1/emacs/"))
