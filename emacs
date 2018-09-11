@@ -177,7 +177,8 @@
       ;; default to better frame titles
       frame-title-format (concat  "%b - emacs@" (system-name))
       grep-command "grep -nHi -e "
-      doc-view-resolution 126.5625)
+      doc-view-resolution 126.5625
+      add-log-mailing-address "greg.novak@gmail.com")
 
 ;; Put all backup files into one directory.
 (setq make-backup-files t      
