@@ -964,8 +964,8 @@
 
 ;; Gallina python.el
 ;; Recommended settings for Gallina python.el for use with ipython 0.11.  
-(setq python-shell-interpreter "ipython"
-      python-shell-interpreter-args "--pylab"
+(setq python-shell-interpreter "ipython3"
+      python-shell-interpreter-args "--pylab --simple-prompt"
       python-shell-prompt-regexp "In \\[[0-9]+\\]: "
       python-shell-prompt-output-regexp "Out\\[[0-9]+\\]: "
       python-shell-completion-setup-code
