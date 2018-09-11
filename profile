@@ -7,9 +7,14 @@
 # ]1; - set tab title (icon name)
 # ]2; - set window title (window name)
 # \a = ascii/ansi bell, seems to terminate command
-PS1='\[\e]1;\h\a\][\h:\w]$ '
 
-PATH=~/bin:~/bin/local/bin:/opt/local/bin:/opt/local/sbin:/usr/local/bin:/usr/local/cuda/bin:~/bin/c13.00_rc1/source:$PATH
+if [ -e /usr/local/etc/bash_completion.d/git-prompt.sh ]; then
+   . /usr/local/etc/bash_completion.d/git-prompt.sh
+fi
+
+PS1='\[\e]1;\h\a\][\h:\w$(__git_ps1 " (%s)")]$ '
+
+PATH=~/bin:~/bin/local/bin:/usr/local/opt/python/libexec/bin:/opt/local/bin:/opt/local/sbin:/usr/local/bin:/usr/local/cuda/bin:~/bin/c13.00_rc1/source:~/Library/Python/2.7/bin/:/opt/local/lib/postgresql84/bin/:/opt/local/lib/postgresql94/bin/:/usr/local/Cellar/node@6/6.11.0/bin/:$PATH
 MANPATH=/opt/local/man:~/bin/man:$MANPATH
 
 alias cp='cp -i'	
@@ -58,6 +63,12 @@ export CLOUDY_DATA_PATH="/Users/novak/bin/c13.00_rc1/data"
 
 # Enable bash completion
 if [ -f /opt/local/etc/bash_completion ]; then
+# Git prompt stuff
+export GIT_PS1_SHOWDIRTYSTATE="true"
+export GIT_PS1_SHOWSTASHSTATE="true"
+export GIT_PS1_SHOWUNTRACKEDFILES="true"
+export GIT_PS1_SHOWUPSTREAM="auto"
+
     . /opt/local/etc/bash_completion
 fi
 
