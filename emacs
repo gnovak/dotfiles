@@ -1667,6 +1667,38 @@ Argument OUTPUT is a string with the output from the comint process."
 (global-set-key "\C-cl" 'org-store-link)
 (global-set-key "\C-cp" 'gsn/org-plan)
 
+(defun gsn/next-window-this-frame ()
+  (interactive)
+  (other-window 1))
+
+(defun gsn/prev-window-this-frame ()
+  (interactive)
+  (other-window -1))
+
+(defun gsn/next-window-visible-frame ()
+  ;; inspired by next-multiframe-window
+  (interactive)
+  (select-window (next-window (selected-window)
+			      (> (minibuffer-depth) 0)
+			      'visible))
+  (select-frame-set-input-focus (selected-frame)))
+
+(defun gsn/prev-window-visible-frame ()
+  ;; inspired by next-multiframe-window
+  (interactive)
+  (select-window (previous-window (selected-window)
+				  (> (minibuffer-depth) 0)
+				  'visible))
+  (select-frame-set-input-focus (selected-frame)))
+
+(global-set-key "\C-cu" 'gsn/prev-window-this-frame)
+(global-set-key "\C-ci" 'gsn/next-window-this-frame)
+(global-set-key "\C-cj" 'gsn/prev-window-visible-frame)
+(global-set-key "\C-ck" 'gsn/next-window-visible-frame)
+
+; for my old fingers
+(global-set-key "\C-co" 'gsn/next-window-this-frame)
+
 ;; Planner mode
 ;; (global-set-key "\C-cn" 'planner-goto-today)
 (global-set-key "\C-ct" 'gsn/planner-create-task)
