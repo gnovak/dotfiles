@@ -1503,6 +1503,8 @@ function doens't have to be duplicated for -next- and -previous-"
 (global-set-key "\M-p" 'backward-paragraph)
 (global-set-key "\M-n" 'forward-paragraph)
 
+(setq ns-option-modifier 'meta)
+(setq ns-command-modifier 'meta)
 
 ;;; When I look up tags, I do it for documentation.  I like the info
 ;;; to appear in the other window and have the point stay in this
