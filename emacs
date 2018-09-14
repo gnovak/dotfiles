@@ -1,1478 +1,15 @@
-;; (defun my-send-paragraph ()
-;;   "Send the current paragraph to the SQL process."
-;;   (interactive)
-;;   (let ((start (save-excursion
-;; 		 (backward-paragraph)
-;; 		 (point)))
-;; 	(end (save-excursion
-;; 	       (forward-paragraph)
-;; 	       (point))))
-;;     (sql-send-region start end)))
-
-
-;; (buffer-substring-no-properties start end)
-
-;; (defun sql-comint (product params)
-;;   "Set up a comint buffer to run the SQL processor.
-
-;; PRODUCT is the SQL product.  PARAMS is a list of strings which are
-;; passed as command line arguments."
-;;   (let ((program (sql-get-product-feature product :sqli-program))
-;;         (buf-name "SQL"))
-;;     ;; Make sure we can find the program.  `executable-find' does not
-;;     ;; work for remote hosts; we suppress the check there.
-;;     (unless (or (file-remote-p default-directory)
-;; 		(executable-find program))
-;;       (error "Unable to locate SQL program \'%s\'" program))
-;;     ;; Make sure buffer name is unique.
-;;     (when (sql-buffer-live-p (format "*%s*" buf-name))
-;;       (setq buf-name (format "SQL-%s" product))
-;;       (when (sql-buffer-live-p (format "*%s*" buf-name))
-;;         (let ((i 1))
-;;           (while (sql-buffer-live-p
-;;                   (format "*%s*"
-;;                           (setq buf-name (format "SQL-%s%d" product i))))
-;;             (setq i (1+ i))))))
-;;     (set-buffer
-;;      (apply #'make-comint buf-name "presto" nil
-;;             '("--catalog" "hive" "--server" "presto.vertigo.stitchfix.com:8889")))))
-
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; Set up flags for system specific stuff
+;;  Information...
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;; Added by Package.el.  This must come before configurations of
-;; installed packages.  Don't delete this line.  If you don't want it,
-;; just comment it out by adding a semicolon to the start of the line.
-;; You may delete these explanatory comments.
-(package-initialize)
-
-(setq moving-mail nil)
-; Load comint or else putting calls to it in close-buffer-hook wreaks havoc
-(require 'comint)
-;(require 'bbdb)                                                       
-;(bbdb-initialize)                                                     
-
-; Options set manually in .emacs.local
-(setq clio-flag nil
-      thalia-flag nil
-      dionysus-flag nil
-      euterpe-flag nil
-      pleiades-flag nil)
-
-;; I use the same .emacs file on many machines.  Occasionally I want
-;; emacs to do different things based on where I'm running it.
-;; .emacs.local contains a single line like this:
-;; (setq euterpe-flag t)
-(when (file-exists-p "~/.emacs.local")
-  (load "~/.emacs.local"))
-
-; Options which should be set automatically below
-(setq remote-flag nil)
-
-(defun cadar (ll) (car (cdr (car ll))))
-
-; Try to detect when ssh has set DISPLAY to something funny
-; indicating that it's forwarding the X11 connection over the 
-; ssh link.
-(unless (string-match ":0." (or (getenv "DISPLAY") ""))
-  (setq remote-flag t))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Fonts
-;; 
-;; Definitions:
-;; Faces: logically distinct text (one for each text style of each mode)
-;; Fonts: physically distinct rendering (one for each way to render text)
-;; Fontset: ???
-;; Many faces may use same font.
-;; 
-;; Useful functions: 
-;; x-font-list, x-list-fonts, set-default-font
-;; list-fontsets, describe-fontset
-;; 
-;; Useful programs: 
-;; xfontsel
-;;
-;; Useful tidbits:
-;; Shift-click brings up font menu
-;; (frame-parameter nil 'font)
-;; (setq default-frame-alist '((width  . 82)
-;;                            (height . 48)
-;;                            (font . "fontset-mac")))
-
-(defun make-font-sample-buffer (font-list) 
-  (with-current-buffer (generate-new-buffer "*font-samples*")
-    (dolist (font font-list)
-      (let ((face-name (intern (concat "font-test-" font))))
- 	(custom-declare-face face-name `((t (:font ,font))) "Docstring")
-	(insert font)
-	(insert (propertize test-text 'face face-name))))))
-
-(defun prop-font ()
-  (interactive)
-  (set-face-attribute 'default nil :family "apple-verdana"))
-
-(defun mono-font ()
-  (interactive)
-  (set-face-attribute 'default nil :font 
-   "-apple-lucida grande ce-medium-r-normal--0-0-0-0-m-0-mac-centraleurroman"))
-
-; Force mono font
-;(when (featurep 'mac-carbon)
-;  (mono-font))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Paths
-(add-to-list 'load-path "~/bin/elisp")
-(add-to-list 'load-path "~/bin/elisp/emacs-websocket")
-(add-to-list 'load-path "~/bin/elisp/emacs-request")
-(add-to-list 'load-path "~/bin/elisp/emacs-ipython-notebook/lisp")
-
-(when thalia-flag
-  (add-to-list 'load-path "/opt/local/share/emacs/site-lisp/slime")
-  (add-to-list 'load-path "/opt/local/share/maxima/5.17.1/emacs/"))
-
-;; The Macports maxima installs the maxima elisp files under the
-;; maxima tree, where you have to use a line like the following for
-;; emacs to find them.  Macports also has an imaxima package that
-;; installs them into the normal site-lisp directory so emacs finds
-;; them automatically.
-(add-to-list 'load-path "/opt/local/share/maxima/5.28.0/emacs/")
-(when clio-flag
-  (add-to-list 'load-path "/opt/local/share/maxima/5.24.0/emacs/"))
-
-;; (add-to-list 'Info-directory-list "/usr/share/info")
-
-(when (or thalia-flag clio-flag)
-  (add-to-list 'load-path "/opt/local/share/emacs/site-lisp/slime")
-  (add-to-list 'exec-path "/opt/local/bin"))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; Starting loading packages, etc
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-;;; Yikes... take away the disgusting new parts of emacs
-(when (>= emacs-major-version 22)
-  (tool-bar-mode -1)
-  (tooltip-mode -1))
-
-;; type "y"/"n" instead of "yes"/"no"
-(fset 'yes-or-no-p 'y-or-n-p)
-
-(setq-default indent-tabs-mode nil)
-
-(setq frame-title-format (concat  "%b - emacs@" (system-name)))
-
-; I'm not sure what this line does.
-; (setq line-move-visual nil)
-(setq comint-input-ring-size 500
-      message-log-max 500
-      font-lock-maximum-size 2048000
-      woman-fill-column 72
-      woman-cache-filename "~/.woman-cache.el"
-      ;; When running ispell, consider all 1-3 character words as correct.
-      ispell-extra-args '("-W" "2")
-      ispell-dictionary "english"
-      ispell-program-name "aspell"
-      color-printer-name "hp"
-      ;; default to better frame titles
-      frame-title-format (concat  "%b - emacs@" (system-name))
-      grep-command "grep -nHi -e "
-      doc-view-resolution 126.5625
-      add-log-mailing-address "greg.novak@gmail.com")
-
-;; Put all backup files into one directory.
-(setq make-backup-files t      
-      vc-make-backup-files t            
-      backup-directory-alist '(("." . "~/.emacs.backup"))
-      ; tramp misbehaving, try commenting this
-      ; tramp-backup-directory-alist '(("." . "~/.emacs.backup"))
-      kept-new-versions 5
-      kept-old-versions 2
-      delete-old-versions t ; Don't ask before deleting
-      ;; delete-old-versions nil ; Ask before deleting
-      version-control t)
-
-;; Make conditional loads more readable: require the mode
-;; if it's available
-(defun request (name)
-  (when (locate-library (symbol-name name))
-    (require name)))
-
-;; More general form of above to allow arbitrary initialization.
-(defmacro request-and-init (name &rest body)
-  (if (consp name)
-      `(when (and ,@(mapcar (lambda (x) 
-                              `(locate-library (symbol-name ',x))) 
-                            name))
-         ,@(mapcar (lambda (x) 
-                     `(require ',x))
-                   name)
-         ,@body)    
-    `(when (locate-library (symbol-name ',name))
-       (require ',name)
-       ,@body)))
-
-(request 'package)
-(add-to-list 'package-archives
-             '("melpa" . "http://melpa.org/packages/") t)
-;(add-to-list 'package-archives
-;             '("marmalade" . "http://marmalade-repo.org/packages") t)
-
-(request 'gsn)
-(request 'point-stack)
-(request 'eform-mode)
-(request 'calendar)
-;;(load "cm.el")
-
-(request 'ee-autoloads)
-
-(request-and-init miniedit
-  (miniedit-install))
-
-;; Emacs Speaks Statistics, R mode
-(request-and-init ess-site
-  ;; Sweet lord, you absolutely may not fuck with the underscore key because your
-  ;; language has an idiotic assignment operator that requires three key presses.
-  (setq ess-smart-S-assign-key "")
-  (ess-toggle-S-assign nil)
-  (ess-toggle-S-assign nil))
-
-;;;;;;;;;
-;; Coding Systems
-;; 
-;; There are an enormous number of ways to specify coding systems:
-;; - via file cookies at the beginning of the file: -*- coding: utf-8 -*-
-;; - via file cookies at the end of the file:  Local Variables: eval: (eldoc-mode)
-;; - via filenames: auto-coding-alist
-;; - via regexp on first few bytes of file: auto-coding-regexp-alist
-;; - via arb function on buffer: auto-coding-functions
-;; - via lisp call: set-buffer-process-coding-system, set-buffer-file-coding-system
-;;
-;; Also useful to know about universal-coding-system-argument, which
-;; says "run the next command with given coding system"
-;;
-
-;;;;;;;;;
-;; I was having trouble with R help files being utf-8 but emacs
-;; thinking they're latin-1.
-;; 
-;; I would have thought that set-buffer-process-coding-system or
-;; set-buffer-file-coding-system would solve my problem with
-;; specifying the R help file coding system, but those didn't work.
-;; 
-;; Eventually settled on the following advice:
-
-(defadvice ess--flush-help-into-current-buffer (after gsn/recode-region activate)
-  "R Help files are utf-8, but emacs thinks they're latin-1.  Must be careful not to recode the region twice or you get BS.  This function seems to be the key pressure point."
-  (let ((inhibit-read-only t))
-    (recode-region (point-min) (point-max) 'utf-8 'latin-1)))
-
-;; (defadvice TeX-command-master
-;;   (around gsn/switch-to-thesis activate)
-;;   "If thesis.tex is loaded, switch to it before running tex commands"
-;;   (save-excursion
-;;     (when (or (string-match "chapter-" (buffer-name))
-;;               (string-match "appendix-" (buffer-name))
-;;               (string-match "abstract.tex" (buffer-name)))
-;;       (unless (member "thesis.tex" (mapcar 'buffer-name (buffer-list)))
-;;         (find-file "~/Papers/2008/thesis/thesis.tex"))
-;;       (set-buffer "thesis.tex"))
-;;     ad-do-it))
-
-(defadvice switch-to-buffer (before gsn/existing-buffer activate compile)
-  "When interactive, switch to existing buffers only, unless giving a
-   prefix argument."
-  (interactive
-   (list (read-buffer "Switch to buffer: " (other-buffer)
-                      (null current-prefix-arg)))))
-
-(defun gsn/duplex-print (buffer)
-  "From Patrik Jonsson.  Prints the buffer using the Duplex
-  feature of the color printer."
-  (interactive (list (current-buffer)))
-  (save-excursion
-    (let ((ps-spool-duplex t)
-          (ps-printer-name color-printer-name))
-      (set-buffer buffer)
-      (ps-spool-buffer-with-faces)
-      (set-buffer "*PostScript*")
-      (beginning-of-buffer)
-      (insert "%!\ngsave\n%%BeginFeature: *Duplex\n")
-      (insert "<< /Duplex true >> setpagedevice\n\n%%EndFeature\n")
-      (end-of-buffer)
-      (insert "grestore\n")
-      (ps-despool))))
-
-;; Display ISO week numbers in calendar
-(setq calendar-week-start-day 1
-      calendar-intermonth-text
-      '(propertize
-        (format "%2d"
-                (car
-                 (calendar-iso-from-absolute
-                  (calendar-absolute-from-gregorian (list month day year)))))
-        'font-lock-face 'font-lock-function-name-face))
-
-(setq ediff-split-window-function 'split-window-horizontally)
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Life -- org mode
-;; org-remember deprecated.
-;;(request-and-init (org remember)
-;;  (org-remember-insinuate))
-
-;; Org install instructions say that this helps with autoloads.
-; (require 'org)
-(require 'org-install)
-
-(defvar gsn/org-current-task)
-
-(defun gsn/org-work-on-this ()
-  (interactive)
-  (setq gsn/org-current-task (buffer-substring (point-at-bol) (point-at-eol))))
-
-(defun gsn/org-what-am-i-working-on ()
-  (interactive)
-  (if gsn/org-current-task
-      (message gsn/org-current-task)
-      "No current task"))
-
-(add-to-list 'auto-mode-alist '("\\.org\\'" . org-mode))
-
-(add-hook 'doc-view-mode-hook 'auto-revert-mode)
-
-;; Would like to check that org-agenda-sorting-strategy default value
-;; hasn't changed with a bump in org-version, but the vars aren't
-;; defined, and org-mode-hook isn't defined either.  So I don't now
-;; how to actually do this at the moment.
-;; 
-;; (unless (equal org-agenda-sorting-strategy 
-;;                '((agenda habit-down time-up priority-down category-keep)
-;;                  (todo priority-down category-keep)
-;;                  (tags priority-down category-keep)
-;;                  (search category-keep)))
-;;   (message "org-agenda-sorting-strategy default changed!  Revisit setting!"))
-
-
-;; normally don't want this, but sometimes do.
-;; (setq org-habit-show-habits-only-for-today nil)
-;; (setq org-habit-show-habits-only-for-today t)
-
-;; (setq org-agenda-files (list (concat org-directory "/sf.org")))
-;; (setq org-agenda-files (list org-directory))
-
-(setq org-directory "~/Dropbox/Brain"
-      ; Think following line isn't needed anymore?
-      ; org-agenda-files '("~/Dropbox/Brain")
-      org-default-notes-file (concat org-directory "/in.org")
-      org-agenda-files (list org-directory)
-      org-hide-leading-stars t
-      org-odd-levels-only t
-      org-log-done t
-      org-catch-invisible-edits 'smart
-      org-log-into-drawer t
-      org-table-auto-blank-field nil
-      org-enforce-todo-dependencies t
-      org-list-demote-modify-bullet '(("-" . "+") ("+" . "-"))
-      org-tags-exclude-from-inheritance '("project")
-      org-global-properties '(("Effort_ALL" . "1 2 3"))
-      org-columns-default-format "%120ITEM %TODO %1PRIORITY %1Effort %TAGS"
-      org-agenda-sorting-strategy  '((agenda time-up category-down habit-up
-                                             todo-state-down priority-down)
-                                     (todo priority-down category-keep)
-                                     (tags priority-down category-keep)
-                                     (search category-keep))
-      ;; STARTED NEXT
-      org-todo-keywords
-     '((sequence "TODO" "|" "DONE")
-       (sequence "READ"
-                 ;;
-                 "TICKLE" ;; Take David Allen approach and just mark
-                          ;; events that are not do-able now, but I
-                          ;; want to keep track of, without worrying
-                          ;; too much about the ontology.
-                 ;; 
-                 "PERIODIC" ;; Periodic task
-                 "EVENT"    ;; slight misnomer for todo item that I
-                            ;; want to do on a spcific day (but can do
-                            ;; on the next day if necessary)
-                 "CHECK"    ;; active waiting
-                 "REQUIRES" ;; Requires me to do something else first
-                 "WAITING"  ;; Requires someone else do do something
-                            ;; or something else to happen before I
-                            ;; can do something.
-                 "DEFERRED" ;; don't want to do it right now for
-                            ;; whatever reason.
-                 "SOMEDAY"  ;; Might want to do someday.
-                 "NEXT"     ;; Next task for this project
-                 "|" "FINI" "CANCELLED"))
-     org-todo-keyword-faces '(("READ" . "cyan")
-                              ("TICKLE" . "orange")
-                              ("PERIODIC" . "orange")
-                              ("EVENT" . "orange")
-                              ("CHECK" . "orange")
-                              ("REQUIRES" . "orange")
-                              ("WAITING" . "orange")
-                              ("DEFERRED" . "orange")
-                              ("SOMEDAY" . "orange"))
-
-      org-capture-templates '(("t" "Task" entry (file+headline "" "Tasks")
-                               "* TODO %?\n  %u\n  %a")
-                              ("p" "Paper" entry 
-                               (file+datetree (concat org-directory "/astroph.org"))
-                               "* %?\n%c\n\nEntered on %U\n  %i\n")
-                              ("b" "Bookmark" entry (file+headline "" "New Bookmarks")
-                               "* %c\n%?\n")
-                              ("p" "Paper" entry 
-                               (file+datetree (concat org-directory "/astroph.org"))
-                               "* %?\n%c\n\nEntered on %U\n  %i\n"))
-
-      ;; org-mobile-index-file "index.org"
-      org-mobile-force-id-on-agenda-items t
-      org-mobile-inbox-for-pull (concat org-directory "/from-mobile.org")
-      org-mobile-use-encryption nil
-      ;; org-mobile-files '(org-agenda-files)
-      org-mobile-files (list (concat org-directory "/home.org")
-                             (concat org-directory "/sf.org")
-                             (concat org-directory "/work.org")
-                             (concat org-directory "/notes.org")
-                             (concat org-directory "/out.org"))
-      org-mobile-directory "~/Dropbox/Apps/MobileOrg"
-      org-agenda-custom-commands 
-      ;; Included in default init for org
-      '(("n" "Agenda and all TODO's" ((agenda "") (alltodo "")))
-        ;; Add a custom agenda view showing errands so Mobile org generates it
-        ("E" tags-todo "errand")))
-      
-      
-;; Mobile org wants all files in UTF-8, but the Emacs writes the
-;; agenda file in iso-latin-1.  Force it to utf-8 for that file.
-;; Unfortunately this seems to require hard coding the home directory.
-;; :-(
-(add-to-list 'auto-coding-alist (cons "/Users/novak/Dropbox/Apps/MobileOrg/agendas.org" 'utf-8))
-
-(defun gsn/org-kill-all-buffers ()
-  (interactive)
-  (org-save-all-org-buffers)  
-  (mapcar 'kill-buffer (org-buffer-list)))
-
-
-;; (setq org-use-fast-todo-selection t)
-      ;; org-highest-priority "A"
-      ;; org-default-priority "C"
-      ;; org-lowest-priority "E"      
-      ;; org-special-ctrl-a/e t
-      ;; org-agenda-include-diary t
-      ;; org-reverse-note-order 
-      ;; org-refile-targets
-      ;; org-cycle-include-plain-lists
-
-      ;; org-remember-templates 
-      ;; could set this up with a few functions that will
-      ;; automatically generate dated todos, undated todos, and notes.
-
-      ;; org-agenda-todo-list-sublevels
-      ;; I think I'd like to opposite of this: Show "leaves" but don't
-      ;; show the higher level stuff
-
-(setq org-refile-targets '( (org-agenda-files :level . 1) )
-      org-link-abbrev-alist 
-      '(("arxiv" . "http://arxiv.org/abs/")
-        ("arXiv" . "http://arxiv.org/abs/")
-        ("arx" . "http://arxiv.org/abs/")
-        ("xxx" . "http://arxiv.org/abs/")
-        ("google"   . "http://www.google.com/search?q=")
-        ("ads" . "http://adsabs.harvard.edu/cgi-bin/nph-abs_connect?author=%s&db_key=AST")))
-
-;; (request 'org-toc)
-
-;; (unless (equal org-agenda-sorting-strategy 
-;;                '((agenda habit-down time-up priority-down category-keep)
-;;                  (todo priority-down category-keep)
-;;                  (tags priority-down category-keep)
-;;                  (search category-keep)))
-;;   (message "org-agenda-sorting-strategy default changed!  Revisit setting!"))
-                          
-;; org-refile-targets is a bit of a bear, documentation is a little
-;; murky and google doens't find any examples.  Don't forget to
-;; refresh the list of targets with
-;;   (setq org-refile-target-table nil)
-;; or 
-;;   C-u C-u C-c C-w 
-;; The following list is in order of precedence.  For example, if a
-;; symbol has both an associated value and function, then the function
-;; is called.
-
-;; (setq org-refile-targets 
-;;       ;; special treatment, calls (org-agenda-files) to expand into an
-;;       ;; explicit list of filenames (rather than a directory)
-;;       '((org-agenda-files :keyword . arg))  
-;;       ;; calls function, can produce string, list of strings, list of
-;;       ;; buffers
-;;       (function-name :keyword . arg)     
-;;       ;; alternate rendering, perhaps more readable depending on one's
-;;       ;; taste
-;;       (function-name . (:keyword . arg)) 
-;;       ;; use value, can be string, list of strings, list of buffers
-;;       (variable-name :keyword . arg)     
-;;       ;; Give a specific filename
-;;       ("filename" :keyword . arg)
-;;       ;; Give a list of specific filenames
-;;       (("fn1" "fn2") :keyword . arg))
-
-;; This bug seems to be fixed
-;; (defadvice org-schedule 
-;;   (around gsn/org-prevent-rescheduling-repeated-tasks activate)
-;;   "If the current task has a repeater, prevent rescheduling it to avoid obliterating the repeater."
-;;   (if (org-get-repeat) 
-;;       (message "*** Can't reschedule this task without obliterating repeater ***")
-;;       ad-do-it))
-
-;; (defadvice org-deadline 
-;;   (around gsn/org-prevent-rescheduling-repeated-deadlines activate)
-;;   "If the current task has a repeater, prevent rescheduling it to avoid obliterating the repeater."
-;;   (if (org-get-repeat) 
-;;       (message "*** Can't reschedule this deadline without obliterating repeater ***")
-;;       ad-do-it))
-
-
-;; This bug seems to be fixed
-;; (defadvice org-deadline 
-;;   (around gsn/org-prevent-rescheduling-repeated-deadlines activate)
-;;   "If the current task has a repeater, prevent rescheduling it to avoid obliterating the repeater."
-;;   (if (org-get-repeat) 
-;;       (message "*** Can't reschedule this deadline without obliterating repeater ***")
-;;       ad-do-it))
-
-(defadvice format-time-string  
-  (around gsn/remove-dot-from-day-of-week activate)
-  "Abbreviating days of week as Sun. or Dim. instead of Sun and Dim wreaks havoc with org-mode.  Kill the dot when present"
-  ad-do-it
-  (setq ad-return-value (replace-regexp-in-string "\\(lun\\|mar\\|mer\\|jeu\\|ven\\|sam\\|dim\\|sun\\|mon\\|tue\\|wed\\|thu\\|fri\\|sat\\|sun\\)\\." 
-                                                  "\\1" ad-return-value)))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Life -- mail, bbdb, and planner
-      
-;; BBDB
-;; (autoload 'bbdb-insinuate-mew      "bbdb-mew"   "Hook BBDB into Mew")
-;; (add-hook 'mew-init-hook 'bbdb-insinuate-mew)
-(setq bbdb-default-country nil
-      bbdb/mail-auto-create-p nil
-;;       bbdb-send-mail-style 'mew
-      bbdb-use-pop-up nil)
-
-;; Address book
-(defun gsn/address-book ()
-  (let ((bbdb-print-omit-fields 
-         (append bbdb-print-omit-fields ; defaults
-                 '(creation-date timestamp) ; normal omits
-                 '(interactions next-contact 2005-02-16 2005-02-17)))
-        (bbdb-print-require 'address))
-    (if (assoc 'n-phones bbdb-print-full-alist)
-        (setcdr (assoc 'n-phones bbdb-print-full-alist) 0)
-      (add-to-list 'bbdb-print-full-alist '(n-phones . 0)))     
-    (bbdb-print nil "~/Documents/bbdb-addresses.tex" nil)))
-  
-(defun gsn/contact-book ()
-  (let ((bbdb-print-require t))
-    (if (assoc 'n-phones bbdb-print-full-alist)
-        (setcdr (assoc 'n-phones bbdb-print-full-alist) 10))
-    (if (assoc 'n-addresses bbdb-print-full-alist)
-        (setcdr (assoc 'n-addresses bbdb-print-full-alist) 10))
-    (bbdb-print nil "~/Documents/bbdb-contacts.tex" nil)))
-  
-;; Phone book
-(defun gsn/phone-book ()
-  (let ((bbdb-print-require 'phone))
-    (setcdr (assoc 'omit-area-code bbdb-print-alist ) "^(831)")
-    (setcdr (assoc 'n-phones bbdb-print-brief-alist) 3)
-    (setcdr (assoc 'n-addresses bbdb-print-brief-alist) 0)
-    (bbdb-print nil "~/Documents/bbdb-phone.tex" t)))
-
-;; Planner/Muse
-;; (when (locate-library "planner")
-;;   (load "~/.planner"))
-
-;; Document Processing
-(request 'tex-site)
-(setq TeX-PDF-mode t
-      LaTeX-table-label "tab-"
-      LaTeX-equation-label "eq-"
-      LaTeX-eqnarray-label "eq-"
-      LaTeX-figure-label "fig-"
-      LaTeX-section-label   '(("chapter" . "ch-")
-                              ("section" . "sec-")
-                              ("subsection" . "sec-")))
-
-;;; HTML stuff
-;; Don't use this for editing... just steal the timestamp functions
-;; (request 'html-helper-mode)
-;; (setq gsn/html-timestamps nil)
-    
-;; (add-hook 'html-mode-hook   
-;;           (lambda ()
-;;             (when gsn/html-timestamps
-;;               (add-hook 'local-write-file-hooks 
-;;                         'html-helper-update-timestamp))))
-
-(autoload 'LilyPond-mode "lilypond-mode" "LilyPond Editing Mode" t)
-(add-to-list 'auto-mode-alist '("\\.ly$" . LilyPond-mode))
-(add-to-list 'auto-mode-alist '("\\.ily$" . LilyPond-mode))
-(add-hook 'LilyPond-mode-hook (lambda () (turn-on-font-lock)))
-
-;; Jabber
-(defun gsn/jabber-settings (server)
-  (interactive (list (completing-read "Server: " '("google" "jabber") 
-                                      nil t nil nil "google" nil)))
-  (cond ((equal server "google") (setq jabber-nickname "greg.novak"
-                                       jabber-username "greg.novak"
-                                       jabber-server "gmail.com"
-                                       jabber-network-server "talk.google.com"
-                                       jabber-connection-type 'ssl))
-        (equal server "jabber") (setq jabber-nickname "Greg Novak"
-                                      jabber-username "gnovak"
-                                      jabber-server "jabber.org"
-                                      jabber-network-server nil
-                                      jabber-connection-type 'ssl)))
-
-(defun gsn/jabber-choose-buffer ()
-  (interactive)
-  (let ((buffers (filter (lambda (x) (string-match "*-jabber-chat" x)) 
-                         (mapcar 'buffer-name (buffer-list)))))
-    (cond ((= (length buffers) 0) (message "No chat buffers found"))
-          ((= (length buffers) 1) (switch-to-buffer (car buffers)))
-          (t (switch-to-buffer (completing-read 
-                                "Chat: " buffers
-                                nil t "*-jabber-chat-"))))))
-
-(request-and-init jabber
-   (gsn/jabber-settings "google"))
-
-;; Tramp
-;; Prevent ssh from getting confused by long temp dir name
-(setenv "TMPDIR" "/tmp")
-(setq ;; It's been a long time since that tramp bug... try 
-      ;; inline methods for a while again
-      tramp-default-method "ssh"        
-      tramp-debug-buffer t
-      tramp-verbose 10)
-
-;; (defadvice tramp-wait-for-output (after gsn/tramp-unecho activate)
-;;    "Westhost doesn't have stty installed, so Tramp can't turn off
-;;     echoing, so Tramp gets confused when it finds the commands it
-;;     sent rather than their output.  This is a hack to kill the
-;;     first line of the output buffer for hosts that look like
-;;     they're my westhost account."
-;;    (if (any 
-;;         (mapcar (lambda (hostname)
-;;                   (string-match (concat "^\\*tramp/[A-z]* " hostname "\\*$")
-;;                                 (buffer-name)))   
-;;                 '("web" "jenandgreg@jenandgreg.org")))
-;;        (delete-region (line-beginning-position) (+ 1 (line-end-position)))))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Turn on auto-revert for doc view
-(add-hook 'doc-view-mode-hook 'auto-revert-mode)
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; URL Browsing
-(defun gsn/browse-url-firefox-on-linux (url &optional new-window)
-  (shell-command 
-   (concat "/usr/lib/mozilla/mozilla-xremote-client \"openurl("
-           url
-           ",new-tab)\"")))
-
-(defun gsn/browse-url-safari-on-osx (url &optional new-window)
-  (shell-command (concat "/Users/novak/bin/url-open safari " url)))
-
-(defun gsn/browse-url-firefox-on-osx (url &optional new-window)
-  (shell-command (concat "/Users/novak/bin/url-open firefox " url)))
-
-(defun gsn/browse-url-remotely (url &optional new-window)
-  (shell-command (concat "echo " url "| socket localhost 2081")))
-
-(defun gsn/browse-url (&rest args)
-  (cond ((and dionysus-flag remote-flag)
-         (apply 'gsn/browse-url-remotely args))
-        (dionysus-flag
-         (apply 'gsn/browse-url-firefox-on-linux args))
-        (euterpe-flag 
-         (apply 'gsn/browse-url-safari-on-osx args))
-        (t (error "Don't know what to do!"))))
-
-;; Disable this for tnow to see if default URL browsing has evolved.
-;; (setq browse-url-browser-function 'gsn/browse-url)
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Programming
-;; for compilation, put the cursor at the end of the buffer
-(setq compilation-scroll-output t
-      compile-command "make -k -j 2 ")
-
-(defadvice find-tag-other-window 
-  (after gsn/find-tag-other-window-stay-this-window activate compile)
-  "Leave point in the current window when you call find-tag-other-window"
-  (other-window 1))
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; SQL stuff from here:
-;; http://truongtx.me/2014/08/23/setup-emacs-as-an-sql-database-client/
-;; (setq sql-postgres-program "psql84"
-;;       sql-send-terminator t)
-;; (setq sql-postgres-program "my-psql"
-;;       sql-send-terminator t)
-
-;; Presto
-
-(require 'sql)
-
-(setq sql-presto-program "/Users/gnovak/bin/sane-presto"
-      ;; sql-presto-options nil
-      sql-presto-login-params '((user :default "novak")
-                                (database :default "novak")
-                                server)
-      ;; sql-presto-login-params `((user :default ,(user-login-name))
-      ;;                           (database :default ,(user-login-name))
-      ;;                           server)
-      ;; sql-presto-completion-object nil
-      )
-
-
-(defun sql-presto ()
-  (interactive)
-  ;; sql-connect seems to need sql-product defined to avoid a
-  ;; traceback.  Is this a bug?
-  (let ((sql-product 'presto))
-    (sql-connect 'presto)))
-
-(defun sql-presto2 ()
-  (interactive)
-  ;; sql-connect seems to need sql-product defined to avoid a
-  ;; traceback.  Is this a bug?
-  (let ((sql-product 'presto))
-    (sql-connect 'presto2)))
-
-(defun sql-comint-presto (product options)
-  ;; (setq sql-login-delay 0.9)
-  (let ((sql-login-delay 0.9))
-    (sql-comint product options)))
-
-;; Trying to give the password on the command line confuses mysql
-;; Give it as an env var inside my-sql-connect
-(setq sql-mysql-login-params '(user database server))
-
-(add-to-list 'sql-product-alist
-             '(presto
-		 :name "Presto"
-		 :free-software t
-		 :font-lock sql-mode-postgres-font-lock-keywords
-		 :sqli-program sql-presto-program
-		 ;; :sqli-options sql-presto-options
-		 :sqli-login sql-presto-login-params
-		 :sqli-comint-func sql-comint-presto
-		 ;; :list-all ()
-		 ;; :list-table ()
-		 ;; :completion-object sql-presto-completion-object
-		 ;; :completion-column ()
-		 :prompt-regexp "^\\w*[#>] "
-		 :prompt-length 8
-		 :prompt-cont-regexp "^\\w*[-(]*[#>] "
-		 :input-filter sql-remove-tabs-filter
-		 :terminator ("\\(^\\s-*\\\\g$\\|;\\)" . "\\g")
-		 ;; :statement
-		 ;; :syntax-alist
-                 ))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-(setq sql-postgres-program "psql"
-      sql-send-terminator ";")
-
-(setq sql-connection-alist
-      '((redshift (sql-product 'postgres)
-                  ;; (sql-user "dw_user")
-                  (sql-user "gnovak")
-                  (sql-server "aa-dw.ceqzd6qj6kx3.us-east-1.redshift.amazonaws.com")
-                  (sql-port 5439)
-                  (sql-database "dw"))
-        (redshift2 (sql-product 'postgres)
-                  ;; (sql-user "dw_user")
-                  (sql-user "gnovak")
-                  (sql-server "aa-dw.ceqzd6qj6kx3.us-east-1.redshift.amazonaws.com")
-                  (sql-port 5439)
-                  (sql-database "dw"))
-        (redshift-admin (sql-product 'postgres)
-                  (sql-user "dw_admin")
-                  (sql-server "aa-dw.ceqzd6qj6kx3.us-east-1.redshift.amazonaws.com")
-                  (sql-port 5439)
-                  (sql-database "dw"))
-        ;; (production (sql-product 'postgres)
-        ;;             (sql-user "read_only")
-        ;;             (sql-server "transmetropolitan-follower-aa-replica-1.c97owav5rixa.us-east-1.rds.amazonaws.com")
-        ;;             (sql-port 5432)
-        ;;             (sql-database "transmetropolitan"))
-        (production (sql-product 'postgres)
-                    (sql-user "aaproxyuser")
-                    (sql-server "10.129.102.207")
-                    (sql-port 5432)
-                    (sql-database "db_42"))
-        (production2 (sql-product 'postgres)
-                    (sql-user "ufks4k92nq94gi")
-                    (sql-server "green.vertigo.stitchfix.com")
-                    (sql-port 5432)
-                    (sql-database "d732gk0udetdnm"))
-        (old-production (sql-product 'postgres)
-                    (sql-user "u5ddfv06s9iams")
-                    (sql-server "ec2-50-17-191-123.compute-1.amazonaws.com")
-                    (sql-port 5432)
-                    (sql-database "d732gk0udetdnm"))
-        (old-production2 (sql-product 'postgres)
-                    (sql-user "u5ddfv06s9iams")
-                    (sql-server "ec2-50-17-191-123.compute-1.amazonaws.com")
-                    (sql-port 5432)
-                    (sql-database "d732gk0udetdnm"))
-        (fashionthing (sql-product 'postgres)
-                      (sql-user "aaproxyuser")
-                      (sql-server "10.129.155.26")
-                      (sql-port 5432)
-                      (sql-database "db_39"))
-        (hms (sql-product 'mysql)
-                      (sql-user "hive")
-                      (sql-server "hive-vpc.c8hjvnh4cuqj.us-east-1.rds.amazonaws.com")
-                      (sql-port 3306)
-                      (sql-database "hive"))
-        (gsnhms (sql-product 'mysql)
-                      (sql-user "hive")
-                      (sql-server "gsn-hive.c8hjvnh4cuqj.us-east-1.rds.amazonaws.com")
-                      (sql-port 3306)
-                      (sql-database "hive"))
-        (presto (sql-product 'presto)
-                  (sql-user "gnovak")
-                  (sql-server "presto.vertigo.stitchfix.com")
-                  (sql-port 8889)
-                  (sql-database "dw"))
-        (presto2 (sql-product 'presto)
-                  (sql-user "gnovak")
-                  (sql-server "presto.vertigo.stitchfix.com")
-                  (sql-port 8889)
-                  (sql-database "dw"))
-                  ))
-
-;;        	heroku pg:psql --app transmetropolitan-production HEROKU_POSTGRESQL_GREEN
-;; turn on abbrev mode globally
-;; (setq-default abbrev-mode t)
-;; or just in sql mode
-(defun gsn/sql-mode-hook ()
-  (abbrev-mode 1)
-  ;; Make underscore a word character so that abbrev stops expanding send_count to send_COUNT
-  (modify-syntax-entry ?_ "w" sql-mode-syntax-table)
-  (when (file-exists-p "~/.sql-abbreviations")
-    (load "~/.sql-abbreviations")))
-
-(defun gsn/sql-interactive-mode-hook ()
-  (toggle-truncate-lines t))
-
-(defun sql-in-code-context-p ()
-  (if (fboundp 'buffer-syntactic-context) ; XEmacs function.
-       (null (buffer-syntactic-context))
-     ;; Attempt to simulate buffer-syntactic-context
-     ;; I don't know how reliable this is.
-     (let* ((beg (save-excursion
- 		  (beginning-of-line)
- 		  (point)))
- 	   (list
- 	    (parse-partial-sexp beg (point))))
-       (and (null (nth 3 list))		; inside string.
- 	   (null (nth 4 list))))))	; inside cocmment
-
-(defun sql-pre-abbrev-expand-hook ()
-  ;; Allow our abbrevs only in a code context.
-  (setq local-abbrev-table
-        (if (sql-in-code-context-p)
-            sql-mode-abbrev-table)))
-
-(defun sql-redshift ()
-  (interactive)
-  (my-sql-connect 'postgres 'redshift))
-
-(defun sql-hms ()
-  (interactive)
-  (my-sql-connect 'mysql 'hms))
-
-(defun sql-gsnhms ()
-  (interactive)
-  (my-sql-connect 'mysql 'gsnhms))
-
-(defun sql-redshift2 ()
-  (interactive)
-  (my-sql-connect 'postgres 'redshift2))
-
-(defun sql-redshift-admin ()
-  (interactive)
-  (my-sql-connect 'postgres 'redshift-admin))
-
-(defun sql-fashionthing ()
-  (interactive)
-  (my-sql-connect 'postgres 'fashionthing))
-
-(defun sql-production ()
-  (interactive)
-  (my-sql-connect 'postgres 'production))
-
-(defun sql-production2 ()
-  (interactive)
-  (my-sql-connect 'postgres 'production2))
-
-(defun my-sql-connect (product connection)
-  ;; load the password
-;;  (require 'sql-my-password "sql-my-password.el.gpg")
-;  (require 'sql-my-password)
-
-  (let* ((sql-product product)
-         (password (cadr (assoc connection sql-my-password)))
-         (sql-connection-alist (cons (list 'password password)
-                                     sql-connection-alist)))
-    ;; Postgres doesn't allow providing password on command line,
-    ;; handle that case.  This should go inside sql-postgres.
-    (when (and (eq sql-product 'postgres) password)
-      (setenv "PGPASSWORD" password))
-    (when (and (eq sql-product 'mysql) password)
-      (setenv "MYSQL_PWD" password))
-    (sql-connect connection)
-    (when (and (eq sql-product 'postgres) password)
-      (setenv "PGPASSWORD" nil))
-    (when (and (eq sql-product 'mysql) password)
-      (setenv "MYSQL_PWD" nil))))
-;;    (rename-buffer (concat "*SQL-" (symbol-name connection) "*"))))
-
-(add-hook 'sql-mode-hook 'gsn/sql-mode-hook)
-(add-hook 'sql-interactive-mode-hook 'gsn/sql-mode-hook)
-(add-hook 'sql-interactive-mode-hook 'gsn/sql-interactive-mode-hook)
-(add-hook 'pre-abbrev-expand-hook 'sql-pre-abbrev-expand-hook)
-
-(require 'sql-indent)
-
-;; stop asking whether to save newly added abbrev when quitting emacs
-(setq save-abbrevs nil)
-
-;; doesn't work...?
-(defadvice sql-send-string
-  (around gsn/ask-for-sqli-buffer disable)
-  ;(around gsn/ask-for-sqli-buffer activate)
-  "Don't just bail with an error, ask for a sql buffer"
-  (unless (sql-buffer-live-p sql-buffer)
-    (call-interactively 'sql-set-sqli-buffer))
-  ad-do-it)
-
-(setq ansi-color-for-comint-mode t)
-
-;; Gallina python.el
-;; Recommended settings for Gallina python.el for use with ipython 0.11.  
-(setq python-shell-interpreter "ipython3"
-      python-shell-interpreter-args "--pylab --simple-prompt"
-      python-shell-prompt-regexp "In \\[[0-9]+\\]: "
-      python-shell-prompt-output-regexp "Out\\[[0-9]+\\]: "
-      python-shell-completion-setup-code
-      "from IPython.core.completerlib import module_completion"
-      python-shell-completion-module-string-code
-      "';'.join(module_completion('''%s'''))\n"
-      python-shell-completion-string-code
-      "';'.join(get_ipython().Completer.all_completions('''%s'''))\n")
-
-;; python-mode.el
-;; Ordering of py-shell-name, py-python-command-args and require
-;; 'python-mode are important here, who knows why.
-;; (add-to-list 'load-path "~/bin/elisp/python-mode/") 
-;; (setq py-install-directory "~/bin/elisp/python-mode/")
-;; (setq py-shell-name "ipython")
-;; (request 'python-mode)
-;; (setq-default py-python-command-args '("--pylab" "--colors=LightBG"))
-
-;; Commands to start remote python shell
-;; (setq py-shell-name "/usr/bin/ssh")
-;; (request 'python-mode)
-;; (setq-default py-python-command-args 
-;;               '("-t" "sesame1" "/home/gnovak/bin/local/bin/ipython"
-;;                 "--pylab" "--colors=LightBG"))
-
-;; (setq ipython-command (cond ((or clio-flag thalia-flag)
-;;                              "/opt/local/bin/ipython-2.7")
-;;                             (pleiades-flag 
-;;                              "/home/novak/bin/local/bin/ipython"))
-;;       py-python-command-args '("--pylab=tk" "--colors=LightBG"))
-
-;; (request 'python-mode)
-;; (request 'ipython)
-
-; ipython calling convention changed, should probably update
-; ipython.el, but for now just reset the command line args.
-;; (setq py-python-command-args '("--pylab=tk" "--colors=LightBG"))
-
-; ipython calling convention changed, should probably update
-; ipython.el, but for now just reset the command line args.
-(setq py-python-command-args '("--pylab=tk" "--colors=LightBG"))
-
-; this is a hack to fix the fact that the space went away from the
-; ipython debugger prompt in version 0.7.3 of ipython.  Sheesh.
-;; (when (or (and euterpe-flag (string= ipython-command "/sw/bin/ipython2.5")))
-;;   (setq py-pdbtrack-input-prompt "\n[(<]*[Ii]?[Pp]db[>)]+ ?"))
-
-(defadvice py-fill-paragraph 
-  (around gsn/backup-at-end-of-string activate)
-  "If the previous char is a quote and the current char isn't,
-  back up by one character so that py-fill-paragraph doesn't fill
-  my docstrings so strangely."
-  (if (and (equal (preceding-char) (string-to-char "\""))
-           (not (equal (following-char) (string-to-char "\""))))
-      (save-excursion 
-        (forward-char -1)
-        ad-do-it)
-    ad-do-it))
-
-;;;;;;;;;
-;; Git
-;; (request 'magit)
-; (setq magit-omit-untracked-dir-contents t)
-
-;; (when euterpe-flag
-;;   (add-hook 'py-shell-hook 
-;;             '(lambda () 
-;;               (setenv "DYLD_LIBRARY_PATH" 
-;;                "/Applications/rsi/idl_6.1/bin/bin.darwin.ppc")
-;;               (setenv "XPPATH" "/Applications/rsi/idl_6.1/resource/xprinter"))
-;;             t))
- 
-(when (locate-library "lush")
-  (load "lush"))
-
-;; Javascript recommended init code
-(request 'js-comint)
-;; (setq inferior-js-program-command "/usr/bin/java org.mozilla.javascript.tools.shell.Main")
-(setq inferior-js-program-command "rhino")
-; (setq inferior-js-program-command "js")
-(add-hook 'js2-mode-hook '(lambda () 
-			    (local-set-key "\C-x\C-e" 'js-send-last-sexp)
-			    (local-set-key "\C-\M-x" 'js-send-last-sexp-and-go)
-			    (local-set-key "\C-cb" 'js-send-buffer)
-			    (local-set-key "\C-c\C-b" 'js-send-buffer-and-go)
-			    (local-set-key "\C-cl" 'js-load-file-and-go)
-			    ))
-
-;; Slime and remote servers: swank only listens on the loopback
-;; interface, so writing stuff via 'socket 127.0.0.1 4005' works but
-;; 'socket my-ip 4005' doesn't work.  For ssh forwarding, you have to
-;; _forward to_ 127.0.0.1 _and_ write to 127.0.0.1 (the loopback on
-;; both machines) to get slime to work.  Anything else doesn't work!
-
-;; (font-lock-add-keywords
-;;  'slime-mode
-;;  '("mvb"))
-
-;; Slime init code recommended by macports
-(setq load-path (cons "/opt/local/share/emacs/site-lisp/slime" load-path))
-(request 'slime-autoloads)
-(setq slime-lisp-implementations
-     `((sbcl ("/opt/local/bin/sbcl"))
-       (clisp ("/opt/local/bin/clisp"))))
-(add-hook 'lisp-mode-hook
-           (lambda ()
-             (cond ((not (featurep 'slime))
-                    (require 'slime) 
-                    (normal-mode)))))
-;; (eval-after-load "slime"
-;;    '(slime-setup '(slime-fancy slime-banner slime-js)))
-
-(setq slime-lisp-implementations `((sbcl ("/opt/local/bin/sbcl"))
-                                   (clisp ("/opt/local/bin/clisp"))
-                                   (ecl ("/opt/local/bin/ecl"))
-                                   (ccl ("/opt/local/bin/ccl"))
-                                   (abcl ("/opt/local/bin/abcl")))
-      common-lisp-hyperspec-root "file:///opt/local/share/doc/lisp/HyperSpec-7-0/HyperSpec/")
-      ; lisp-indent-function 'common-lisp-indent-function)
-      ; slime-startup-animation nil
-      ; inferior-lisp-program "openmcl" ; sbcl, openmcl, clisp, 
-      ; slime-net-coding-system 'utf-8-unix ;; TEMP
-      ; slime-complete-symbol-function 'slime-fuzzy-complete-symbol)
-
-(request-and-init slime
-  (slime-setup '(slime-repl slime-asdf slime-fancy slime-banner)))
-
-(when (and (= emacs-major-version 22) 
-	   (fboundp 'slime-create-filename-translator))
-  (setq slime-filename-translations (list (slime-create-filename-translator 
-                                           :machine-instance "zuggerific.local"
-                                           :remote-host "jen"
-                                           :username "")
-                                          (list ".*" 'identity 'identity))))
-
-(defadvice slime-fuzzy-completions (around gsn/slime-prevent-long-completions
-                                           activate compile)
-  "Prevent slime from trying to complete the empty string, which
-takes forever"
-  (unless (string= prefix "")
-    ad-do-it))
-
-(defadvice slime-repl-previous-input (around gsn/slime-normal-up activate)
-  (if (>= (point) slime-repl-input-start-mark)
-      ad-do-it
-    (previous-line 1)))
-
-(defadvice slime-repl-next-input (around gsn/slime-normal-down activate)
-  (if (>= (point) slime-repl-input-start-mark)
-      ad-do-it
-    (next-line 1)))
-
-(defvar gsn/slime-scan-note-by-type-history nil
-  "List storing history of entries to minibuffer prompt in
-  gsn/slime-read-type")
-
-(defvar gsn/slime-scan-note-by-type-current
-  '(:error :read-error :warning :style-warning :note)
-  "Current type of note for which to search.  This is stored so
-  that the behavior is 'sticky' between invocations of the
-  commands.")
-
-(defun gsn/slime-next-note (reset-type)
-  "Interactively search for the next compiler note of the type
-given by gsn/slime-scan-note-by-type-current.  With prefix arg,
-prompt for the value of gsn/slime-scan-note-by-type-current."
-  (interactive "P") 
-  (when reset-type
-    (gsn/slime-read-type))
-  (gsn/slime-next-note-by-type gsn/slime-scan-note-by-type-current))
-
-(defun gsn/slime-previous-note (reset-type)
-  "Interactively search for the previous compiler note of the
-type given by gsn/slime-scan-note-by-type-current.  With prefix
-arg, prompt for the value of
-gsn/slime-scan-note-by-type-current."
-  (interactive "P") 
-  (when reset-type
-    (gsn/slime-read-type))
-  (gsn/slime-previous-note-by-type gsn/slime-scan-note-by-type-current))
-
-(defun gsn/slime-read-type ()
-  "Prompt for the value of gsn/slime-scan-note-by-type-current.
-Store history (as strings) in
-gsn/slime-scan-note-by-type-history.  Convert the string to a
-symbol and set gsn/slime-scan-note-by-type-current."
-  (let ((type-string (completing-read "Type (default error): "
-                                      '("all"
-                                        "error"
-                                        "read-error"
-                                        "warning"
-                                        "style-warning"
-                                        "note")
-                                      nil t nil 
-                                      'gsn/slime-scan-note-by-type-history
-                                      "error")))
-    (push type-string gsn/slime-scan-note-by-type-history)
-    (setq gsn/slime-scan-note-by-type-current 
-          (cdr (assoc type-string 
-                      '(("all" . (:error :read-error :warning 
-                                  :style-warning :note))
-                        ("error" . (:error))
-                        ("read-error" . (:read-error))
-                        ("warning" . (:warning))
-                        ("style-warning" . (:style-warning))
-                        ("note" . (:note))))))))
-
-(defun gsn/slime-scan-note-by-type (type scan-func)
-  "Move point to the next/previous compiler note of type TYPE.
-SCAN-FUNC specifies how to advance through the notes so that this
-function doens't have to be duplicated for -next- and -previous-"
-  (let ((original-pos (point))
-        (last-pos (point))
-        (sought-note-p 
-         (lambda (type)
-           (and (slime-note-at-point)
-                (memq (overlay-get (slime-note-at-point) 'severity)
-                      type)))))
-    
-    (funcall scan-func)
-    (while (and (/= last-pos (point))
-                (not (funcall sought-note-p type)))
-      (setq last-pos (point))
-      (funcall scan-func))
-    
-    ;; let the user know if there are no more notes
-    (if (funcall sought-note-p type)
-        (slime-show-note (slime-note-at-point))
-        ;; If no next note, go back to where you started
-        (goto-char original-pos)
-        (message "No more notes."))))
-        
-(defun gsn/slime-next-note-by-type (type)
-  "Move point to the next compiler note of type TYPE."
-  (gsn/slime-scan-note-by-type type 'slime-find-next-note))
-
-(defun gsn/slime-previous-note-by-type (type)
-  "Move point to the next/previous compiler note of type TYPE."
-  (gsn/slime-scan-note-by-type type 'slime-find-previous-note))
-
-;; for Maxima
-(request 'maxima) ;; for writing maxima code
-(autoload 'imaxima "imaxima" "Image support for Maxima." t)
-
-;; Random stuff
-(defun gsn/maxima-untabify-output (s)
-  (with-temp-buffer
-    (insert s)
-    (untabify (point-min) (point-max))
-    (buffer-string)))
-
-(defun gsn/maxima-add-untabify-output-filter-function ()
-  (add-hook 'comint-preoutput-filter-functions 
-            'gsn/maxima-untabify-output
-            ;; append and make buffer-local
-            t t))
-
-(add-hook 'inferior-maxima-mode-hook 
-          'gsn/maxima-add-untabify-output-filter-function)
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun gsn/slime-eval-last-expression-in-frame (sexp)
-  "Eval the expression at POINT in a frame in the slime debugger.
-  The frame used is determined by the location of POINT in the
-  slime debugger buffer.  The idea is to be able to be able to
-  debug by using sldb-show-source in the slime debug buffer and
-  then easily evaluate expression in your source file near the
-  problem."
-  (interactive (list (slime-last-expression)))
-  (if (not (sldb-get-default-buffer))
-      (error "No debugger buffer")
-      (save-excursion 
-        (set-buffer (sldb-get-default-buffer))
-        (sldb-eval-in-frame sexp))))
-
-;; (defun gsn/pgg-decrypt ()
-;;   (interactive)
-;;   (save-excursion
-;;     (goto-char (point-min))
-;;     (set-mark-command nil)
-;;     (goto-char (point-max))
-;;     (call-interactively 'pgg-decrypt-region)))
-
-;; (defun gsn/pgg-encrypt ()
-;;   (interactive
-;;    (list (split-string (read-string "Recipients: ") "[ \t,]+")))
-;;   (pgg-encrypt-region (point-min) (point-max)))
-
-;; (fset pgg-decrypt gsn/pgg-decrypt)
-;; (fset pgg-encrypt gsn/pgg-encrypt)
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Code for keymaps
-
-;; (defun gsn/py-windows ()
-;;   (interactive)
-;;   (delete-other-windows)
-;;   (split-window-vertically)
-;;   ;; switch to the most recently visited python buffer
-;;   (let ((buffers (buffer-list))
-;;         done)
-;;     (while (not done)
-;;       (with-current-buffer (car buffers)
-;;         (setq buffers (cdr buffers))
-;;         (when (eql major-mode 'python-mode)
-;;           (switch-to-buffer (current-buffer))
-;;           (setq done t)))))      
-;;   (other-window 1)
-;;   (switch-to-buffer "*Python*")
-;;   (end-of-buffer))
-
-;;; Eshell keymaps 
-(defun gsn/eshell-after-prompt-p ()
-  "Check to see if you're on the last line of a buffer"
-  (interactive)
-  (let ((ppoint (point)))
-    (save-excursion
-      (end-of-buffer)
-      (beginning-of-line)
-      (eshell-skip-prompt)
-      (>= ppoint (point)))))
-
-(defadvice eshell-previous-matching-input-from-input
-  (around gsn/normal-up activate)
-  (if (gsn/eshell-after-prompt-p)      
-      ad-do-it
-    (previous-line 1)))
-
-(defadvice eshell-next-matching-input-from-input 
-  (around gsn/normal-down activate)
-  (if (gsn/eshell-after-prompt-p)      
-      ad-do-it
-    (next-line 1)))
-
-(defun gsn/scroll-window-forward-line (n)
-  (interactive "p")
-  (save-excursion 
-    (goto-char (window-start)) 
-    (forward-line n) 
-    (set-window-start (selected-window) (point)))
-  (forward-line n))
-
-(defun gsn/scroll-window-backward-line (n)
-  (interactive "p")
-  (gsn/scroll-window-forward-line (- n)))
-
-(defun gsn/scroll-window-forward-paragraph (n)
-  (interactive "p")
-  (let ((start-line (line-number-at-pos))
-        (finish-line (progn (forward-paragraph n) (line-number-at-pos))))
-    (save-excursion 
-      (goto-char (window-start)) 
-      (forward-line (- finish-line start-line))
-      (set-window-start (selected-window) (point)))))
-
-(defun gsn/scroll-window-backward-paragraph (n)
-  (interactive "p")
-  (gsn/scroll-window-forward-paragraph (- n)))
-
-;; View a file in the other window, but stay in this window
-(defun gsn/dired-find-file-other-window-stay-in-this-window ()
-  (interactive) 
-  (dired-find-file-other-window)
-  (other-window 1))
-  
-;;;;;
-;; Persistent history in emacs comint-derived buffers, snarfed from: 
-;; http://oleksandrmanzyuk.wordpress.com/2011/10/23/a-persistent-command-history-in-emacs/
-
-(defun comint-write-history-on-exit (process event)
-  (comint-write-input-ring)
-  (let ((buf (process-buffer process)))
-    (when (buffer-live-p buf)
-      (with-current-buffer buf
-        (insert (format "\nProcess %s %s" process event))))))
-
-(defun turn-on-comint-history ()
-  (let ((process (get-buffer-process (current-buffer))))
-    (when process
-      (setq comint-input-ring-file-name
-            (format "~/.emacs.d/inferior-%s-history"
-                    (process-name process)))
-      (comint-read-input-ring)
-      (set-process-sentinel process
-                            #'comint-write-history-on-exit))))
-
-(add-hook 'inferior-python-mode-hook 'turn-on-comint-history)
-(add-hook 'sql-interactive-mode-hook 'turn-on-comint-history)
-
-(add-hook 'kill-buffer-hook 'comint-write-input-ring)
-
-(defun mapc-buffers (fn)
-  (mapc (lambda (buffer)
-          (with-current-buffer buffer
-            (funcall fn)))
-        (buffer-list)))
-
-(defun comint-write-input-ring-all-buffers ()
-  (mapc-buffers 'comint-write-input-ring))
-
-(add-hook 'kill-emacs-hook 'comint-write-input-ring-all-buffers)
-
-;;;;;
-
-;;; Comint key maps
-;;; If the cursor is after the command prompt, make <up> and <down> do
-;;; command history matching rather than just sequentially pulling
-;;; commands from the history.  If the cursor is before the command
-;;; prompt, make <up> and <down> do the normal cursor-movement stuff.
-;;; Note that this means that you'll have to hit <left arrow> to get
-;;; the cursor off of the command line so that <up> and <down> start
-;;; moving the cursor instead of fooling around with the command history.
-(defun gsn/comint-history-up () 
-  (interactive)
-  (if (not (comint-after-pmark-p))
-      ;; if we're before the prompt, move around
-      (previous-line 1) 
-    ;; if we're after the prompt, do history matching
-    (comint-previous-matching-input-from-input 1)
-    ;; fool comint into thinking that the last command was 
-    ;; comint-... b/c of the way it remembers the search string
-    (setq this-command 'comint-previous-matching-input-from-input)))
-
-(defun gsn/comint-history-down () 
-  (interactive)
-  (if (not (comint-after-pmark-p))
-      (next-line 1)      
-    (comint-next-matching-input-from-input 1)   
-    (setq this-command 'comint-next-matching-input-from-input)))
-
-(defun gsn/comint-history-keymaps () 
-  (local-set-key [up] 'gsn/comint-history-up)
-  (local-set-key "\C-p" 'gsn/comint-history-up)
-  (local-set-key [down] 'gsn/comint-history-down)
-  (local-set-key "\C-n" 'gsn/comint-history-down))
-
-;;; Maxima keymaps 
-(defun gsn/inferior-maxima-check-and-send-line ()
-  "Stick a semicolon on the end of the line if there isn't one there"
-  ;; improvements: 
-  ;; check for blank lines, don't append semicolon
-  ;; check for semicolon followed by whitespace, don't append another
-  (interactive)
-  (end-of-line)
-  ;; check to see if last character is not a semicolon
-  (message (prin1-to-string (preceding-char)))
-  (if (not (eq (preceding-char) 59))
-      (insert ";"))
-  (inferior-maxima-check-and-send-line))
-
-(defun gsn/maxima-keymaps ()
-  (interactive)
-  (gsn/comint-history-keymaps)
-  (local-set-key "\C-m"  'gsn/inferior-maxima-check-and-send-line))
-
-;; (defun gsn/python-mode-repl ()
-;;   (interactive) 
-;;   (py-shell) 
-;;   (end-of-buffer))
-
-; Lifted from
-; http://www.emacswiki.org/emacs/DuplicateLines
-(defun gsn/uniquify-all-lines-region (start end)
-  "Find duplicate lines in region START to END keeping first occurrence."
-  (interactive "*r")
-  (save-excursion
-    (let ((lines) (end (copy-marker end)))
-      (goto-char start)
-      (while (and (< (point) (marker-position end))
-                  (not (eobp)))
-        (let ((line (buffer-substring-no-properties
-                     (line-beginning-position) (line-end-position))))
-          (if (member line lines)
-              (delete-region (point) (progn (forward-line 1) (point)))
-            (push line lines)
-            (forward-line 1)))))))
-
-; Lifted from
-; http://www.emacswiki.org/emacs/DuplicateLines
-(defun gsn/uniquify-all-lines-buffer ()
-    "Remove duplicate adjacent lines in the current buffer."
-    (interactive)
-    (gsn/uniquify-all-lines-region (point-min) (point-max)))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;
 ;; Key maps
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Use global-set-key command and then repeat-complex-command
-;; (global-set-key (kbd "<S-tab>") 'tetris)
-;; [C-tab] and [S-tab]
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
 ;; Explanation by Kevin Rodgers on gnu-emacs-users
 ;;
 ;; You can use the kbd macro:
 ;; (global-set-key (kbd "<S-tab>") 'tetris)
-;; 
+;;
 ;; ?x is the read syntax for the character x.
 ;;
 ;; x is the read syntax for the symbol x.
@@ -1493,21 +30,121 @@ function doens't have to be duplicated for -next- and -previous-"
 ;; ?\M-y), (all) modified function keys are also symbols (e.g. C-tab or
 ;; M-f1).
 ;;
+;;;;;;;;;
+;; Coding Systems
+;;
+;; There are an enormous number of ways to specify coding systems:
+;; - via file cookies at the beginning of the file: -*- coding: utf-8 -*-
+;; - via file cookies at the end of the file:  Local Variables: eval: (eldoc-mode)
+;; - via filenames: auto-coding-alist
+;; - via regexp on first few bytes of file: auto-coding-regexp-alist
+;; - via arb function on buffer: auto-coding-functions
+;; - via lisp call: set-buffer-process-coding-system, set-buffer-file-coding-system
+;;
+;; Also useful to know about universal-coding-system-argument, which
+;; says "run the next command with given coding system"
+;;
+;;;;;;;;;;
+;; Fonts
+;;
+;; Definitions:
+;; Faces: logically distinct text (one for each text style of each mode)
+;; Fonts: physically distinct rendering (one for each way to render text)
+;; Fontset: ???
+;; Many faces may use same font.
+;;
+;; Useful tidbits:
+;; M-x x-select-font
+;; (frame-parameter nil 'font)
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; NONSTANDARD GLOBAL MAPS
-;;; I can't freaking stand the ctrl-t command being transpose
-;;; Make it "To-line" instead
+;; set up package and use-package
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(require 'package)
+
+(setq package-enable-at-startup nil)
+
+(add-to-list 'package-archives
+             '("melpa" . "http://melpa.org/packages/") t)
+;; ;; Certificate expired.  Abandoned (?) according to
+;; ;; https://www.emacswiki.org/emacs?action=browse;id=MarmaladeRepo
+;; (add-to-list 'package-archives
+;;             '("marmalade" . "http://marmalade-repo.org/packages") t)
+(package-initialize)
+
+;; Bootstrap `use-package'
+(unless (package-installed-p 'use-package)
+  (package-refresh-contents)
+  (package-install 'use-package))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Tidbits
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; get rid of tool bar and tool tips
+(tool-bar-mode -1)
+(tooltip-mode -1)
+
+;; Set initial window size if we're running in a windowing system
+(if (display-graphic-p)
+    (setq initial-frame-alist
+          '((width . 160)
+            (height . 60))))
+
+;; answer y or n instead of yes or no
+(fset 'yes-or-no-p 'y-or-n-p)
+
+;; enable upcase and downcase commands
+(put 'downcase-region 'disabled nil)
+(put 'upcase-region 'disabled nil)
+
+;; Always make tabs into spaces
+(setq-default indent-tabs-mode nil)
+
+;; Don't count screen-wrapped lines as lines when moving around
+(setq line-move-visual nil)
+
+;; add local dir to search path
+(add-to-list 'load-path "~/bin/elisp")
+(add-to-list 'load-path "/usr/local/Cellar/maxima/5.41.0/share/maxima/5.41.0/emacs")
+
+;; Put all backup files into one directory.
+(setq make-backup-files t
+      vc-make-backup-files t
+      backup-directory-alist '(("." . "~/.emacs.backup"))
+      tramp-backup-directory-alist '(("." . "~/.emacs.backup"))
+      kept-new-versions 5
+      kept-old-versions 2
+      delete-old-versions t
+      version-control t)
+
+;; E-mail for changelog entries
+(setq add-log-mailing-address "greg.novak@gmail.com")
+
+;; stop asking whether to save newly added abbrev when quitting emacs
+(setq save-abbrevs nil)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Non-standard global key maps
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(setq ns-option-modifier 'meta)
+(setq ns-command-modifier 'meta)
+
+;; transpose seems useless -- make it to-line instead
 (global-set-key "\C-t" 'goto-line)
 
-;;; For my money, \C-f and \C-b are better mapped as forward/back word
-;(global-set-key "\C-f" 'forward-char)
-;(global-set-key"\C-b" 'backward-char)
+;;; Map C-f and C-b to forward/back word instead of letter
+(global-set-key "\C-f" 'forward-word)
+(global-set-key "\C-b" 'backward-word)
+
 ;;; Try to make it possible to not move my hands to the arrow keys
 (global-set-key "\M-p" 'backward-paragraph)
 (global-set-key "\M-n" 'forward-paragraph)
 
-(setq ns-option-modifier 'meta)
-(setq ns-command-modifier 'meta)
+;;; Use ibuffer instead of list-buffers
+(global-set-key "\C-x\C-b" 'ibuffer)
 
 ;;; When I look up tags, I do it for documentation.  I like the info
 ;;; to appear in the other window and have the point stay in this
@@ -1517,158 +154,30 @@ function doens't have to be duplicated for -next- and -previous-"
 (global-set-key "\C-x4." 'find-tag)
 (global-set-key "\M-." 'find-tag-other-window)
 
-(when (= emacs-major-version 22)
-  (global-set-key "\C-x\C-b" 'ibuffer))
-
-(global-set-key (kbd "<M-up>") 'gsn/scroll-window-backward-line)
-(global-set-key (kbd "<M-down>") 'gsn/scroll-window-forward-line)
-;;(global-set-key (kbd "<M-left>") 'gsn/scroll-window-backward-paragraph)
-;;(global-set-key (kbd "<M-right>") 'gsn/scroll-window-forward-paragraph)
-
 ;; Much prefer ediff to diff.  This is apparently a global binding...?
 (global-set-key (kbd "C-x v =") 'vc-ediff)
 
-;; Fix overly agressive buffer killing in python.el pdb tracking as of emacs v24.3.1
+(global-set-key (kbd "<M-up>") 'gsn/scroll-window-backward-line)
+(global-set-key (kbd "<M-down>") 'gsn/scroll-window-forward-line)
+(global-set-key (kbd "<M-left>") 'gsn/scroll-window-backward-paragraph)
+(global-set-key (kbd "<M-right>") 'gsn/scroll-window-forward-paragraph)
 
-(defun gsn/python-pdbtrack-comint-output-filter-function (output)
-  "Move overlay arrow to current pdb line in tracked buffer.
-Argument OUTPUT is a string with the output from the comint process."
-  (when (and python-pdbtrack-activate (not (string= output "")))
-    (let* ((full-output (ansi-color-filter-apply
-                         (buffer-substring comint-last-input-end (point-max))))
-           (line-number)
-           (file-name
-            (with-temp-buffer
-              (insert full-output)
-              ;; When the debugger encounters a pdb.set_trace()
-              ;; command, it prints a single stack frame.  Sometimes
-              ;; it prints a bit of extra information about the
-              ;; arguments of the present function.  When ipdb
-              ;; encounters an exception, it prints the _entire_ stack
-              ;; trace.  To handle all of these cases, we want to find
-              ;; the _last_ stack frame printed in the most recent
-              ;; batch of output, then jump to the corrsponding
-              ;; file/line number.
-              (goto-char (point-max))
-              (when (re-search-backward python-pdbtrack-stacktrace-info-regexp nil t)
-                (setq line-number (string-to-number
-                                   (match-string-no-properties 2)))
-                (match-string-no-properties 1))))
-           (pdb-session-ended
-            (with-temp-buffer
-              (insert full-output)
-              (goto-char (point-max))
-              (forward-line 0) 
-              (looking-at python-shell-prompt-regexp))))
-      (if (and file-name line-number)
-          (let* ((tracked-buffer
-                  (python-pdbtrack-set-tracked-buffer file-name))
-                 (shell-buffer (current-buffer))
-                 (tracked-buffer-window (get-buffer-window tracked-buffer))
-                 (tracked-buffer-line-pos))
-            (with-current-buffer tracked-buffer
-              (set (make-local-variable 'overlay-arrow-string) "=>")
-              (set (make-local-variable 'overlay-arrow-position) (make-marker))
-              (setq tracked-buffer-line-pos (progn
-                                              (goto-char (point-min))
-                                              (forward-line (1- line-number))
-                                              (point-marker)))
-              (when tracked-buffer-window
-                (set-window-point
-                 tracked-buffer-window tracked-buffer-line-pos))
-              (set-marker overlay-arrow-position tracked-buffer-line-pos))
-            (pop-to-buffer tracked-buffer)
-            (switch-to-buffer-other-window shell-buffer)))
-      (when (and pdb-session-ended python-pdbtrack-tracked-buffer)
-        (with-current-buffer python-pdbtrack-tracked-buffer
-          (set-marker overlay-arrow-position nil))
-        (mapc #'(lambda (buffer)
-                  (ignore-errors (kill-buffer buffer)))
-              python-pdbtrack-buffers-to-kill)
-        (setq python-pdbtrack-tracked-buffer nil
-              python-pdbtrack-buffers-to-kill nil))))
-  output)
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Global user key maps
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(add-hook 'inferior-python-mode-hook
-          (lambda ()
-            (remove-hook 'comint-output-filter-functions
-                         'python-pdbtrack-comint-output-filter-function)
-            (add-hook 'comint-output-filter-functions
-                      'gsn/python-pdbtrack-comint-output-filter-function)))
-            
-;; Must replace the provided function... 
-;; Don't know if I need to put this into a hook or what.
+(bind-key "C-h B" 'describe-personal-keybindings)
 
-(defun gsn/ediff-command (ediff-fn &rest args)
-  (let ((current-buf (current-buffer))
-        (ediff-bufs (filter (lambda (buf) 
-                              (with-current-buffer buf
-                                (equal major-mode 'ediff-mode)))
-                            (buffer-list))))
-    (if (null ediff-bufs)
-        (user-error "No ediff buffers found!"))
-    (let ((ediff-buf (filter (lambda (buf)
-                               (with-current-buffer buf
-                                 (or (equal current-buf ediff-buffer-A)
-                                     (equal current-buf ediff-buffer-B)
-                                     (equal current-buf ediff-buffer-C))))
-                             ediff-bufs)))
-      (if (null ediff-buf)
-          (user-error "No ediff buffer points to the current buffer!"))
-      (if (< 1 (length ediff-buf))
-          (user-error "Multiple ediff buffers point to the current buffer!"))
-      (save-excursion
-        (switch-to-buffer (car ediff-buf))
-        (apply ediff-fn args)))))
+(bind-key "C-c u" 'gsn/prev-window-this-frame)
+(bind-key "C-c i" 'gsn/next-window-this-frame)
+(bind-key "C-c j" 'gsn/prev-window-visible-frame)
+(bind-key "C-c k" 'gsn/next-window-visible-frame)
+;; redundant, but keep for my old muscle memory
+(bind-key "C-c o" 'gsn/next-window-this-frame)
 
-(defun gsn/ediff-next-difference ()
-  (interactive)
-  (gsn/ediff-command #'ediff-next-difference))
-
-(defun gsn/ediff-previous-difference ()
-  (interactive)
-  (gsn/ediff-command #'ediff-previous-difference))
-
-;;; USER MAPS
-;; compile macros
-(global-set-key "\C-cc" 'compile)
-
-;; Point stack key bindings
-(global-set-key "\C-cm" 'point-stack-push)
-(global-set-key "\C-cb" 'point-stack-pop)
-
-;; Git status
-(global-set-key "\C-cv" 'magit-status)
-
-;; Org mode
-(defun gsn/org-plan (arg) 
-  (interactive "P") 
-  (if arg
-      (find-file-other-window "~/Dropbox/Brain/Desk.org")
-      (find-file "~/Dropbox/Brain/Desk.org")))
-
-(defun gsn/org-agenda ()
-  (interactive)  
-  (if (member "*Org Agenda*" (mapcar 'buffer-name (buffer-list)))
-    (switch-to-buffer "*Org Agenda*")
-    (call-interactively 'org-agenda)))
-
-;; (defadvice org-agenda 
-;;   (around gsn/org-agenda-use-existing-buffer activate)
-;;   "If an *Org Agenda* buffer already exists, switch to it.  Otherwise"
-;;   (if (and (equal (preceding-char) (string-to-char "\""))
-;;            (not (equal (following-char) (string-to-char "\""))))
-;;       (save-excursion 
-;;         (forward-char -1)
-;;         ad-do-it)
-;;     ad-do-it))
-
-(global-set-key "\C-ca" 'gsn/org-agenda)
-;(global-set-key "\C-cs" 'org-agenda)
-;(global-set-key "\C-cn" 'gsn/org-what-am-i-working-on) ;; mneumonic is "now"
-(global-set-key "\C-cn" 'gsn/ediff-next-difference)
-(global-set-key "\C-cl" 'org-store-link)
-(global-set-key "\C-cp" 'gsn/org-plan)
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Code for global key bindings
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defun gsn/next-window-this-frame ()
   (interactive)
@@ -1694,274 +203,947 @@ Argument OUTPUT is a string with the output from the comint process."
 				  'visible))
   (select-frame-set-input-focus (selected-frame)))
 
-(global-set-key "\C-cu" 'gsn/prev-window-this-frame)
-(global-set-key "\C-ci" 'gsn/next-window-this-frame)
-(global-set-key "\C-cj" 'gsn/prev-window-visible-frame)
-(global-set-key "\C-ck" 'gsn/next-window-visible-frame)
+(defun gsn/scroll-window-forward-line (n)
+  (interactive "p")
+  (save-excursion
+    (goto-char (window-start))
+    (forward-line n)
+    (set-window-start (selected-window) (point)))
+  (forward-line n))
 
-; for my old fingers
-(global-set-key "\C-co" 'gsn/next-window-this-frame)
+(defun gsn/scroll-window-backward-line (n)
+  (interactive "p")
+  (gsn/scroll-window-forward-line (- n)))
 
-;; Planner mode
-;; (global-set-key "\C-cn" 'planner-goto-today)
-(global-set-key "\C-ct" 'gsn/planner-create-task)
-; (global-set-key "\C-cu" 'gsn/planner-create-undated-task)
-; (global-set-key "\C-cl" 'gsn/planner-annotation)
-; (global-set-key "\C-cr" 'org-remember)
-(global-set-key "\C-cr" 'org-capture)
-; May want this eventually for most commonly used capture:
-;(define-key global-map "\C-cr"
-;  (lambda () (interactive) (org-capture nil "t")))
-(global-set-key "\C-cz" 'gsn/py-windows)
-; (global-set-key "\C-cr" 'org-remember)
+(defun gsn/scroll-window-forward-paragraph (n)
+  (interactive "p")
+  (let ((start-line (line-number-at-pos))
+        (finish-line (progn (forward-paragraph n) (line-number-at-pos))))
+    (save-excursion
+      (goto-char (window-start))
+      (forward-line (- finish-line start-line))
+      (set-window-start (selected-window) (point)))))
+
+(defun gsn/scroll-window-backward-paragraph (n)
+  (interactive "p")
+  (gsn/scroll-window-forward-paragraph (- n)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Local Maps
-;; (define-key calendar-mode-map "\C-m" 'planner-calendar-goto)
-; (define-key emacs-lisp-mode-map "\C-<tab>" 'lisp-complete-symbol)
+;; Advice
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(add-hook 'eshell-mode-hook 
-          (lambda () 
-            (local-set-key "\C-a" 'eshell-bol)
-            (local-set-key "\C-p" 'eshell-previous-matching-input-from-input)
-            (local-set-key "\C-n" 'eshell-next-matching-input-from-input)))
+(defadvice switch-to-buffer (before gsn/existing-buffer activate compile)
+  "When interactive, switch to existing buffers only (thus
+   providing tab-completion), unless giving a prefix argument."
+  (interactive
+   (list (read-buffer "Switch to buffer: " (other-buffer)
+                      (null current-prefix-arg)))))
 
-(add-hook 'dired-mode 
-          (lambda () 
-            (local-set-key "v" 'gsn/dired-find-file-other-window-stay-in-this-window)))
+(defadvice find-tag-other-window
+    (after gsn/find-tag-other-window-stay-this-window activate compile)
+  "Leave point in the current window when you call find-tag-other-window"
+  (other-window 1))
 
-(add-hook 'org-mode-hook
-          (lambda ()
-            (define-key org-mode-map "\C-cw" 'gsn/org-work-on-this) 
-            (define-key org-mode-map "\C-n" 'org-next-link)
-            (define-key org-mode-map "\C-p" 'org-previous-link)))
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Maybe-useful functions
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-; Facilitate insertion of timestamps into HTML files
-; Mneumonic here is "when"
-;; (add-hook 'html-mode-hook 
-;;           (lambda () 
-;;             (local-set-key "\C-c\C-w" 
-;;                            'html-helper-insert-timestamp-delimiter-at-point)))
+(defun gsn/duplex-print (buffer)
+  "From Patrik Jonsson.  Prints the buffer using the Duplex
+  feature of the color printer."
+  (interactive (list (current-buffer)))
+  (save-excursion
+    (let ((ps-spool-duplex t)
+          (ps-printer-name color-printer-name))
+      (set-buffer buffer)
+      (ps-spool-buffer-with-faces)
+      (set-buffer "*PostScript*")
+      (beginning-of-buffer)
+      (insert "%!\ngsave\n%%BeginFeature: *Duplex\n")
+      (insert "<< /Duplex true >> setpagedevice\n\n%%EndFeature\n")
+      (end-of-buffer)
+      (insert "grestore\n")
+      (ps-despool))))
 
-(add-hook 'planner-mode-hook
-          (lambda () 
-            (local-set-key "\C-c\C-r" 'planner-replan-task)))
+(defun mapc-buffers (fn)
+  (mapc (lambda (buffer)
+          (with-current-buffer buffer
+            (funcall fn)))
+        (buffer-list)))
 
-(add-hook 'org-agenda-mode-hook
-          (lambda () 
-            (org-defkey org-agenda-mode-map (kbd "<right>") 'forward-char)
-            (org-defkey org-agenda-mode-map (kbd "<left>") 'backward-char)
-            (org-defkey org-agenda-mode-map (kbd "<C-S-right>") 'org-agenda-later)
-            (org-defkey org-agenda-mode-map (kbd "<C-S-left>") 'org-agenda-earlier)
-            (org-defkey org-agenda-keymap (kbd "<right>") 'forward-char)
-            (org-defkey org-agenda-keymap (kbd "<left>") 'backward-char)
-            (org-defkey org-agenda-keymap (kbd "<C-S-right>") 'org-agenda-later)
-            (org-defkey org-agenda-keymap (kbd "<C-S-left>") 'org-agenda-earlier)))
+;;;;;;;;;
+;;; Fonts
 
-(add-hook 'comint-mode-hook 'gsn/comint-history-keymaps t)
+(defun make-font-sample-buffer (font-list)
+  (with-current-buffer (generate-new-buffer "*font-samples*")
+    (dolist (font font-list)
+      (let ((face-name (intern (concat "font-test-" font))))
+ 	(custom-declare-face face-name `((t (:font ,font))) "Docstring")
+	(insert font)
+	(insert (propertize test-text 'face face-name))))))
 
-(add-hook 'py-shell-hook 'gsn/comint-history-keymaps)
-;; (add-hook 'python-mode-hook 
-;;           (lambda () 
-;;             (local-set-key "\C-c\C-z" 'gsn/python-mode-repl)))
+(defun prop-font ()
+  (interactive)
+  (set-face-attribute 'default nil :family "apple-verdana"))
 
-(add-hook 'idlwave-shell-mode-hook 'gsn/comint-history-keymaps t)
+(defun mono-font ()
+  (interactive)
+  (set-face-attribute 'default nil :family "menlo") )
 
-(add-hook 'inferior-maxima-mode-hook 'gsn/maxima-keymaps t)
-(add-hook 'imaxima-startup-hook 'gsn/maxima-keymaps t)
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Configure internal packages
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(add-hook 'inferior-lisp-mode-hook 'gsn/comint-history-keymaps t)
-(add-hook 'ielm-mode-hook 'gsn/comint-history-keymaps t)
+(use-package compile
+  :custom
+  (compile-command "make -k -j 2 ")
+  (compilation-scroll-output t "put the cursor at the end of the buffer")
+  :bind
+  ("C-c c" . compile))
 
-(add-hook 'slime-mode-hook   
-          (lambda ()
-            (slime-define-keys slime-mode-map ("\C-cs" 'slime-selector))
-            (slime-define-keys slime-mode-map ("\M-n" 'gsn/slime-next-note))
-            (slime-define-keys slime-mode-map ("\M-p" 'gsn/slime-previous-note))
-            (slime-define-keys slime-mode-map ((kbd "<C-tab>") 'slime-complete-symbol))))
+(use-package ispell
+  :custom
+  (ispell-dictionary "english")
+  (ispell-program-name "aspell")
+  ;; When running ispell, .
+  (ispell-extra-args '("-W" "2") "consider all 1-2 char words as correct"))
 
-(add-hook 'slime-repl-mode-hook   
-          (lambda () 
-            (slime-define-keys slime-repl-mode-map ("\C-cs" 'slime-selector))
-            (slime-define-keys slime-repl-mode-map ("\C-p" 'slime-repl-previous-input))
-            (slime-define-keys slime-repl-mode-map ("\C-n" 'slime-repl-next-input))))
+(use-package grep
+  :custom
+  (grep-command "grep -nHi -e "))
 
-;(add-hook 'bbdb-mode-hook (lambda () 
-;                           (local-set-key "I" 'bbdb-add-interaction)
-;                           (local-set-key "f" 'bbdb)))
+(use-package doc-view
+  :hook
+  ;; Auto reload documents when file changes (for latex)
+  (doc-view-mode . auto-revert-mode))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; Stuff I'm not sure works
-;;; Set up imenu so I have a menu of function/section/whatever names
-;;(defun gsn/imenu-enable ()
-;;  (setq imenu-sort-function 'imenu--sort-by-name)
-;;  (imenu-add-to-menubar "Imenu"))
-;;(add-hook 'c-mode-hook 'gsn/imenu-enable t)
-;;(add-hook 'LaTeX-mode-hook 'gsn/imenu-enable t)
+(use-package dired
+  :bind
+  (:map dired-mode-map ("v" . gsn/dired-find-file-other-window-stay-in-this-window))
+  :config
+  (defun gsn/dired-find-file-other-window-stay-in-this-window ()
+    (interactive)
+    (dired-find-file-other-window)
+    (other-window 1)))
 
-;; Colors
-;; (set-face-foreground 'modeline          "navy")
-;; (set-face-background 'modeline          "lightblue1")
+(use-package emacs-lisp-mode
+  :bind
+  (:map emacs-lisp-mode-map ("C-<tab>" . lisp-complete-symbol)))
 
-;; (define-minor-mode gpg-mode
-;;   "Toggle GPG mode"
-;;   nil ;; Initial
-;;   "GPG"
-;;   '(("\C-c)" . pgg-encrypt)
-;;     ("\C-c(" . pgg-decrypt)))
+(use-package calendar
+  :custom
+  (calendar-week-start-day 1 "Start on Mondays in the European fashion")
+  ;;
+  (calendar-intermonth-text
+   '(propertize
+     (format "%2d"
+             (car
+              (calendar-iso-from-absolute
+               (calendar-absolute-from-gregorian (list month day year)))))
+     'font-lock-face 'font-lock-function-name-face)
+   "Display ISO week numbers in calendar"))
 
-(setq epg-gpg-program "gpg1")
+(use-package comint
+  :custom
+  (ansi-color-for-comint-mode t)
+  :hook ((kill-buffer . comint-write-input-ring)
+         (kill-emacs . comint-write-input-ring-all-buffers)
+         (comint-mode . turn-on-comint-history))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; Emacs/automatic stuff
+  :bind (:map comint-mode-map
+              ("<up>" . gsn/comint-history-up)
+              ("C-p" . gsn/comint-history-up)
+              ("<down>" . gsn/comint-history-down)
+              ("C-n" . gsn/comint-history-down))
+  :config
+  ;; Comint mode key maps
+  ;; If the cursor is after the command prompt, make <up> and <down> do
+  ;; command history matching rather than just sequentially pulling
+  ;; commands from the history.  If the cursor is before the command
+  ;; prompt, make <up> and <down> do the normal cursor-movement stuff.
+  ;; Note that this means that you'll have to hit <left arrow> to get
+  ;; the cursor off of the command line so that <up> and <down> start
+  ;; moving the cursor instead of fooling around with the command history.
+  (defun gsn/comint-history-up ()
+    (interactive)
+    (if (not (comint-after-pmark-p))
+        ;; if we're before the prompt, move around
+        (forward-line -1)
+        ;; if we're after the prompt, do history matching
+      (comint-previous-matching-input-from-input 1)
+      ;; fool comint into thinking that the last command was
+      ;; comint-... b/c of the way it remembers the search string
+      (setq this-command 'comint-previous-matching-input-from-input)))
+
+  (defun gsn/comint-history-down ()
+    (interactive)
+    (if (not (comint-after-pmark-p))
+        (forward-line 1)
+      (comint-next-matching-input-from-input 1)
+      (setq this-command 'comint-next-matching-input-from-input)))
+
+  (defun comint-write-input-ring-all-buffers ()
+    (mapc-buffers 'comint-write-input-ring))
+
+  ;; Persistent history in emacs comint-derived buffers, snarfed from:
+  ;; http://oleksandrmanzyuk.wordpress.com/2011/10/23/a-persistent-command-history-in-emacs/
+
+  (defun comint-write-history-on-exit (process event)
+    (comint-write-input-ring)
+    (let ((buf (process-buffer process)))
+      (when (buffer-live-p buf)
+        (with-current-buffer buf
+          (insert (format "\nProcess %s %s" process event))))))
+
+  (defun turn-on-comint-history ()
+    (let ((process (get-buffer-process (current-buffer))))
+      (when process
+        (setq comint-input-ring-file-name
+              (format "~/.emacs.d/inferior-%s-history"
+                      (process-name process)))
+        (comint-read-input-ring)
+        (set-process-sentinel process
+                              #'comint-write-history-on-exit)))))
+
+(use-package python-mode
+  :ensure t
+  :custom (python-shell-interpreter "ipython")
+  (python-shell-interpreter-args "")
+  ;; Commands to start remote python shell
+  ;; (setq py-shell-name "/usr/bin/ssh")
+  ;; (request 'python-mode)
+  ;; (setq-default py-python-command-args
+  ;;               '("-t" "sesame1" "/home/gnovak/bin/local/bin/ipython"
+  ;;                 "--pylab" "--colors=LightBG"))
+  :bind
+  ("C-c z" . gsn/py-windows)
+  :config
+  (defun gsn/py-windows ()
+    "Set up "
+    (interactive)
+    (delete-other-windows)
+    (split-window-vertically)
+    ;; switch to the most recently visited python buffer
+    (let ((buffers (buffer-list))
+          done)
+      (while (not done)
+        (with-current-buffer (car buffers)
+          (setq buffers (cdr buffers))
+          (when (eql major-mode 'python-mode)
+            (switch-to-buffer (current-buffer))
+            (setq done t)))))
+    (other-window 1)
+    (switch-to-buffer "*Python*")
+    (end-of-buffer))
+
+  (defadvice py-fill-paragraph
+      (around gsn/backup-at-end-of-string activate)
+    "If the previous char is a quote and the current char isn't,
+  back up by one character so that py-fill-paragraph doesn't fill
+  my docstrings so strangely."
+    (if (and (equal (preceding-char) (string-to-char "\""))
+             (not (equal (following-char) (string-to-char "\""))))
+        (save-excursion
+          (forward-char -1)
+          ad-do-it)
+      ad-do-it)))
+
+(use-package ediff
+  :ensure t
+  :bind (("C-c j" . gsn/ediff-prev-difference)
+         ("C-c k" . gsn/ediff-next-difference))
+  :custom
+  (ediff-split-window-function 'split-window-horizontally)
+  :config
+  (defun gsn/ediff-command (ediff-fn &rest args)
+    (let ((current-buf (current-buffer))
+          (ediff-bufs (filter (lambda (buf)
+                                (with-current-buffer buf
+                                  (equal major-mode 'ediff-mode)))
+                              (buffer-list))))
+      (if (null ediff-bufs)
+          (user-error "No ediff buffers found!"))
+      (let ((ediff-buf (filter (lambda (buf)
+                                 (with-current-buffer buf
+                                   (or (equal current-buf ediff-buffer-A)
+                                       (equal current-buf ediff-buffer-B)
+                                       (equal current-buf ediff-buffer-C))))
+                               ediff-bufs)))
+        (if (null ediff-buf)
+            (user-error "No ediff buffer points to the current buffer!"))
+        (if (< 1 (length ediff-buf))
+            (user-error "Multiple ediff buffers point to the current buffer!"))
+        (save-excursion
+          (switch-to-buffer (car ediff-buf))
+          (apply ediff-fn args)))))
+
+  (defun gsn/ediff-next-difference ()
+    (interactive)
+    (gsn/ediff-command #'ediff-next-difference))
+
+  (defun gsn/ediff-previous-difference ()
+    (interactive)
+    (gsn/ediff-command #'ediff-previous-difference)))
+
+(use-package eshell
+  :bind
+  (:map eshell-mode-map (("C-a" . eshell-bol)
+                         ("C-p" . eshell-previous-matching-input-from-input)
+                         ("C-n" . eshell-next-matching-input-from-input)))
+  :config
+  (defun gsn/eshell-after-prompt-p ()
+    "Check to see if you're on the last line of a buffer"
+    (interactive)
+    (let ((ppoint (point)))
+      (save-excursion
+        (end-of-buffer)
+        (beginning-of-line)
+        (eshell-skip-prompt)
+        (>= ppoint (point)))))
+
+  (defadvice eshell-previous-matching-input-from-input
+      (around gsn/normal-up activate)
+    (if (gsn/eshell-after-prompt-p)
+        ad-do-it
+      (forward-line -1)))
+
+  (defadvice eshell-next-matching-input-from-input
+      (around gsn/normal-down activate)
+    (if (gsn/eshell-after-prompt-p)
+        ad-do-it
+      (forward-line 1))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Org mode gets its own section
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(use-package org
+  :ensure t
+  :bind
+  (("C-c r" . org-capture)
+   ("C-c a" . gsn/org-agenda)
+   ("C-c n" . gsn/org-now-i-am-working-on)
+   ("C-c l" . org-store-link)
+   ("C-c p" . gsn/org-plan)
+   :map org-mode-map (("C-c w" . gsn/org-work-on-this)
+                      ("C-n" . org-next-link)
+                      ("C-p" . org-previous-link)))
+
+  :custom
+  (org-directory "~/Dropbox/Brain")
+  (org-default-notes-file (concat org-directory "/in.org"))
+  (org-hide-leading-stars t)
+  (org-odd-levels-only t)
+  (org-log-done t)
+  (org-catch-invisible-edits 'smart)
+  (org-log-into-drawer t)
+  (org-table-auto-blank-field nil)
+  (org-enforce-todo-dependencies t)
+  (org-list-demote-modify-bullet '(("-" . "+") ("+" . "-")))
+  (org-tags-exclude-from-inheritance '("project"))
+  (org-global-properties '(("Effort_ALL" . "1 2 3")))
+  (org-columns-default-format "%120ITEM %TODO %1PRIORITY %1Effort %TAGS")
+  ;; STARTED NEXT
+  (org-todo-keywords '((sequence "TODO" "|" "DONE")
+                       (sequence "READ"
+                                 ;;
+                                 "TICKLE" ;; Take David Allen approach and just mark
+                                 ;; events that are not do-able now, but I
+                                 ;; want to keep track of, without worrying
+                                 ;; too much about the ontology.
+                                 ;;
+                                 "PERIODIC" ;; Periodic task
+                                 "EVENT"    ;; slight misnomer for todo item that I
+                                 ;; want to do on a spcific day (but can do
+                                 ;; on the next day if necessary)
+                                 "CHECK"    ;; active waiting
+                                 "REQUIRES" ;; Requires me to do something else first
+                                 "WAITING"  ;; Requires someone else do do something
+                                 ;; or something else to happen before I
+                                 ;; can do something.
+                                 "DEFERRED" ;; don't want to do it right now for
+                                 ;; whatever reason.
+                                 "SOMEDAY"  ;; Might want to do someday.
+                                 "NEXT"     ;; Next task for this project
+                                 "|" "FINI" "CANCELLED")))
+  (org-todo-keyword-faces '(("READ" . "cyan")
+                            ("TICKLE" . "orange")
+                            ("PERIODIC" . "orange")
+                            ("EVENT" . "orange")
+                            ("CHECK" . "orange")
+                            ("REQUIRES" . "orange")
+                            ("WAITING" . "orange")
+                            ("DEFERRED" . "orange")
+                            ("SOMEDAY" . "orange")))
+
+  (org-capture-templates '(("t" "Task" entry (file+headline "" "Tasks")
+                            "* TODO %?\n  %u\n  %a")
+                           ("p" "Paper" entry
+                            (file+datetree (concat org-directory "/astroph.org"))
+                            "* %?\n%c\n\nEntered on %U\n  %i\n")
+                           ("b" "Bookmark" entry (file+headline "" "New Bookmarks")
+                            "* %c\n%?\n")
+                           ("p" "Paper" entry
+                            (file+datetree (concat org-directory "/astroph.org"))
+                            "* %?\n%c\n\nEntered on %U\n  %i\n")))
+  (org-use-fast-todo-selection t)
+  (org-special-ctrl-a/e t)
+
+  ;; ;; org-refile-targets is a bit of a bear, documentation is a little
+  ;; ;; murky and google doens't find any examples.  Don't forget to
+  ;; ;; refresh the list of targets with
+  ;; ;;   (setq org-refile-target-table nil)
+  ;; ;; or
+  ;; ;;   C-u C-u C-c C-w
+  ;; ;; The following list is in order of precedence.  For example, if a
+  ;; ;; symbol has both an associated value and function, then the function
+  ;; ;; is called.
+
+  ;; (org-refile-targets '( (org-agenda-files :level . 1) ))
+  ;; (org-refile-targets
+  ;;       ;; special treatment, calls (org-agenda-files) to expand into an
+  ;;       ;; explicit list of filenames (rather than a directory)
+  ;;       '((org-agenda-files :keyword . arg))
+  ;;       ;; calls function, can produce string, list of strings, list of
+  ;;       ;; buffers
+  ;;       (function-name :keyword . arg)
+  ;;       ;; alternate rendering, perhaps more readable depending on one's
+  ;;       ;; taste
+  ;;       (function-name . (:keyword . arg))
+  ;;       ;; use value, can be string, list of strings, list of buffers
+  ;;       (variable-name :keyword . arg)
+  ;;       ;; Give a specific filename
+  ;;       ("filename" :keyword . arg)
+  ;;       ;; Give a list of specific filenames
+  ;;       (("fn1" "fn2") :keyword . arg))
+
+  ;; ;; Potentially interesting variables
+  ;; org-reverse-note-order
+  ;; org-cycle-include-plain-lists
+  ;; org-remember-templates
+
+  :config
+  (defun gsn/org-plan (arg)
+    (interactive "P")
+    (if arg
+        (find-file-other-window "~/Dropbox/Brain/Desk.org")
+      (find-file "~/Dropbox/Brain/Desk.org")))
+
+  (defvar gsn/org-current-task)
+
+  (defun gsn/org-work-on-this ()
+    (interactive)
+    (setq gsn/org-current-task (buffer-substring (point-at-bol) (point-at-eol))))
+
+  (defun gsn/org-now-i-am-working-on ()
+    (interactive)
+    (if gsn/org-current-task
+        (message gsn/org-current-task)
+      "No current task"))
+
+  ;; ;; Sometimes want to see habits for all days
+  ;; (setq org-habit-show-habits-only-for-today nil)
+  (defun gsn/org-kill-all-buffers ()
+    (interactive)
+    (org-save-all-org-buffers)
+    (mapcar 'kill-buffer (org-buffer-list)))
+
+  (defadvice format-time-string
+      (around gsn/remove-dot-from-day-of-week activate)
+    "Abbreviating days of week as Sun. or Dim. instead of Sun and
+  Dim wreaks havoc with org-mode.  Kill the dot when present"
+    ad-do-it
+    (setq ad-return-value (replace-regexp-in-string
+	                   "\\(lun\\|mar\\|mer\\|jeu\\|ven\\|sam\\|dim\\|sun\\|mon\\|tue\\|wed\\|thu\\|fri\\|sat\\|sun\\)\\."
+                           "\\1" ad-return-value))))
+
+(use-package org-agenda
+  :custom
+  (org-agenda-files (list (concat org-directory "/sf.org")))
+  (org-agenda-files (list org-directory))
+  (org-agenda-files (list org-directory))
+  (org-agenda-sorting-strategy  '((agenda time-up category-down habit-up)
+                                  todo-state-down priority-down)
+                                (todo priority-down category-keep)
+                                (tags priority-down category-keep)
+                                (search category-keep))
+  (org-agenda-include-diary t)
+  ;; org-agenda-todo-list-sublevels
+
+  ;; :bind
+  ;; (:map org-agenda-mode-map (((org-key (kbd "<right>")) . forward-char)
+  ;;                            ((org-key (kbd "<left>")) . backward-char)
+  ;;                            ((org-key (kbd "<C-S-right>")) . org-agenda-later)
+  ;;                            ((org-key (kbd "<C-S-left>")) . org-agenda-earlier)))
+
+  ;; :bind
+  ;; (:map org-agenda-keymap (((org-key (kbd "<right>")) . forward-char)
+  ;;                          ((org-key (kbd "<left>")) . backward-char)
+  ;;                          ((org-key (kbd "<C-S-right>")) . org-agenda-later)
+  ;;                          ((org-key (kbd "<C-S-left>")) . org-agenda-earlier)))
+
+  :config
+  (defun gsn/org-agenda ()
+    (interactive)
+    (if (member "*Org Agenda*" (mapcar 'buffer-name (buffer-list)))
+        (switch-to-buffer "*Org Agenda*")
+      (call-interactively 'org-agenda)))
+
+  (defadvice org-agenda
+      (around gsn/org-agenda-use-existing-buffer activate)
+    "If an *Org Agenda* buffer already exists, switch to it.  Otherwise"
+    (if (and (equal (preceding-char) (string-to-char "\""))
+             (not (equal (following-char) (string-to-char "\""))))
+        (save-excursion
+          (forward-char -1)
+          ad-do-it)
+      ad-do-it))
+
+  ;; Would like to check that org-agenda-sorting-strategy default value
+  ;; hasn't changed with a bump in org-version, but the vars aren't
+  ;; defined, and org-mode-hook isn't defined either.  So I don't now
+  ;; how to actually do this at the moment.
+
+  (unless (equal org-agenda-sorting-strategy
+                 '((agenda habit-down time-up priority-down category-keep)
+                   (todo priority-down category-keep)
+                   (tags priority-down category-keep)
+                   (search category-keep)))
+    (message "org-agenda-sorting-strategy default changed!  Revisit setting!")))
+
+
+(use-package org-mobile
+  ;; Mobile org wants all files in UTF-8, but the Emacs writes the
+  ;; agenda file in iso-latin-1.  Force it to utf-8 for that file.
+  ;; Unfortunately this seems to require hard coding the home directory.
+  ;; :-(
+  :config
+  (add-to-list 'auto-coding-alist (cons "/Users/gregorynovak/Dropbox/Apps/MobileOrg/agendas.org" 'utf-8))
+  :custom
+  (org-mobile-directory "~/Dropbox/Apps/MobileOrg")
+  (org-mobile-force-id-on-agenda-items t)
+  (org-mobile-inbox-for-pull (concat org-directory "/from-mobile.org"))
+  (org-mobile-use-encryption nil)
+  ;; org-mobile-files '(org-agenda-files)
+  (org-mobile-files (list (concat org-directory "/home.org")
+                          (concat org-directory "/sf.org")
+                          (concat org-directory "/work.org")
+                          (concat org-directory "/notes.org")
+                          (concat org-directory "/out.org")))
+  (org-agenda-custom-commands
+   ;; Included in default init for org
+   '(("n" "Agenda and all TODO's" ((agenda "") (alltodo "")))
+     ;; Add a custom agenda view showing errands so Mobile org generates it
+     ("E" tags-todo "errand"))))
+
+
+(use-package toc-org
+  :ensure t)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; External Packages
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(use-package magit
+  :ensure t
+  :bind
+  ("C-c v" . magit-status))
+
+(use-package ein
+  :ensure t)
+
+(use-package restclient
+  :ensure t)
+
+(use-package tex-site
+  :ensure auctex
+  :config
+  (setq TeX-PDF-mode t
+	LaTeX-table-label "tab-"
+	LaTeX-equation-label "eq-"
+	LaTeX-eqnarray-label "eq-"
+	LaTeX-figure-label "fig-"
+	LaTeX-section-label   '(("chapter" . "ch-")
+				("section" . "sec-")
+				("subsection" . "sec-"))))
+
+(use-package sql
+  ;; Config relies heavily on:
+  ;; http://truongtx.me/2014/08/23/setup-emacs-as-an-sql-database-client/
+
+  :hook
+  (sql-mode . gsn/enable-sql-upcase)
+  (sql-interactive-mode . gsn/enable-sql-upcase)
+  (sql-interactive-mode . gsn/do-not-wrap-lines)
+  (sql-interactive-mode-hook . turn-on-comint-history)
+  (pre-abbrev-expand . gsn/only-upcase-in-code-context)
+
+  :custom
+  (sql-send-terminator ";")
+  (sql-postgres-program "psql")
+  (sql-presto-program "/Users/gnovak/bin/sane-presto")
+  (sql-presto-login-params '((user :default "novak")
+                             (database :default "novak")
+                             server))
+  ;; Trying to give the password on the command line confuses mysql
+  ;; Give it as an env var inside my-sql-connect
+  (sql-mysql-login-params '(user database server))
+
+  :config
+  (add-to-list 'sql-product-alist
+               '(presto
+		 :name "Presto"
+		 :free-software t
+		 :font-lock sql-mode-postgres-font-lock-keywords
+		 :sqli-program sql-presto-program
+		 ;; :sqli-options sql-presto-options
+		 :sqli-login sql-presto-login-params
+		 :sqli-comint-func sql-comint-presto
+		 ;; :list-all ()
+		 ;; :list-table ()
+		 ;; :completion-object sql-presto-completion-object
+		 ;; :completion-column ()
+		 :prompt-regexp "^\\w*[#>] "
+		 :prompt-length 8
+		 :prompt-cont-regexp "^\\w*[-(]*[#>] "
+		 :input-filter sql-remove-tabs-filter
+		 ;; :statement
+		 ;; :syntax-alist
+		 :terminator ("\\(^\\s-*\\\\g$\\|;\\)" . "\\g")))
+
+  (define-abbrev-table 'sql-mode-abbrev-table
+    (mapcar #'(lambda (v) (list v (upcase v) nil 1))
+            '("absolute" "action" "add" "after" "all" "allocate" "alter" "and" "any" "are" "array" "as" "asc" "asensitive" "assertion" "asymmetric" "at" "atomic" "authorization" "avg" "before" "begin" "between" "bigint" "binary" "bit" "bitlength" "blob" "boolean" "both" "breadth" "by" "call" "called" "cascade" "cascaded" "case" "cast" "catalog" "char" "char_length" "character" "character_length" "check" "clob" "close" "coalesce" "collate" "collation" "column" "commit" "condition" "connect" "connection" "constraint" "constraints" "constructor" "contains" "continue" "convert" "corresponding" "count" "create" "cross" "cube" "current" "current_date" "current_default_transform_group" "current_path" "current_role" "current_time" "current_timestamp" "current_transform_group_for_type" "current_user" "cursor" "cycle" "data" "date" "day" "deallocate" "dec" "decimal" "declare" "default" "deferrable" "deferred" "delete" "depth" "deref" "desc" "describe" "descriptor" "deterministic" "diagnostics" "disconnect" "distinct" "do" "domain" "double" "drop" "dynamic" "each" "element" "else" "elseif" "end" "equals" "escape" "except" "exception" "exec" "execute" "exists" "exit" "external" "extract" "false" "fetch" "filter" "first" "float" "for" "foreign" "found" "free" "from" "full" "function" "general" "get" "global" "go" "goto" "grant" "group" "grouping" "handler" "having" "hold" "hour" "identity" "if" "immediate" "in" "indicator" "initially" "inner" "inout" "input" "insensitive" "insert" "int" "integer" "intersect" "interval" "into" "is" "isolation" "iterate" "join" "key" "language" "large" "last" "lateral" "leading" "leave" "left" "level" "like" "limit" "local" "localtime" "localtimestamp" "locator" "loop" "lower" "map" "match" "map" "member" "merge" "method" "min" "minute" "modifies" "module" "month" "multiset" "names" "national" "natural" "nchar" "nclob" "new" "next" "no" "none" "not" "null" "nullif" "numeric" "object" "octet_length" "of" "old" "on" "only" "open" "option" "or" "order" "ordinality" "out" "outer" "output" "over" "overlaps" "pad" "parameter" "partial" "partition" "path" "position" "precision" "prepare" "preserve" "primary" "prior" "privileges" "procedure" "public" "range" "read" "reads" "real" "recursive" "ref" "references" "referencing" "relative" "release" "repeat" "resignal" "restrict" "result" "return" "returns" "revoke" "right" "role" "rollback" "rollup" "routine" "row" "rows" "savepoint" "schema" "scope" "scroll" "search" "second" "section" "select" "sensitive" "session" "session_user" "set" "sets" "signal" "similar" "size" "smallint" "some" "space" "specific" "specifictype" "sql" "sqlcode" "sqlerror" "sqlexception" "sqlstate" "sqlwarning" "start" "state" "static" "submultiset" "substring" "sum" "symmetric" "system" "system_user" "table" "tablesample" "temporary" "then" "time" "timestamp" "timezone_hour" "timezone_minute" "to" "trailing" "transaction" "translate" "translation" "treat" "trigger" "trim" "true" "under" "undo" "union" "unique" "unknown" "unnest" "until" "update" "upper" "usage" "user" "using" "value" "values" "varchar" "varying" "view" "when" "whenever" "where" "while" "window" "with" "within" "without" "work" "write" "year" "zone" "greatest" "least")))
+
+  (defun gsn/enable-sql-upcase ()
+    (abbrev-mode 1)
+    ;; Make underscore a word character so that abbrev stops expanding send_count to send_COUNT
+    (modify-syntax-entry ?_ "w" sql-mode-syntax-table))
+
+  (defun gsn/do-not-wrap-lines ()
+    (toggle-truncate-lines t))
+
+  (defun gsn/only-upcase-in-code-context ()
+    ;; Allow our abbrevs only in a code context.
+    (setq local-abbrev-table
+          (if (sql-in-code-context-p)
+              sql-mode-abbrev-table)))
+
+  (defun sql-in-code-context-p ()
+    (if (fboundp 'buffer-syntactic-context) ; XEmacs function.
+        (null (buffer-syntactic-context))
+      ;; Attempt to simulate buffer-syntactic-context
+      ;; I don't know how reliable this is.
+      (let* ((beg (save-excursion
+ 		    (beginning-of-line)
+ 		    (point)))
+ 	     (list
+ 	      (parse-partial-sexp beg (point))))
+        (and (null (nth 3 list))		; inside string.
+ 	     (null (nth 4 list))))))	; inside comment
+
+  (defun my-sql-connect (product connection)
+    "Actually connect to a database"
+    ;; load the password
+    ;;  (require 'sql-my-password "sql-my-password.el.gpg")
+    (let* ((sql-product product)
+           (password (cadr (assoc connection sql-my-password)))
+           (sql-connection-alist (cons (list 'password password)
+                                       sql-connection-alist)))
+      ;; Postgres doesn't allow providing password on command line,
+      ;; handle that case.  This should go inside sql-postgres.
+      (when (and (eq sql-product 'postgres) password)
+        (setenv "PGPASSWORD" password))
+      (when (and (eq sql-product 'mysql) password)
+        (setenv "MYSQL_PWD" password))
+      (sql-connect connection)
+      (when (and (eq sql-product 'postgres) password)
+        (setenv "PGPASSWORD" nil))
+      (when (and (eq sql-product 'mysql) password)
+        (setenv "MYSQL_PWD" nil)))
+    (rename-buffer (concat "*SQL-" (symbol-name connection) "*")))
+
+  (defun sql-presto ()
+    "stub to connect to presto"
+    (interactive)
+    (let ((sql-product 'presto))
+      (sql-connect 'presto)))
+
+  (defun sql-comint-presto (product options)
+    ;; not sure if I need this?
+    (let ((sql-login-delay 0.9))
+      (sql-comint product options)))
+
+  (defun sql-fashionthing ()
+    "stub to connect to fashionthing"
+    (interactive)
+    (my-sql-connect 'postgres 'fashionthing))
+
+  (defun sql-production ()
+    "stub to connect to transmetro"
+    (interactive)
+    (my-sql-connect 'postgres 'production))
+
+  (defun sql-hms ()
+    "stub to connect to hive metastore"
+    (interactive)
+    (my-sql-connect 'mysql 'hms)))
+
+;;   ;; doesn't work...?
+;;   (defadvice sql-send-string
+;;       (around gsn/ask-for-sqli-buffer disable)
+;;     ;;(around gsn/ask-for-sqli-buffer activate)
+;;     "Don't just bail with an error, ask for a sql buffer"
+;;     (unless (sql-buffer-live-p sql-buffer)
+;;       (call-interactively 'sql-set-sqli-buffer))
+;;     ad-do-it))
+
+(use-package sql-indent
+  :ensure t)
+
+(use-package slime
+  :ensure t
+  ;; Slime and remote servers: swank only listens on the loopback
+  ;; interface, so writing stuff via 'socket 127.0.0.1 4005' works but
+  ;; 'socket my-ip 4005' doesn't work.  For ssh forwarding, you have to
+  ;; _forward to_ 127.0.0.1 _and_ write to 127.0.0.1 (the loopback on
+  ;; both machines) to get slime to work.  Anything else doesn't work!
+  :bind
+  (:map slime-mode-map (("C-c s" . slime-selector)
+                        ("M-n" . gsn/slime-next-note)
+                        ("M-p" . gsn/slime-previous-note)
+                        ("<C-tab>" . completion-at-point))
+   :map slime-repl-mode-map (("C-c s" . slime-selector)
+                             ("C-p" . slime-repl-previous-input)
+                             ("C-n" . slime-repl-next-input)))
+  :custom
+  (slime-lisp-implementations `((sbcl ("/usr/local/bin/sbcl"))
+                                (clisp ("/usr/local/bin/clisp"))))
+  (common-lisp-hyperspec-root "/usr/local/share/doc/hyperspec/HyperSpec/")
+  (common-lisp-hyperspec-symbol-table (concat common-lisp-hyperspec-root "Data/Map_Sym.txt"))
+  (common-lisp-hyperspec-issuex-table (concat common-lisp-hyperspec-root "Data/Map_IssX.txt"))
+
+  (inferior-lisp-program "sbcl")
+  ;; (lisp-indent-function 'common-lisp-indent-function)
+
+  :config
+  (slime-setup '(slime-repl slime-fancy slime-asdf slime-banner))
+  (add-to-list 'slime-completion-at-point-functions 'slime-fuzzy-complete-symbol)
+
+  (defadvice slime-repl-previous-input (around gsn/slime-normal-up activate)
+    "Make <up> do history completion after (point) and movement before"
+    (if (>= (point) slime-repl-input-start-mark)
+        ad-do-it
+      (forward-line -1)))
+
+  (defadvice slime-repl-next-input (around gsn/slime-normal-down activate)
+    "Make <down> do history completion after (point) and movement before"
+    (if (>= (point) slime-repl-input-start-mark)
+        ad-do-it
+      (forward-line 1)))
+
+  (defvar gsn/slime-scan-note-by-type-history nil
+    "List storing history of entries to minibuffer prompt in
+  gsn/slime-read-type")
+
+  (defvar gsn/slime-scan-note-by-type-current
+    '(:error :read-error :warning :style-warning :note)
+    "Current type of note for which to search.  This is stored so
+  that the behavior is 'sticky' between invocations of the
+  commands.")
+
+  (defun gsn/slime-next-note (reset-type)
+    "Interactively search for the next compiler note of the type
+given by gsn/slime-scan-note-by-type-current.  With prefix arg,
+prompt for the value of gsn/slime-scan-note-by-type-current."
+    (interactive "P")
+    (when reset-type
+      (gsn/slime-read-type))
+    (gsn/slime-next-note-by-type gsn/slime-scan-note-by-type-current))
+
+  (defun gsn/slime-previous-note (reset-type)
+    "Interactively search for the previous compiler note of the
+type given by gsn/slime-scan-note-by-type-current.  With prefix
+arg, prompt for the value of
+gsn/slime-scan-note-by-type-current."
+    (interactive "P")
+    (when reset-type
+      (gsn/slime-read-type))
+    (gsn/slime-previous-note-by-type gsn/slime-scan-note-by-type-current))
+
+  (defun gsn/slime-read-type ()
+    "Prompt for the value of gsn/slime-scan-note-by-type-current.
+Store history (as strings) in
+gsn/slime-scan-note-by-type-history.  Convert the string to a
+symbol and set gsn/slime-scan-note-by-type-current."
+    (let ((type-string (completing-read "Type (default error): "
+                                        '("all"
+                                          "error"
+                                          "read-error"
+                                          "warning"
+                                          "style-warning"
+                                          "note")
+                                        nil t nil
+                                        'gsn/slime-scan-note-by-type-history
+                                        "error")))
+      (push type-string gsn/slime-scan-note-by-type-history)
+      (setq gsn/slime-scan-note-by-type-current
+            (cdr (assoc type-string
+                        '(("all" . (:error :read-error :warning
+                                           :style-warning :note))
+                          ("error" . (:error))
+                          ("read-error" . (:read-error))
+                          ("warning" . (:warning))
+                          ("style-warning" . (:style-warning))
+                          ("note" . (:note))))))))
+
+  (defun gsn/slime-scan-note-by-type (type scan-func)
+    "Move point to the next/previous compiler note of type TYPE.
+SCAN-FUNC specifies how to advance through the notes so that this
+function doens't have to be duplicated for -next- and -previous-"
+    (let ((original-pos (point))
+          (last-pos (point))
+          (sought-note-p
+           (lambda (type)
+             (and (slime-note-at-point)
+                  (memq (overlay-get (slime-note-at-point) 'severity)
+                        type)))))
+
+      (funcall scan-func)
+      (while (and (/= last-pos (point))
+                  (not (funcall sought-note-p type)))
+        (setq last-pos (point))
+        (funcall scan-func))
+
+      ;; let the user know if there are no more notes
+      (if (funcall sought-note-p type)
+          (slime-show-note (slime-note-at-point))
+        ;; If no next note, go back to where you started
+        (goto-char original-pos)
+        (message "No more notes."))))
+
+  (defun gsn/slime-next-note-by-type (type)
+    "Move point to the next compiler note of type TYPE."
+    (gsn/slime-scan-note-by-type type 'slime-find-next-note))
+
+  (defun gsn/slime-previous-note-by-type (type)
+    "Move point to the next/previous compiler note of type TYPE."
+    (gsn/slime-scan-note-by-type type 'slime-find-previous-note))
+
+  (defun gsn/slime-eval-last-expression-in-frame (sexp)
+    "Eval the expression at POINT in a frame in the slime debugger.
+  The frame used is determined by the location of POINT in the
+  slime debugger buffer.  The idea is to be able to be able to
+  debug by using sldb-show-source in the slime debug buffer and
+  then easily evaluate expression in your source file near the
+  problem."
+    (interactive (list (slime-last-expression)))
+    (if (not (sldb-get-default-buffer))
+        (error "No debugger buffer")
+      (save-excursion
+        (set-buffer (sldb-get-default-buffer))
+        (sldb-eval-in-frame sexp)))))
+
+(use-package ess
+  :ensure t
+  :init
+  ;; Sweet lord, you absolutely may not mess with the underscore key because your
+  ;; language has an assignment operator that requires three key presses.
+  (setq ess-smart-S-assign-key "")
+  ;; :config
+  ;; ;; (ess-toggle-S-assign nil)
+  ;; ;; (ess-disable-smart-S-assign)
+
+  ;; I was having trouble with R help files being utf-8 but emacs
+  ;; thinking they're latin-1.
+  ;;
+  ;; I would have thought that set-buffer-process-coding-system or
+  ;; set-buffer-file-coding-system would solve my problem with
+  ;; specifying the R help file coding system, but those didn't work.
+  ;;
+  ;; Eventually settled on the following advice:
+  (defadvice ess--flush-help-into-current-buffer (after gsn/recode-region activate)
+    "R Help files are utf-8, but emacs thinks they're latin-1.
+Must be careful not to recode the region twice or you get BS.
+This function seems to be the key pressure point."
+    (let ((inhibit-read-only t))
+      (recode-region (point-min) (point-max) 'utf-8 'latin-1))))
+
+(use-package js-comint
+  :ensure t
+  :custom
+  (inferior-js-program-command "js")
+  :bind
+  (:map js-comint-mode-map (("C-x C-e" . js-send-last-sexp)
+                            ("C-M-x" . js-send-last-sexp-and-go)
+                            ("C-c b" . js-send-buffer)
+                            ("C-c C-b" . js-send-buffer-and-go)
+                            ("C-c l" . js-load-file-and-go))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Non elpa / melpa packages
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(use-package gsn)
+
+(use-package point-stack
+  :bind
+  (("C-c m" . point-stack-push)
+   ("C-c b" . point-stack-pop)))
+
+(use-package maxima
+  :bind
+  (:map maxima-mode-map (("C-m" . gsn/inferior-maxima-check-and-send-line)))
+  :hook
+  (inferior-maxima-mode . gsn/maxima-add-untabify-output-filter-function)
+  :config
+  (defun gsn/maxima-untabify-output (s)
+    (with-temp-buffer
+      (insert s)
+      (untabify (point-min) (point-max))
+      (buffer-string)))
+
+  (defun gsn/maxima-add-untabify-output-filter-function ()
+    (add-hook 'comint-preoutput-filter-functions
+              'gsn/maxima-untabify-output
+              ;; append and make buffer-local
+              t t))
+
+  (defun gsn/inferior-maxima-check-and-send-line ()
+    "Stick a semicolon on the end of the line if there isn't one there"
+    ;; improvements:
+    ;; check for blank lines, don't append semicolon
+    ;; check for semicolon followed by whitespace, don't append another
+    (interactive)
+    (end-of-line)
+    ;; check to see if last character is not a semicolon
+    (message (prin1-to-string (preceding-char)))
+    (if (not (eq (preceding-char) 59))
+        (insert ";"))
+    (inferior-maxima-check-and-send-line)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Local customizations
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(when (file-exists-p "~/.emacs_local")
+  (load "~/.emacs_local"))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Auto-managed custom section
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(TeX-output-view-style
-   (quote
-    (("^dvi$"
-      ("^landscape$" "^pstricks$\\|^pst-\\|^psfrag$")
-      "%(o?)dvips -t landscape %d -o && gv %f")
-     ("^dvi$" "^pstricks$\\|^pst-\\|^psfrag$" "%(o?)dvips %d -o && gv %f")
-     ("^dvi$"
-      ("^a4\\(?:dutch\\|paper\\|wide\\)\\|sem-a4$" "^landscape$")
-      "%(o?)xdvi %dS -paper a4r -s 0 %d")
-     ("^dvi$" "^a4\\(?:dutch\\|paper\\|wide\\)\\|sem-a4$" "%(o?)xdvi %dS -paper a4 %d")
-     ("^dvi$"
-      ("^a5\\(?:comb\\|paper\\)$" "^landscape$")
-      "%(o?)xdvi %dS -paper a5r -s 0 %d")
-     ("^dvi$" "^a5\\(?:comb\\|paper\\)$" "%(o?)xdvi %dS -paper a5 %d")
-     ("^dvi$" "^b5paper$" "%(o?)xdvi %dS -paper b5 %d")
-     ("^dvi$" "^letterpaper$" "%(o?)xdvi %dS -paper us %d")
-     ("^dvi$" "^legalpaper$" "%(o?)xdvi %dS -paper legal %d")
-     ("^dvi$" "^executivepaper$" "%(o?)xdvi %dS -paper 7.25x10.5in %d")
-     ("^dvi$" "." "%(o?)xdvi %dS %d")
-     ("^pdf$" "." "open %o ")
-     ("^html?$" "." "netscape %o"))))
- '(auto-compression-mode t nil (jka-compr))
- '(auto-image-file-mode t)
- '(browse-url-netscape-program "mozilla")
- '(canlock-password "76c482cedbccca505ba78b5407836db33e0dc7d0")
- '(current-language-environment "Latin-1")
- '(default-input-method "french-postfix")
- '(fast-lock-cache-directories (quote ("~/.font-lock" "~/.emacs-flc")))
- '(font-lock-support-mode nil)
- '(global-font-lock-mode t nil (font-lock))
- '(imenu-sort-function (quote imenu--sort-by-name))
- '(input-method-highlight-flag nil)
- '(input-method-verbose-flag (quote complex-only))
- '(ispell-dictionary-alist
-   (quote
-    ((nil "[A-Za-z]" "[^A-Za-z]" "[']" nil
-          ("-B")
-          nil iso-8859-1)
-     ("american" "[A-Za-z]" "[^A-Za-z]" "[']" nil
-      ("-B")
-      nil iso-8859-1)
-     ("english" "[A-Za-z]" "[^A-Za-z]" "[']" nil
-      ("-B")
-      nil iso-8859-1))) t)
- '(jabber-connection-ssl-program nil)
- '(org-modules
-   (quote
-    (org-bbdb org-bibtex org-docview org-gnus org-info org-jsinfo org-habit org-irc org-mew org-mhe org-protocol org-rmail org-vm org-wl org-w3m org-eshell org-screen org-mac-link-grabber org-id)))
  '(package-selected-packages
    (quote
-    (use-package restclient go-mode scala-mode ensime web-mode magit docker-tramp)))
- '(require-final-newline nil)
- '(safe-local-variable-values
-   (quote
-    ((eval auto-fill-mode -1)
-     (auto-fill-mode)
-     (package . net\.aserve))))
- '(text-mode-hook (quote (turn-on-auto-fill text-mode-hook-identify)))
- '(transient-mark-mode t)
- '(uniquify-buffer-name-style nil nil (uniquify))
- '(vc-cvs-stay-local nil))
-
+    (ein restclient use-package toc-org sql-indent slime python-mode magit js-comint ess auctex))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(jabber-chat-prompt-foreign ((t nil)))
- '(jabber-chat-prompt-local ((t nil))))
-
-;; (add-hook 'org-mode-hook 
-;;           (lambda () 
-;;             (fset 'org-align-tags-here 'gsn/org-align-tags-here)))
-
-;; Think this is fixed in most recent org-mode
-;; (defun gsn/org-align-tags-here (to-col)
-;;   ;; Assumes that this is a headline
-;;   (let ((pos (point)) (col (current-column)) ncol tags-l p)
-;;     (beginning-of-line 1)
-;;     (if (and (looking-at (org-re ".*?\\([ \t]+\\)\\(:[[:alnum:]_@:]+:\\)[ \t]*$"))
-;;              (< pos (match-beginning 2)))
-;;         (progn
-;;           (setq tags-l (- (match-end 2) (match-beginning 2)))
-;;           (goto-char (match-beginning 1))
-;;           (insert " ")
-;;           (delete-region (point) (1+ (match-beginning 2)))
-;;           (setq ncol (max (1+ (current-column))
-;;                           (1+ col)
-;;                           (if (> to-col 0)
-;;                               to-col
-;;                             (- (abs to-col) tags-l))))
-;;           (setq p (point))
-;;           (insert (make-string (- ncol (current-column)) ?\ ))
-;;           (setq ncol (current-column))
-;;           (when indent-tabs-mode
-;;             (tabify p (point-at-eol)))
-;;           (org-move-to-column (min ncol col) t))
-;;         (goto-char pos))))
- 
-(put 'downcase-region 'disabled nil)
-
-(defun find-longest-line ()
-  (interactive)
-  (goto-char (point-max))
-  (let ((lines (line-number-at-pos))
-        (progress (make-progress-reporter "Searching for longest line" 
-                                          0 (line-number-at-pos)))
-        (max 0)
-        (loc 1)
-        bol eol)
-    (dotimes (ii lines)
-      (progress-reporter-update progress ii)
-      (goto-char (point-min))
-      (forward-line ii)
-      (setq bol (point))
-      (move-end-of-line nil)
-      (setq eol (point))
-      (when (> (- eol bol) max)
-        (setq max (- eol bol))
-        (setq loc ii)))
-    (goto-char (point-min))
-    (forward-line loc)
-    (message "%d" max)))
-
-(defun kill-long-lines ()
-  (interactive)
-  (save-excursion
-    (goto-char (point-max))
-    (let ((lines (line-number-at-pos))
-          (limit 1024)
-          (progress (make-progress-reporter "Searching for longest line" 
-                                            0 (line-number-at-pos)))
-          (max 0)
-          (loc 1)
-          bol eol)
-      (goto-char (point-min))
-      (dotimes (ii lines)        
-        (progress-reporter-update progress ii)
-        (setq bol (point))
-        (move-end-of-line nil)
-        (setq eol (point))
-        (when (> (- eol bol) limit)
-          (kill-region bol eol))
-        (forward-line 1))
-      (progress-reporter-done progress))))
-    
+ )
