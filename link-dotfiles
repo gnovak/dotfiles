@@ -43,4 +43,5 @@ done
 # special cases, sit inside directories
 link_maybe ssh.config ~/.ssh/ config
 link_maybe ipython_config.py ~/.ipython/profile_default/ ipython_config.py
+link_maybe notebook.json ~/.jupyter/ notebook.json
 
