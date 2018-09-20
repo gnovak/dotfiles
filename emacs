@@ -870,10 +870,10 @@
     (let ((sql-product 'presto))
       (sql-connect 'presto)))
 
-  (defun sql-comint-presto (product options)
+  (defun sql-comint-presto (product options &optional buf-name)
     ;; not sure if I need this?
     (let ((sql-login-delay 0.9))
-      (sql-comint product options)))
+      (sql-comint product options buf-name)))
 
   (defun sql-fashionthing ()
     "stub to connect to fashionthing"
