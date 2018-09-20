@@ -136,14 +136,6 @@
 ;; transpose seems useless -- make it to-line instead
 (global-set-key "\C-t" 'goto-line)
 
-;;; Map C-f and C-b to forward/back word instead of letter
-(global-set-key "\C-f" 'forward-word)
-(global-set-key "\C-b" 'backward-word)
-
-;;; Try to make it possible to not move my hands to the arrow keys
-(global-set-key "\M-p" 'backward-paragraph)
-(global-set-key "\M-n" 'forward-paragraph)
-
 ;;; Use ibuffer instead of list-buffers
 (global-set-key "\C-x\C-b" 'ibuffer)
 
@@ -160,8 +152,6 @@
 
 (global-set-key (kbd "<M-up>") 'gsn/scroll-window-backward-line)
 (global-set-key (kbd "<M-down>") 'gsn/scroll-window-forward-line)
-(global-set-key (kbd "<M-left>") 'gsn/scroll-window-backward-paragraph)
-(global-set-key (kbd "<M-right>") 'gsn/scroll-window-forward-paragraph)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Global user key maps
@@ -173,8 +163,6 @@
 (bind-key "C-c i" 'gsn/next-window-this-frame)
 (bind-key "C-c j" 'gsn/prev-window-visible-frame)
 (bind-key "C-c k" 'gsn/next-window-visible-frame)
-;; redundant, but keep for my old muscle memory
-(bind-key "C-c o" 'gsn/next-window-this-frame)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Code for global key bindings
