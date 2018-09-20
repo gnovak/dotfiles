@@ -134,24 +134,24 @@
 (setq ns-command-modifier 'meta)
 
 ;; transpose seems useless -- make it to-line instead
-(global-set-key "\C-t" 'goto-line)
+(bind-key "C-t" 'goto-line)
 
 ;;; Use ibuffer instead of list-buffers
-(global-set-key "\C-x\C-b" 'ibuffer)
+(bind-key "C-x C-b" 'ibuffer)
 
 ;;; When I look up tags, I do it for documentation.  I like the info
 ;;; to appear in the other window and have the point stay in this
 ;;; window.  Achieve this by advising find-tag-other-window to stay in
 ;;; the current buffer, and swapping the conventional bindings for
 ;;; M-. and C-x 4 .
-(global-set-key "\C-x4." 'find-tag)
-(global-set-key "\M-." 'find-tag-other-window)
+(bind-key "C-x 4." 'find-tag)
+(bind-key "M-." 'find-tag-other-window)
 
-;; Much prefer ediff to diff.  This is apparently a global binding...?
-(global-set-key (kbd "C-x v =") 'vc-ediff)
+;; Much prefer ediff to diff.
+(bind-key "C-x v =" 'vc-ediff)
 
-(global-set-key (kbd "<M-up>") 'gsn/scroll-window-backward-line)
-(global-set-key (kbd "<M-down>") 'gsn/scroll-window-forward-line)
+(bind-key "<M-up>" 'gsn/scroll-window-backward-line)
+(bind-key "<M-down>" 'gsn/scroll-window-forward-line)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Global user key maps
