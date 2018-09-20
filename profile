@@ -31,6 +31,8 @@ export TEXINPUTS=$HOME/bin/tex//:
 export MFINPUTS=$HOME/bin/tex//:
 export BSTINPUTS=$HOME/bin/tex//:
 export BIBINPUTS=$HOME/Documents/Bibtex:
+# Pyspark in local mode requires java 8, not java 10
+export JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk1.8.0_181.jdk/Contents/Home/jre
 
 # Git prompt stuff
 export GIT_PS1_SHOWDIRTYSTATE="true"
