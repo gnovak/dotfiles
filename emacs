@@ -111,6 +111,7 @@
 
 ;; Put all backup files into one directory.
 (setq make-backup-files t
+      backup-by-copying t ;; Backup-by-move messes with dropbox
       vc-make-backup-files t
       backup-directory-alist '(("." . "~/.emacs.backup"))
       tramp-backup-directory-alist '(("." . "~/.emacs.backup"))
