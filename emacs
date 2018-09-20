@@ -130,8 +130,8 @@
 ;; Non-standard global key maps
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(setq ns-option-modifier 'meta)
-(setq ns-command-modifier 'meta)
+(setq ns-option-modifier 'meta
+      ns-command-modifier 'meta)
 
 ;; transpose seems useless -- make it to-line instead
 (bind-key "C-t" 'goto-line)
