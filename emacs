@@ -782,7 +782,7 @@
   :custom
   (sql-send-terminator ";")
   (sql-postgres-program "psql")
-  (sql-presto-program "/Users/gnovak/bin/sane-presto")
+  (sql-presto-program "sane-presto")
   (sql-presto-login-params '((user :default "novak")
                              (database :default "novak")
                              server))
