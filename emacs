@@ -408,8 +408,25 @@
 
 (use-package python-mode
   :ensure t
-  :custom (python-shell-interpreter "ipython")
-  (python-shell-interpreter-args "")
+  :custom
+  ;; Matplotlib with interactive backends requires that python be
+  ;; built as a framework with a command like this:
+  ;;
+  ;; env PYTHON_CONFIGURE_OPTS="--enable-framework" pyenv install 3.6.5
+  ;;
+  ;; However, under python3 built as a framework with matplotlib and
+  ;; ipython installed, running a jupyter notebook, something about
+  ;; the event loop gets messed up and it takes 10-20 seconds to
+  ;; evaluate notebook cells.  This has something to do with
+  ;; communication between the server and the kernel -- the kernel
+  ;; itself evaluates the result instantly.
+  ;;
+  ;; So the upshot is that I've set up my system so that jupyter
+  ;; notebooks work by default, and then if I'm running ipython under
+  ;; emacs, I have to call the framework-built python specifically,
+  ;; and override the config file setting for the matplotlib backend.
+  (python-shell-interpreter "/Users/gregorynovak/.pyenv/versions/sf-py36-framework/bin/ipython")
+  (python-shell-interpreter-args "--matplotlib=macos")
   ;; Commands to start remote python shell
   ;; (setq py-shell-name "/usr/bin/ssh")
   ;; (request 'python-mode)
