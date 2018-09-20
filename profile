@@ -14,8 +14,6 @@ fi
 
 PS1='\[\e]1;\h\a\][\h:\w$(__git_ps1 " (%s)")]$ '
 
-PATH=~/bin:$PATH
-
 alias cp='cp -i'	
 alias mv='mv -i'
 alias rm='rm -i'		
@@ -42,6 +40,8 @@ export GIT_PS1_SHOWUPSTREAM="auto"
 
 # Set up pyenv
 eval "$(pyenv init -)"
+
+PATH=~/bin:~/code/toolbag/bin:$PATH
 
 # Source local file if it exists
 if [ -e ~/.bashrc_local ]; then
