@@ -1034,28 +1034,10 @@ function doens't have to be duplicated for -next- and -previous-"
 
 (use-package ess
   :ensure t
-  :init
-  ;; Sweet lord, you absolutely may not mess with the underscore key because your
-  ;; language has an assignment operator that requires three key presses.
-  (setq ess-smart-S-assign-key "")
-  ;; :config
-  ;; ;; (ess-toggle-S-assign nil)
-  ;; ;; (ess-disable-smart-S-assign)
-
-  ;; I was having trouble with R help files being utf-8 but emacs
-  ;; thinking they're latin-1.
-  ;;
-  ;; I would have thought that set-buffer-process-coding-system or
-  ;; set-buffer-file-coding-system would solve my problem with
-  ;; specifying the R help file coding system, but those didn't work.
-  ;;
-  ;; Eventually settled on the following advice:
-  (defadvice ess--flush-help-into-current-buffer (after gsn/recode-region activate)
-    "R Help files are utf-8, but emacs thinks they're latin-1.
-Must be careful not to recode the region twice or you get BS.
-This function seems to be the key pressure point."
-    (let ((inhibit-read-only t))
-      (recode-region (point-min) (point-max) 'utf-8 'latin-1))))
+  ;; Sweet lord, you absolutely may not mess with the underscore key
+  ;; because your language has an assignment operator that requires
+  ;; three key presses.
+  :bind (:map inferior-ess-mode-map ("_" . self-insert-command)))
 
 (use-package js-comint
   :ensure t
