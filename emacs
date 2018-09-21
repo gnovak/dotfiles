@@ -1100,21 +1100,7 @@ This function seems to be the key pressure point."
 (use-package maxima
   :bind
   (:map maxima-mode-map (("C-m" . gsn/inferior-maxima-check-and-send-line)))
-  :hook
-  (inferior-maxima-mode . gsn/maxima-add-untabify-output-filter-function)
   :config
-  (defun gsn/maxima-untabify-output (s)
-    (with-temp-buffer
-      (insert s)
-      (untabify (point-min) (point-max))
-      (buffer-string)))
-
-  (defun gsn/maxima-add-untabify-output-filter-function ()
-    (add-hook 'comint-preoutput-filter-functions
-              'gsn/maxima-untabify-output
-              ;; append and make buffer-local
-              t t))
-
   (defun gsn/inferior-maxima-check-and-send-line ()
     "Stick a semicolon on the end of the line if there isn't one there"
     ;; improvements:
