@@ -263,13 +263,23 @@
 ;;;;;;;;;
 ;;; Fonts
 
-(defun make-font-sample-buffer (font-list)
-  (with-current-buffer (generate-new-buffer "*font-samples*")
-    (dolist (font font-list)
-      (let ((face-name (intern (concat "font-test-" font))))
- 	(custom-declare-face face-name `((t (:font ,font))) "Docstring")
-	(insert font)
-	(insert (propertize test-text 'face face-name))))))
+(defun insert-font-samples (font-list)
+  (dolist (font font-list)
+    (let ((face-name (intern (concat "font-test-" font)))
+          (test-text "The quick brown fox jumped over the lazy dog\n\n"))
+      (custom-declare-face face-name `((t (:font ,font))) "Docstring")
+      (message font)
+      (insert (concat font "\n"))
+      ;; some fonts are inexplicably not defined, even though they
+      ;; show up in the x-select-font window.  Try to ignore
+      ;; these cases
+      (ignore-errors
+        (insert (propertize test-text 'face face-name))))))
+
+(defun font-sample-buffer ()
+  (interactive)
+  (switch-to-buffer (generate-new-buffer "*font-samples*"))
+  (insert-font-samples (font-family-list)))
 
 (defun prop-font ()
   (interactive)
