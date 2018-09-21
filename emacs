@@ -452,43 +452,6 @@
     (switch-to-buffer "*Python*")
     (end-of-buffer)))
 
-(use-package ediff
-  :ensure t
-  :bind (("C-c j" . gsn/ediff-prev-difference)
-         ("C-c k" . gsn/ediff-next-difference))
-  :custom
-  (ediff-split-window-function 'split-window-horizontally)
-  :config
-  (defun gsn/ediff-command (ediff-fn &rest args)
-    (let ((current-buf (current-buffer))
-          (ediff-bufs (filter (lambda (buf)
-                                (with-current-buffer buf
-                                  (equal major-mode 'ediff-mode)))
-                              (buffer-list))))
-      (if (null ediff-bufs)
-          (user-error "No ediff buffers found!"))
-      (let ((ediff-buf (filter (lambda (buf)
-                                 (with-current-buffer buf
-                                   (or (equal current-buf ediff-buffer-A)
-                                       (equal current-buf ediff-buffer-B)
-                                       (equal current-buf ediff-buffer-C))))
-                               ediff-bufs)))
-        (if (null ediff-buf)
-            (user-error "No ediff buffer points to the current buffer!"))
-        (if (< 1 (length ediff-buf))
-            (user-error "Multiple ediff buffers point to the current buffer!"))
-        (save-excursion
-          (switch-to-buffer (car ediff-buf))
-          (apply ediff-fn args)))))
-
-  (defun gsn/ediff-next-difference ()
-    (interactive)
-    (gsn/ediff-command #'ediff-next-difference))
-
-  (defun gsn/ediff-previous-difference ()
-    (interactive)
-    (gsn/ediff-command #'ediff-previous-difference)))
-
 (use-package eshell
   :bind
   (:map eshell-mode-map (("C-a" . eshell-bol)
@@ -747,6 +710,11 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; External Packages
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(use-package ediff
+  :ensure t
+  :custom
+  (ediff-split-window-function 'split-window-horizontally))
 
 (use-package magit
   :ensure t
