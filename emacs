@@ -438,7 +438,7 @@
     "Set up windows the way I like them for python coding"
     (interactive)
     (delete-other-windows)
-    (split-window-vertically)
+    (split-window-horizontally)
     ;; switch to the most recently visited python buffer
     (let ((buffers (buffer-list))
           done)
