@@ -1101,18 +1101,11 @@ This function seems to be the key pressure point."
   :bind
   (:map maxima-mode-map (("C-m" . gsn/inferior-maxima-check-and-send-line)))
   :config
-  (defun gsn/inferior-maxima-check-and-send-line ()
-    "Stick a semicolon on the end of the line if there isn't one there"
-    ;; improvements:
-    ;; check for blank lines, don't append semicolon
-    ;; check for semicolon followed by whitespace, don't append another
-    (interactive)
+  (defadvice inferior-maxima-check-and-send-line
+      (before gsn/ensure-trailing-semicolon activate)
     (end-of-line)
-    ;; check to see if last character is not a semicolon
-    (message (prin1-to-string (preceding-char)))
     (if (not (eq (preceding-char) 59))
-        (insert ";"))
-    (inferior-maxima-check-and-send-line)))
+        (insert ";"))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Local customizations
