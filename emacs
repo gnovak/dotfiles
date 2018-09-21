@@ -427,12 +427,10 @@
   ;; and override the config file setting for the matplotlib backend.
   (python-shell-interpreter "/Users/gregorynovak/.pyenv/versions/sf-py36-framework/bin/ipython")
   (python-shell-interpreter-args "--matplotlib=macos")
-  ;; Commands to start remote python shell
-  ;; (setq py-shell-name "/usr/bin/ssh")
-  ;; (request 'python-mode)
-  ;; (setq-default py-python-command-args
-  ;;               '("-t" "sesame1" "/home/gnovak/bin/local/bin/ipython"
-  ;;                 "--pylab" "--colors=LightBG"))
+  ;; ;; Commands to start remote python shell
+  ;; ;; -t to force ssh to allocate a tty
+  ;; (setq python-shell-interpreter "/usr/bin/ssh")
+  ;; (setq python-shell-interpreter-args "-t remote-host ipython")
   :bind
   ("C-c z" . gsn/py-windows)
   :config
