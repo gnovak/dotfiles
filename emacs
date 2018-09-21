@@ -294,11 +294,14 @@
   :custom
   (ispell-dictionary "english")
   (ispell-program-name "aspell")
-  ;; When running ispell, .
   (ispell-extra-args '("-W" "2") "consider all 1-2 char words as correct"))
 
 (use-package grep
   :custom
+  ;; -n: include line numbers
+  ;; -H: print filenames
+  ;; -i: ignore case
+  ;; -e: arg for the pattern to search for
   (grep-command "grep -nHi -e "))
 
 (use-package doc-view
@@ -322,7 +325,6 @@
 (use-package calendar
   :custom
   (calendar-week-start-day 1 "Start on Mondays in the European fashion")
-  ;;
   (calendar-intermonth-text
    '(propertize
      (format "%2d"
@@ -425,7 +427,7 @@
   ("C-c z" . gsn/py-windows)
   :config
   (defun gsn/py-windows ()
-    "Set up "
+    "Set up windows the way I like them for python coding"
     (interactive)
     (delete-other-windows)
     (split-window-vertically)
@@ -823,7 +825,8 @@
 
   (defun gsn/enable-sql-upcase ()
     (abbrev-mode 1)
-    ;; Make underscore a word character so that abbrev stops expanding send_count to send_COUNT
+    ;; Make underscore a word character so that abbrev stops expanding
+    ;; send_count to send_COUNT
     (modify-syntax-entry ?_ "w" sql-mode-syntax-table))
 
   (defun gsn/do-not-wrap-lines ()
