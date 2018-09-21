@@ -768,6 +768,12 @@
 
   :custom
   (sql-send-terminator ";")
+  ;; Set the default sql product to presto.  This allows
+  ;; sql-send-paragraph to find the comint buffer.  You can also drop
+  ;; this line at the top of a file to have that file talk to a
+  ;; different sql product by default:
+  ;; -- -*- sql-product: postgres -*-
+  (sql-product 'presto)
   (sql-postgres-program "psql")
   (sql-presto-program "sane-presto")
   (sql-presto-login-params '((user :default "novak")
@@ -871,16 +877,14 @@
   (defun sql-hms ()
     "stub to connect to hive metastore"
     (interactive)
-    (my-sql-connect 'mysql 'hms)))
+    (my-sql-connect 'mysql 'hms))
 
-;;   ;; doesn't work...?
-;;   (defadvice sql-send-string
-;;       (around gsn/ask-for-sqli-buffer disable)
-;;     ;;(around gsn/ask-for-sqli-buffer activate)
-;;     "Don't just bail with an error, ask for a sql buffer"
-;;     (unless (sql-buffer-live-p sql-buffer)
-;;       (call-interactively 'sql-set-sqli-buffer))
-;;     ad-do-it))
+  (defadvice sql-send-string
+      (around gsn/ask-for-sqli-buffer activate)
+    "Don't just bail with an error, ask for a sql buffer"
+    (unless (sql-buffer-live-p sql-buffer)
+      (call-interactively 'sql-set-sqli-buffer))
+    ad-do-it))
 
 (use-package sql-indent
   :ensure t)
