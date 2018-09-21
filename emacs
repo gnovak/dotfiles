@@ -450,19 +450,7 @@
             (setq done t)))))
     (other-window 1)
     (switch-to-buffer "*Python*")
-    (end-of-buffer))
-
-  (defadvice py-fill-paragraph
-      (around gsn/backup-at-end-of-string activate)
-    "If the previous char is a quote and the current char isn't,
-  back up by one character so that py-fill-paragraph doesn't fill
-  my docstrings so strangely."
-    (if (and (equal (preceding-char) (string-to-char "\""))
-             (not (equal (following-char) (string-to-char "\""))))
-        (save-excursion
-          (forward-char -1)
-          ad-do-it)
-      ad-do-it)))
+    (end-of-buffer)))
 
 (use-package ediff
   :ensure t
