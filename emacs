@@ -834,7 +834,7 @@
  		    (point)))
  	     (list
  	      (parse-partial-sexp beg (point))))
-        (and (null (nth 3 list))		; inside string.
+        (and (null (nth 3 list))	; inside string.
  	     (null (nth 4 list))))))	; inside comment
 
   (defun my-sql-connect (product connection)
