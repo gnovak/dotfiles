@@ -453,10 +453,6 @@
     (end-of-buffer)))
 
 (use-package eshell
-  :bind
-  (:map eshell-mode-map (("C-a" . eshell-bol)
-                         ("C-p" . eshell-previous-matching-input-from-input)
-                         ("C-n" . eshell-next-matching-input-from-input)))
   :config
   (defun gsn/eshell-after-prompt-p ()
     "Check to see if you're on the last line of a buffer"
@@ -478,7 +474,28 @@
       (around gsn/normal-down activate)
     (if (gsn/eshell-after-prompt-p)
         ad-do-it
-      (forward-line 1))))
+      (forward-line 1)))
+
+  ;; ;; Should have the binding defn below, but can't figure out how to
+  ;; ;; get it to work...
+  ;; ;;
+  ;; ;; (use-package eshell ..) gives "symbol is void eshell-mode-map
+  ;; ;; (use-package eshell-mode ...) doesn't set the keys
+  ;; ;; (use-package eshell .. :requires eshell-mode) doesn't set the keys
+  ;; ;;
+  ;; ;; So instead use eshell-mode-hook
+  ;; ;;
+  ;; :bind
+  ;; (:map eshell-mode-map (
+  ;;              ("C-p" . eshell-previous-matching-input-from-input)
+  ;;              ("C-n" . eshell-next-matching-input-from-input)))
+  :hook
+  (eshell-mode .
+     (lambda ()
+       (bind-key "C-p" 'eshell-previous-matching-input-from-input
+                 eshell-mode-map)
+       (bind-key "C-n" 'eshell-next-matching-input-from-input
+                 eshell-mode-map))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Org mode gets its own section
