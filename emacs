@@ -764,7 +764,6 @@
   (sql-mode . gsn/enable-sql-upcase)
   (sql-interactive-mode . gsn/enable-sql-upcase)
   (sql-interactive-mode . gsn/do-not-wrap-lines)
-  (sql-interactive-mode-hook . turn-on-comint-history)
   (pre-abbrev-expand . gsn/only-upcase-in-code-context)
 
   :custom
