@@ -787,7 +787,7 @@
 		 :sqli-program sql-presto-program
 		 ;; :sqli-options sql-presto-options
 		 :sqli-login sql-presto-login-params
-		 :sqli-comint-func sql-comint-presto
+		 :sqli-comint-func sql-comint
 		 ;; :list-all ()
 		 ;; :list-table ()
 		 ;; :completion-object sql-presto-completion-object
@@ -858,11 +858,6 @@
     (interactive)
     (let ((sql-product 'presto))
       (sql-connect 'presto)))
-
-  (defun sql-comint-presto (product options &optional buf-name)
-    ;; not sure if I need this?
-    (let ((sql-login-delay 0.9))
-      (sql-comint product options buf-name)))
 
   (defun sql-fashionthing ()
     "stub to connect to fashionthing"
