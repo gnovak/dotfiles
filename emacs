@@ -330,7 +330,7 @@
 
 (use-package emacs-lisp-mode
   :bind
-  (:map emacs-lisp-mode-map ("C-<tab>" . lisp-complete-symbol)))
+  (:map emacs-lisp-mode-map ("C-<tab>" . completion-at-point)))
 
 (use-package calendar
   :custom
