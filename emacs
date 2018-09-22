@@ -508,7 +508,13 @@
    ("C-c r" . org-capture)
    ("C-c l" . org-store-link)
    ("C-c n" . gsn/org-now-i-am-working-on)
-   (:map org-mode-map (("C-c w" . gsn/org-work-on-this))))
+   (:map org-mode-map (("C-c w" . gsn/org-work-on-this)
+                       ;; Usually org binds pcomplete to M-tab, but
+                       ;; OSX takes that one, so use C-tab.  Org
+                       ;; normally binds C-tab to
+                       ;; org-force-cycle-archived, but I don't really
+                       ;; use that
+                       ("C-tab" . pcomplete))))
 
   :custom
   (org-directory "~/Dropbox/Brain")
