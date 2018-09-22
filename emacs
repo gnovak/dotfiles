@@ -627,7 +627,8 @@
 (use-package magit
   :ensure t
   :bind
-  ("C-c v" . magit-status))
+  (("C-c v" . magit-status)
+   ("C-c g" . magit-dispatch-popup)))
 
 (use-package ein
   :ensure t)
