@@ -671,6 +671,9 @@
   (("C-c v" . magit-status)
    ("C-c g" . magit-dispatch-popup)))
 
+(use-package git-timemachine
+  :ensure t)
+
 (use-package ws-butler
   :ensure t
   :hook
