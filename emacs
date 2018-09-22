@@ -501,6 +501,16 @@
 ;; Org mode gets its own section
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+;; ;; Things to remember / check out
+;; org-lint
+;; sparse trees  C-c /
+;; tags C-c C-c
+;; properties C-c C-x p
+;; column views C-c C-x C-c
+;; clock in C-c C-x C-i and out C-c C-x C-o and view C-c C-x C-d
+;; attachments C-c C-a
+;; org-archive-subtree C-$ or C-c C-x C-a
+;; org-babel
 (use-package org
   :ensure t
   :bind
