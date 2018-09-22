@@ -524,7 +524,7 @@
                        ;; normally binds C-tab to
                        ;; org-force-cycle-archived, but I don't really
                        ;; use that
-                       ("C-tab" . pcomplete))))
+                       ("C-<tab>" . pcomplete))))
 
   :custom
   (org-directory "~/Dropbox/Brain")
