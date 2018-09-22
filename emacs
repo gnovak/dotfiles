@@ -504,109 +504,49 @@
 (use-package org
   :ensure t
   :bind
-  (("C-c r" . org-capture)
-   ("C-c a" . gsn/org-agenda)
-   ("C-c n" . gsn/org-now-i-am-working-on)
+  (("C-c p" . gsn/org-plan)
+   ("C-c r" . org-capture)
    ("C-c l" . org-store-link)
-   ("C-c p" . gsn/org-plan)
-   :map org-mode-map (("C-c w" . gsn/org-work-on-this)
-                      ("C-n" . org-next-link)
-                      ("C-p" . org-previous-link)))
+   ("C-c n" . gsn/org-now-i-am-working-on)
+   (:map org-mode-map (("C-c w" . gsn/org-work-on-this))))
 
   :custom
   (org-directory "~/Dropbox/Brain")
-  (org-default-notes-file (concat org-directory "/in.org"))
   (org-hide-leading-stars t)
   (org-odd-levels-only t)
-  (org-log-done t)
   (org-catch-invisible-edits 'smart)
-  (org-log-into-drawer t)
-  (org-table-auto-blank-field nil)
-  (org-enforce-todo-dependencies t)
   (org-list-demote-modify-bullet '(("-" . "+") ("+" . "-")))
-  (org-tags-exclude-from-inheritance '("project"))
-  (org-global-properties '(("Effort_ALL" . "1 2 3")))
-  (org-columns-default-format "%120ITEM %TODO %1PRIORITY %1Effort %TAGS")
-  ;; STARTED NEXT
-  (org-todo-keywords '((sequence "TODO" "|" "DONE")
-                       (sequence "READ"
-                                 ;;
-                                 "TICKLE" ;; Take David Allen approach and just mark
-                                 ;; events that are not do-able now, but I
-                                 ;; want to keep track of, without worrying
-                                 ;; too much about the ontology.
-                                 ;;
-                                 "PERIODIC" ;; Periodic task
-                                 "EVENT"    ;; slight misnomer for todo item that I
-                                 ;; want to do on a spcific day (but can do
-                                 ;; on the next day if necessary)
-                                 "CHECK"    ;; active waiting
-                                 "REQUIRES" ;; Requires me to do something else first
-                                 "WAITING"  ;; Requires someone else do do something
-                                 ;; or something else to happen before I
-                                 ;; can do something.
-                                 "DEFERRED" ;; don't want to do it right now for
-                                 ;; whatever reason.
-                                 "SOMEDAY"  ;; Might want to do someday.
-                                 "NEXT"     ;; Next task for this project
-                                 "|" "FINI" "CANCELLED")))
-  (org-todo-keyword-faces '(("READ" . "cyan")
-                            ("TICKLE" . "orange")
-                            ("PERIODIC" . "orange")
-                            ("EVENT" . "orange")
-                            ("CHECK" . "orange")
-                            ("REQUIRES" . "orange")
-                            ("WAITING" . "orange")
-                            ("DEFERRED" . "orange")
-                            ("SOMEDAY" . "orange")))
-
-  (org-capture-templates '(("t" "Task" entry (file+headline "" "Tasks")
-                            "* TODO %?\n  %u\n  %a")
-                           ("p" "Paper" entry
-                            (file+datetree (concat org-directory "/astroph.org"))
-                            "* %?\n%c\n\nEntered on %U\n  %i\n")
-                           ("b" "Bookmark" entry (file+headline "" "New Bookmarks")
-                            "* %c\n%?\n")
-                           ("p" "Paper" entry
-                            (file+datetree (concat org-directory "/astroph.org"))
-                            "* %?\n%c\n\nEntered on %U\n  %i\n")))
+  (org-default-notes-file (concat org-directory "/in.org"))
+  (org-log-done 'time)
+  (org-log-into-drawer t)  ;; For repeating tasks, put timestamps into the LOGBOOK drawer
+  (org-table-auto-blank-field nil) ;; Don't clobber table cells by typing
+  (org-enforce-todo-dependencies t)
   (org-use-fast-todo-selection t)
-  (org-special-ctrl-a/e t)
+  (org-special-ctrl-a/e 'reversed) ;; go to actual bol first, then beginning of todo item
 
-  ;; ;; org-refile-targets is a bit of a bear, documentation is a little
-  ;; ;; murky and google doens't find any examples.  Don't forget to
-  ;; ;; refresh the list of targets with
-  ;; ;;   (setq org-refile-target-table nil)
-  ;; ;; or
-  ;; ;;   C-u C-u C-c C-w
-  ;; ;; The following list is in order of precedence.  For example, if a
-  ;; ;; symbol has both an associated value and function, then the function
-  ;; ;; is called.
+  (org-todo-keywords '((sequence "TODO" "DONE")
+                       (type "READ"       ;; reading material
+                             "PERIODIC"   ;; Periodic task
+                             "EVENT"      ;; Do on specific day
+                             "DEPENDENCY" ;; Requires me to do something else first
+                             "BLOCKED"    ;; Requires someone else do do something
+                             "DEFERRED"   ;; don't want to do it right now for
+                             "NEXT"       ;; Next task for this project
+                             "STARTED"    ;; actually started task
+                             "|" "CANCELLED" "DONE")))
 
-  ;; (org-refile-targets '( (org-agenda-files :level . 1) ))
-  ;; (org-refile-targets
-  ;;       ;; special treatment, calls (org-agenda-files) to expand into an
-  ;;       ;; explicit list of filenames (rather than a directory)
-  ;;       '((org-agenda-files :keyword . arg))
-  ;;       ;; calls function, can produce string, list of strings, list of
-  ;;       ;; buffers
-  ;;       (function-name :keyword . arg)
-  ;;       ;; alternate rendering, perhaps more readable depending on one's
-  ;;       ;; taste
-  ;;       (function-name . (:keyword . arg))
-  ;;       ;; use value, can be string, list of strings, list of buffers
-  ;;       (variable-name :keyword . arg)
-  ;;       ;; Give a specific filename
-  ;;       ("filename" :keyword . arg)
-  ;;       ;; Give a list of specific filenames
-  ;;       (("fn1" "fn2") :keyword . arg))
-
-  ;; ;; Potentially interesting variables
-  ;; org-reverse-note-order
-  ;; org-cycle-include-plain-lists
-  ;; org-remember-templates
+  (org-todo-keyword-faces '(("READ" . "cyan")
+                            ("PERIODIC" . "brown")
+                            ("EVENT" . "brown")
+                            ("DEPENDENCY" . "brown")
+                            ("BLOCKED" . "brown")
+                            ("DEFERRED" . "brown")
+                            ("NEXT" . "orange")
+                            ("STARTED" . "black")
+                            ("CANCELLED" . "red")))
 
   :config
+  (add-to-list 'org-modules 'org-habit)
   (defun gsn/org-plan (arg)
     (interactive "P")
     (if arg
@@ -623,78 +563,25 @@
     (interactive)
     (if gsn/org-current-task
         (message gsn/org-current-task)
-      "No current task"))
-
-  ;; ;; Sometimes want to see habits for all days
-  ;; (setq org-habit-show-habits-only-for-today nil)
-  (defun gsn/org-kill-all-buffers ()
-    (interactive)
-    (org-save-all-org-buffers)
-    (mapcar 'kill-buffer (org-buffer-list)))
-
-  (defadvice format-time-string
-      (around gsn/remove-dot-from-day-of-week activate)
-    "Abbreviating days of week as Sun. or Dim. instead of Sun and
-  Dim wreaks havoc with org-mode.  Kill the dot when present"
-    ad-do-it
-    (setq ad-return-value (replace-regexp-in-string
-	                   "\\(lun\\|mar\\|mer\\|jeu\\|ven\\|sam\\|dim\\|sun\\|mon\\|tue\\|wed\\|thu\\|fri\\|sat\\|sun\\)\\."
-                           "\\1" ad-return-value))))
+      "No current task")))
 
 (use-package org-agenda
+  :bind
+   (("C-c a" . org-agenda))
   :custom
-  (org-agenda-files (list (concat org-directory "/sf.org")))
   (org-agenda-files (list org-directory))
-  (org-agenda-files (list org-directory))
+  (org-agenda-include-diary t)
   (org-agenda-sorting-strategy  '((agenda time-up category-down habit-up)
                                   todo-state-down priority-down)
                                 (todo priority-down category-keep)
                                 (tags priority-down category-keep)
                                 (search category-keep))
-  (org-agenda-include-diary t)
-  ;; org-agenda-todo-list-sublevels
-
-  ;; :bind
-  ;; (:map org-agenda-mode-map (((org-key (kbd "<right>")) . forward-char)
-  ;;                            ((org-key (kbd "<left>")) . backward-char)
-  ;;                            ((org-key (kbd "<C-S-right>")) . org-agenda-later)
-  ;;                            ((org-key (kbd "<C-S-left>")) . org-agenda-earlier)))
-
-  ;; :bind
-  ;; (:map org-agenda-keymap (((org-key (kbd "<right>")) . forward-char)
-  ;;                          ((org-key (kbd "<left>")) . backward-char)
-  ;;                          ((org-key (kbd "<C-S-right>")) . org-agenda-later)
-  ;;                          ((org-key (kbd "<C-S-left>")) . org-agenda-earlier)))
-
   :config
-  (defun gsn/org-agenda ()
-    (interactive)
+  (defadvice org-agenda
+      (around gsn/org-agenda-prefer-existing-buffer activate)
     (if (member "*Org Agenda*" (mapcar 'buffer-name (buffer-list)))
         (switch-to-buffer "*Org Agenda*")
-      (call-interactively 'org-agenda)))
-
-  (defadvice org-agenda
-      (around gsn/org-agenda-use-existing-buffer activate)
-    "If an *Org Agenda* buffer already exists, switch to it.  Otherwise"
-    (if (and (equal (preceding-char) (string-to-char "\""))
-             (not (equal (following-char) (string-to-char "\""))))
-        (save-excursion
-          (forward-char -1)
-          ad-do-it)
-      ad-do-it))
-
-  ;; Would like to check that org-agenda-sorting-strategy default value
-  ;; hasn't changed with a bump in org-version, but the vars aren't
-  ;; defined, and org-mode-hook isn't defined either.  So I don't now
-  ;; how to actually do this at the moment.
-
-  (unless (equal org-agenda-sorting-strategy
-                 '((agenda habit-down time-up priority-down category-keep)
-                   (todo priority-down category-keep)
-                   (tags priority-down category-keep)
-                   (search category-keep)))
-    (message "org-agenda-sorting-strategy default changed!  Revisit setting!")))
-
+      ad-do-it)))
 
 (use-package org-mobile
   ;; Mobile org wants all files in UTF-8, but the Emacs writes the
