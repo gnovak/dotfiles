@@ -671,6 +671,11 @@
   (("C-c v" . magit-status)
    ("C-c g" . magit-dispatch-popup)))
 
+(use-package ws-butler
+  :ensure t
+  :hook
+  (prog-mode . ws-butler-mode))
+
 (use-package ein
   :ensure t)
 
