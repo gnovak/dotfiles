@@ -689,6 +689,9 @@
 				("section" . "sec-")
 				("subsection" . "sec-"))))
 
+(use-package linum-relative
+  :ensure t)
+
 (use-package sql
   ;; Config relies heavily on:
   ;; http://truongtx.me/2014/08/23/setup-emacs-as-an-sql-database-client/
