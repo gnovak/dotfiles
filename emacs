@@ -664,6 +664,7 @@
 
   :hook
   (sql-mode . gsn/enable-sql-upcase)
+  (sql-mode . sqlind-minor-mode)
   (sql-interactive-mode . gsn/enable-sql-upcase)
   (sql-interactive-mode . gsn/do-not-wrap-lines)
   (pre-abbrev-expand . gsn/only-upcase-in-code-context)
