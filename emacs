@@ -624,6 +624,37 @@
      ;; Add a custom agenda view showing errands so Mobile org generates it
      ("E" tags-todo "errand"))))
 
+(use-package ob-ipython
+  :ensure t)
+
+(use-package ob-restclient
+  :ensure t)
+
+(use-package ob-async
+  :ensure t)
+
+(use-package ob-translate
+  :ensure t)
+
+(use-package ob-sql-mode
+  :ensure t)
+
+(use-package org-dashboard
+  :ensure t)
+
+(use-package org-noter
+  :ensure t)
+
+(use-package orgit
+  :ensure t)
+
+;; (use-package org-gcal
+;;   :ensure t
+;;   :disabled t)
+
+;; (use-package org-mobile-sync
+;;   :ensure t
+;;   :disabled t)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; External Packages
