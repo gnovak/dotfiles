@@ -592,7 +592,6 @@
   (add-to-list 'auto-coding-alist (cons "/Users/gregorynovak/Dropbox/Apps/MobileOrg/agendas.org" 'utf-8))
   :custom
   (org-mobile-directory "~/Dropbox/Apps/MobileOrg")
-  (org-mobile-force-id-on-agenda-items t)
   (org-mobile-inbox-for-pull (concat org-directory "/from-mobile.org"))
   (org-mobile-use-encryption nil)
   ;; org-mobile-files '(org-agenda-files)
