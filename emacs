@@ -571,11 +571,13 @@
   :custom
   (org-agenda-files (list org-directory))
   (org-agenda-include-diary t)
-  (org-agenda-sorting-strategy  '((agenda time-up category-down habit-up)
-                                  todo-state-down priority-down)
-                                (todo priority-down category-keep)
-                                (tags priority-down category-keep)
-                                (search category-keep))
+
+  (org-agenda-sorting-strategy  '((agenda habit-up time-up todo-state-down
+                                          deadline-up category-keep
+                                          priority-down)
+                                  (todo priority-down category-keep)
+                                  (tags priority-down category-keep)
+                                  (search category-keep)))
   :config
   (defadvice org-agenda
       (around gsn/org-agenda-prefer-existing-buffer activate)
