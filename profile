@@ -43,7 +43,7 @@ export GIT_PS1_SHOWUPSTREAM="auto"
 # Set up pyenv
 eval "$(pyenv init -)"
 
-PATH=~/bin:~/code/toolbag/bin:$PATH
+PATH=~/bin:~/code/toolbag/bin:/usr/local/texlive/2018/bin/x86_64-darwin:$PATH
 
 # Source local file if it exists
 if [ -e ~/.bashrc_local ]; then
