@@ -634,6 +634,10 @@
   ;; display inline images in the emacs buffer after a cell changes
   (org-babel-after-execute . org-display-inline-images))
 
+;; installing this for html output of org-babel modes
+(use-package htmlize
+  :ensure t)
+
 (use-package ob-ipython
   :ensure t)
 
