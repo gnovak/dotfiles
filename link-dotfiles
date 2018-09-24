@@ -1,7 +1,7 @@
 #!/bin/bash
 
 dir=~/.dotfiles/
-files="bashrc profile emacs"
+files="bashrc profile emacs emacs_bash"
 backup=orig
 
 # destdir destfile
@@ -44,4 +44,3 @@ done
 link_maybe ssh.config ~/.ssh/ config
 link_maybe ipython_config.py ~/.ipython/profile_default/ ipython_config.py
 link_maybe notebook.json ~/.jupyter/ notebook.json
-
