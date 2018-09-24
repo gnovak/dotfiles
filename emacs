@@ -426,7 +426,7 @@
   ;; emacs, I have to call the framework-built python specifically,
   ;; and override the config file setting for the matplotlib backend.
   (python-shell-interpreter "/Users/gregorynovak/.pyenv/versions/sf-py36-framework/bin/ipython")
-  (python-shell-interpreter-args "--matplotlib=macos")
+  (python-shell-interpreter-args "--matplotlib=osx")
   ;; ;; Commands to start remote python shell
   ;; ;; -t to force ssh to allocate a tty
   ;; (setq python-shell-interpreter "/usr/bin/ssh")
@@ -624,6 +624,16 @@
      ;; Add a custom agenda view showing errands so Mobile org generates it
      ("E" tags-todo "errand"))))
 
+(use-package ob-core
+  :custom
+  ;; Annoying to type 'y' all the time
+  (org-confirm-babel-evaluate nil)
+  ;; Gather temp files into a single unobtrusive dir
+  (ob-ipython-resources-dir "~/.emacs.d/obipy-resources/")
+  :hook
+  ;; display inline images in the emacs buffer after a cell changes
+  (org-babel-after-execute . org-display-inline-images))
+
 (use-package ob-ipython
   :ensure t)
 
@@ -637,6 +647,8 @@
   :ensure t)
 
 (use-package ob-sql-mode
+  ;; Can specify a per-buffer sql product by setting :product in the
+  ;; variable org-babel-default-header-args:sql-mode
   :ensure t)
 
 (use-package org-dashboard
