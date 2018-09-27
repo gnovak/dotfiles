@@ -150,8 +150,8 @@
 ;; Much prefer ediff to diff.
 (bind-key "C-x v =" 'vc-ediff)
 
-(bind-key "<M-up>" 'gsn/scroll-window-backward-line)
-(bind-key "<M-down>" 'gsn/scroll-window-forward-line)
+(bind-key "<C-S-up>" 'gsn/scroll-window-backward-line)
+(bind-key "<C-S-down>" 'gsn/scroll-window-forward-line)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Global user key maps
@@ -163,6 +163,10 @@
 (bind-key "C-c i" 'gsn/next-window-this-frame)
 (bind-key "C-c j" 'gsn/prev-window-visible-frame)
 (bind-key "C-c k" 'gsn/next-window-visible-frame)
+(bind-key "<M-up>" 'windmove-up)
+(bind-key "<M-down>" 'windmove-down)
+(bind-key "<M-left>" 'windmove-left)
+(bind-key "<M-right>" 'windmove-right)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Code for global key bindings
