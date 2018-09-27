@@ -1027,6 +1027,18 @@ function doens't have to be duplicated for -next- and -previous-"
                             ("C-c C-b" . js-send-buffer-and-go)
                             ("C-c l" . js-load-file-and-go))))
 
+(use-package ace-window
+  :ensure t
+  :bind
+  ("C-c o" . ace-window))
+
+(use-package winum
+  ;; turn on minor mode with winum-mode
+  ;; observe numbers in the modelines
+  ;; C-x w <num>
+  :ensure t
+  :bind)
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Non elpa / melpa packages
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
